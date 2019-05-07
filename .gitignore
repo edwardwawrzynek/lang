@@ -1,0 +1,7 @@
+#hide vscode config
+.vscode
+#hide antlr generated files
+.antlr
+*.class
+*.tokens
+*.interp

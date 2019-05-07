@@ -1,0 +1,24 @@
+import(stdio, syscall);
+
+fn fread (ptr: string, size: uint16, nmeb: uint16, file: File, func: (arg1: int, arg2: int):bool, arg2: int ):  uint16 {
+	var bytes:uint16 = size * nmeb;
+
+	var buf:string = ptr;
+
+	for(var i: uint16 = 0; i < bytes; i++){
+		var c: uint16 = file.fgetc();
+		if (c == 1) {
+			return i/size;
+		}
+		buf.set(c);
+		buf.next();
+	}
+	return nmeb;
+}
+
+call(1,
+	:int {
+		return arg1+arg2;
+	},
+     2
+);

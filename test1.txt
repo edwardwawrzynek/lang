@@ -10,7 +10,7 @@ fn map(array: int[], func: (arg: int): int): int[] {
 
 
 # get array declarations working
-#var data: int[4] = [1, 2, 3, 4];
+# var data: int[4] = [1, 2, 3, 4];
 
 # get multiple var declarations working
 #var v1, v2, v3: int = 0, 1, 2;
@@ -18,3 +18,5 @@ fn map(array: int[], func: (arg: int): int): int[] {
 data = map(data, (i: int): int {
 	return i*2;
 });
+
+fds.-sadf

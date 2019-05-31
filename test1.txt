@@ -18,5 +18,3 @@ fn map(array: int[], func: (arg: int): int): int[] {
 data = map(data, (i: int): int {
 	return i*2;
 });
-
-fds.-sadf

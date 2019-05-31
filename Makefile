@@ -1,2 +1,3 @@
 all:
-	antlr4 -Dlanguage=Go -no-listener -visitor Lang.g4
+	antlr4 -no-listener -visitor Lang.g4
+	javac *.java */*.java

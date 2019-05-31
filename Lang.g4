@@ -53,11 +53,15 @@ typeDecl
     ;
 
 varType
-    : name=ID ':' typeName=typeDecl
+    : (name=ID ','?)+ (':' typeName=typeDecl)?
+    ;
+
+varInit
+    : (expr ','?)+
     ;
 
 varDecl
-    : mut=('var'|'val') typeName=varType ('=' init=expr)?;
+    : mut=('var'|'val') typeName=varType ('=' init=varInit)?;
 
 funcArgDecl
     : (varType ',')* varType?

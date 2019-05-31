@@ -56,6 +56,10 @@ varType
     : (name=ID ','?)+ (':' typeName=typeDecl)?
     ;
 
+funcArgVarType
+    : (name=ID ','?)+ ':' typeName=typeDecl
+    ;
+
 varInit
     : (expr ','?)+
     ;
@@ -64,7 +68,7 @@ varDecl
     : mut=('var'|'val') typeName=varType ('=' init=varInit)?;
 
 funcArgDecl
-    : (varType ',')* varType?
+    : (funcArgVarType ',')* funcArgVarType?
     ;
 
 funcType

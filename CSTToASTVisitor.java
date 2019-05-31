@@ -34,7 +34,8 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
         } else if (ctx instanceof LangParser.BreakStmntContext){
 
         } else if (ctx instanceof LangParser.FuncDeclStmntContext){
-
+            var c = (LangParser.FuncDeclStmntContext) ctx;
+            System.out.println(c.function.name);
         } else if (ctx instanceof LangParser.ClassDeclStmntContext){
 
         } else if (ctx instanceof LangParser.ExprStmntContext){

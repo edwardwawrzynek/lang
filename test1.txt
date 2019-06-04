@@ -1,30 +1,22 @@
 # Sample program
 # Map on int array
 
-#fn map(array: int[], func: (arg: int): int): int[] {
-#	for(var i: int = 0; i < array.len(); i++){
-#		array[i] = func(array[i]);
-#	}
-#	return array;
-#}
-
+fn map(array: int[], func: (arg: int): int): int[] {
+	for(var i: int = 0; i < array.len(); i++){
+		array[i] = func(array[i]);
+	}
+	return array;
+}
 
 # get array declarations working
-#var data: int[4] = [1, 2, 3, 4];
+var data: int[4] = [1, 2, 3, 4];
 
-# get multiple var declarations working
-#var v1, v2, v3: int = 0, 1, 2;
-
-#fn func (a: int, b: int) {
-#	return a + b;
-#}
-
-var a, b : int = 1, 0;
-
-var func: (a, b:int): int;
+fn func (a: int[], b: int) {
+	return a + b;
+}
 
 
-#var v1, v2 = 1, 2;
-#data = map(data, (i: int): int {
-#	return i*2;
-#});
+var v1, v2 = 1, 2;
+data = map(data, (i: int): int {
+	return i*2;
+});

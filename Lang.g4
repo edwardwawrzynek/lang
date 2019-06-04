@@ -48,8 +48,12 @@ block
     : '{' (statement)* '}'
     ;
 
+arrayDecl
+    : '[' (size=NUM)? ']'
+    ;
+
 typeDecl
-    : (ID|funcType) ('[' (size=literal)? ']' )?
+    : (ID|funcType) (array=arrayDecl)?
     ;
 
 varType
@@ -88,12 +92,12 @@ classDecl
     ;
 
 statement
-    : 'if' '(' cond=expr ')' code=block                             #ifStmnt
-    | 'else' 'if' '(' cond=expr ')' code=block                      #elseIfStmnt
+    : 'if' (('(' cond=expr ')')|(cond=expr)) code=block             #ifStmnt
+    | 'elif' (('(' cond=expr ')')|(cond=expr)) code=block           #elseIfStmnt
     | 'else' code=block                                             #elseStmnt
-    | 'while' '(' cond=expr ')' code=block                          #whileStmnt
-    | 'do' code=block 'while' '(' cond=expr ')' ';'                 #doWhileStmnt
-    | 'for' '(' init=expr ';' rep=expr ';' end=expr ')' code=block  #forStmnt
+    | 'while' (('(' cond=expr ')')|(cond=expr)) code=block                          #whileStmnt
+    | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) ';'                 #doWhileStmnt
+    | 'for' (('(' init=expr ';' rep=expr ';' end=expr ')')|(init=expr ';' rep=expr ';' end=expr)) code=block  #forStmnt
     | 'return' val=expr ';'                                         #returnStmnt
     | 'continue' ';'                                                #continueStmnt
     | 'break' ';'                                                   #breakStmnt
@@ -159,3 +163,4 @@ STR :   '"' (~'"'|'"')* '"';
 CHR :   '\'' '\\'?(~'\'') '\'';
 WS  :   [ \t\r\n] -> channel(HIDDEN);
 COMMENT : '#' .*? '\n' -> channel(HIDDEN);
+MULTICOMMENT : '##>' .*? '##<' -> channel(HIDDEN);

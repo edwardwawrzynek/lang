@@ -11,4 +11,13 @@ public class ASTFuncDecl extends ASTNode {
         this.body = body;
     }
 
+    public void print(int i){
+        printIndent(i);
+        System.out.println("ASTFuncDecl: (name, type, body)");
+        printIndent(i+1);
+        System.out.println(name);
+        type.print(i+1);
+        body.print(i+1);
+    }
+
 }

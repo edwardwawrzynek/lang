@@ -34,7 +34,6 @@ expr
     |   cond=expr '?' left=expr ':' right=expr      #ternaryExpr
 
     |   left=expr op=('='|'+='|'-='|'*='|'/='|'%='|'<<='|'>>='|'&='|'^='|'|=') right=expr   #assignmentExpr
-    |	decl=varDecl                                #declExpr
 
     |   literal                                     #literalExpr
     |   ID                                          #idExpr
@@ -53,7 +52,7 @@ arrayDecl
     ;
 
 typeDecl
-    : (ID|funcType) (array=arrayDecl)?
+    : (array=arrayDecl)? (ID|funcType)
     ;
 
 varType
@@ -61,7 +60,7 @@ varType
     ;
 
 funcArgVarType
-    : (name=ID ','?)+ ':' typeName=typeDecl
+    : (mut=('var'|'val'))? (name=ID ','?)+ ':' typeName=typeDecl
     ;
 
 varInit
@@ -69,14 +68,15 @@ varInit
     ;
 
 varDecl
-    : mut=('var'|'val') typeName=varType ('=' init=varInit)?;
+    : mut=('var'|'val') typeName=varType ('=' init=varInit)?
+    ;
 
 funcArgDecl
     : (funcArgVarType ',')* funcArgVarType?
     ;
 
 funcType
-    : ('(' args=funcArgDecl ')')? (':' retType=typeDecl)?
+    : ('(' args=funcArgDecl ')')? ('->' retType=typeDecl)?
     ;
 
 funcBody
@@ -91,13 +91,15 @@ classDecl
     : classType=('class'|'singelton'|'struct') name=ID (':' parentClass=ID)? body=block
     ;
 
+
+//TODO: for loop should only allow expr or var decl in first arg
 statement
     : 'if' (('(' cond=expr ')')|(cond=expr)) code=block             #ifStmnt
     | 'elif' (('(' cond=expr ')')|(cond=expr)) code=block           #elseIfStmnt
     | 'else' code=block                                             #elseStmnt
     | 'while' (('(' cond=expr ')')|(cond=expr)) code=block                          #whileStmnt
     | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) ';'                 #doWhileStmnt
-    | 'for' (('(' init=expr ';' rep=expr ';' end=expr ')')|(init=expr ';' rep=expr ';' end=expr)) code=block  #forStmnt
+    | 'for' (('(' init=statement rep=expr ';' end=expr ')')|(init=statement rep=expr ';' end=expr)) code=block  #forStmnt
     | 'return' val=expr ';'                                         #returnStmnt
     | 'continue' ';'                                                #continueStmnt
     | 'break' ';'                                                   #breakStmnt
@@ -105,6 +107,7 @@ statement
     | classType=classDecl                                           #classDeclStmnt
     | expr ';'                                                      #exprStmnt
     | code=block                                                    #blockStmnt
+    | decl=varDecl ';'                                              #varDeclStmnt
     ;
 
 OP_INC: '++';

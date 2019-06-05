@@ -13,4 +13,18 @@ public class ASTFuncType extends ASTType{
         this.ret_type = ret_type;
     }
 
+    public void print(int i){
+        printIndent(i);
+        System.out.println("ASTFuncType: (ret_type, args[])");
+        if(ret_type != null){
+            ret_type.print(i+1);
+        } else {
+            printIndent(i+1);
+            System.out.println("null");
+        }
+        for(var p = 0; p < args.size(); p++){
+            args.get(p).print(i+1);
+        }
+    }
+
 }

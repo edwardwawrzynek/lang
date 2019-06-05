@@ -8,7 +8,7 @@ public class Main {
         LangParser parser = new LangParser(tokens);
         LangParser.ProgramContext tree = parser.program();
         CSTToASTVisitor visitor = new CSTToASTVisitor();
-        System.out.println(visitor.visitProgram(tree));
+        visitor.visitProgram(tree).print(0);
     }
 }
 /*

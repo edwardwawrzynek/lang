@@ -23,34 +23,6 @@ public interface LangVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignmentExpr(LangParser.AssignmentExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code dotExpr}
-	 * labeled alternative in {@link LangParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDotExpr(LangParser.DotExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code funcExpr}
-	 * labeled alternative in {@link LangParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFuncExpr(LangParser.FuncExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code arrayExpr}
-	 * labeled alternative in {@link LangParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArrayExpr(LangParser.ArrayExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code parenExpr}
-	 * labeled alternative in {@link LangParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitParenExpr(LangParser.ParenExprContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code prefixExpr}
 	 * labeled alternative in {@link LangParser#expr}.
 	 * @param ctx the parse tree
@@ -58,12 +30,12 @@ public interface LangVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPrefixExpr(LangParser.PrefixExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code declExpr}
+	 * Visit a parse tree produced by the {@code dotExpr}
 	 * labeled alternative in {@link LangParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDeclExpr(LangParser.DeclExprContext ctx);
+	T visitDotExpr(LangParser.DotExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code infixExpr}
 	 * labeled alternative in {@link LangParser#expr}.
@@ -72,12 +44,26 @@ public interface LangVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInfixExpr(LangParser.InfixExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code funcExpr}
+	 * labeled alternative in {@link LangParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFuncExpr(LangParser.FuncExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code ternaryExpr}
 	 * labeled alternative in {@link LangParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTernaryExpr(LangParser.TernaryExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code arrayExpr}
+	 * labeled alternative in {@link LangParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayExpr(LangParser.ArrayExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code lambdaExpr}
 	 * labeled alternative in {@link LangParser#expr}.
@@ -99,6 +85,13 @@ public interface LangVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPostfixExpr(LangParser.PostfixExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code parenExpr}
+	 * labeled alternative in {@link LangParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParenExpr(LangParser.ParenExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code idExpr}
 	 * labeled alternative in {@link LangParser#expr}.
@@ -275,6 +268,13 @@ public interface LangVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlockStmnt(LangParser.BlockStmntContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code varDeclStmnt}
+	 * labeled alternative in {@link LangParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarDeclStmnt(LangParser.VarDeclStmntContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link LangParser#literal}.
 	 * @param ctx the parse tree

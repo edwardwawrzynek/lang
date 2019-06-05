@@ -8,4 +8,14 @@ public class ASTNodeArray<T> extends ASTNode {
     public ASTNodeArray(List<T> nodes){
         this.nodes = nodes;
     }
+
+    public void print(int i){
+        for(var n=0;n<i;n++){
+            System.out.print("\t");
+        }
+        System.out.println("ASTNodeArray:");
+        for(var n = 0; n < nodes.size(); n++){
+            ((ASTNode)nodes.get(n)).print(i+1);
+        }
+    }
 }

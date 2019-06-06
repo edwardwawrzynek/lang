@@ -1,0 +1,8 @@
+# Sample program
+# Map on int array
+
+fn main {
+    var func = (a, b: int, c: []int) -> []string {
+        a = 1;
+    }
+}

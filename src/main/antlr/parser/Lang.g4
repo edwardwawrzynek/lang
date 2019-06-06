@@ -13,7 +13,7 @@ expr
     |   name=expr '(' args=funcArgsExpr ')'         #funcExpr
     |   varName=expr '[' sub=expr ']'                   #arrayExpr
     |   varName=expr '.' sub=expr                       #dotExpr
-    |   varName=expr ('++'|'--')                        #postfixExpr
+    |   varName=expr op=('++'|'--')                        #postfixExpr
     |   varName=funcBody                                #lambdaExpr
 
     |   op=('++'|'--') varName=expr                     #prefixExpr
@@ -35,7 +35,6 @@ expr
 
     |   left=expr op='&&' right=expr                #infixExpr
     |   left=expr op='||' right=expr                #infixExpr
-    |   cond=expr '?' left=expr ':' right=expr      #ternaryExpr
 
     |   left=expr op=('='|'+='|'-='|'*='|'/='|'%='|'<<='|'>>='|'&='|'^='|'|=') right=expr   #assignmentExpr
 
@@ -169,7 +168,7 @@ arrayLiteral: '[' (expr ',')* expr? ']';
 
 NUM :   '-'?[0-9]+;
 ID  :   [a-zA-Z_]+[a-zA-Z_0-9]*;
-STR :   '"' (~'"'|'"')* '"';
+STR :   '"' (~'"')* '"';
 CHR :   '\'' '\\'?(~'\'') '\'';
 WS  :   [ \t\r\n] -> channel(HIDDEN);
 COMMENT : '#' .*? '\n' -> channel(HIDDEN);

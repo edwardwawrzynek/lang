@@ -1,3 +1,6 @@
+package compiler;
+
+import parser.*;
 import org.antlr.v4.runtime.*;
 
 import ast.*;
@@ -187,7 +190,6 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
             decls.nodes.get(i).mutable = mutable;
         }
 
-        //decl = new ASTVarDecl(name, type, init_val, mutable);
         return decls;
     }
 

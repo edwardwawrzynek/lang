@@ -1,0 +1,17 @@
+apply plugin: 'java'
+apply plugin: 'antlr'
+apply plugin: 'application'
+
+mainClassName = 'compiler.Main'
+
+generateGrammarSource {
+    arguments += ["-no-listener", "-visitor"]
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	antlr "org.antlr:antlr4:4.7.2"
+}

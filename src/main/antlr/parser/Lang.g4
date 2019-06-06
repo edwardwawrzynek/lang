@@ -1,5 +1,9 @@
 grammar Lang;
 
+@header{
+	package parser;
+}
+
 program
     :   statement* EOF
     ;

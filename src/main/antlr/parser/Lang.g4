@@ -95,6 +95,9 @@ classDecl
     : classType=('class'|'singelton'|'struct') name=ID (':' parentClass=ID)? body=block
     ;
 
+forFirstExpr
+    : (expr|varDecl)
+    ;
 
 //TODO: for loop should only allow expr or var decl in first arg
 statement
@@ -103,7 +106,7 @@ statement
     | 'else' code=block                                             #elseStmnt
     | 'while' (('(' cond=expr ')')|(cond=expr)) code=block                          #whileStmnt
     | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) ';'                 #doWhileStmnt
-    | 'for' (('(' init=statement rep=expr ';' end=expr ')')|(init=statement rep=expr ';' end=expr)) code=block  #forStmnt
+    | 'for' (('(' init=forFirstExpr ';' rep=expr ';' end=expr ')')|(init=forFirstExpr ';' rep=expr ';' end=expr)) code=block  #forStmnt
     | 'return' val=expr ';'                                         #returnStmnt
     | 'continue' ';'                                                #continueStmnt
     | 'break' ';'                                                   #breakStmnt
@@ -164,7 +167,7 @@ literal
 
 arrayLiteral: '[' (expr ',')* expr? ']';
 
-NUM :   [0-9]+;
+NUM :   '-'?[0-9]+;
 ID  :   [a-zA-Z_]+[a-zA-Z_0-9]*;
 STR :   '"' (~'"'|'"')* '"';
 CHR :   '\'' '\\'?(~'\'') '\'';

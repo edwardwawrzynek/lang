@@ -5,8 +5,8 @@ import java.util.List;
 public class ASTArrayLiteral extends ASTLiteral {
     List<ASTLiteral> lits;
 
-    public ASTArrayLiteral(List<ASTLiteral> lits){
-        super(null);
+    public ASTArrayLiteral(ASTFileLocation loc, List<ASTLiteral> lits){
+        super(loc, null);
         this.lits = lits;
     }
 }

@@ -10,7 +10,11 @@ import java.lang.Exception;
 /* TODO: locations from source files in ast tree */
 public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
 
-    public void error(String msg){
+    public void error(String msg, ASTFileLocation loc){
+        System.out.print(String.format("An error occurred in file '%s', line %d:%d:\n", loc.fileName, loc.line_num, loc.line_pos+1));
+
+        loc.print();
+
         System.out.println(msg);
         System.exit(0);
     }
@@ -18,7 +22,13 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
     public ASTNode visitProgram(LangParser.ProgramContext ctx) {
         var nodes = new ArrayList<ASTNode>();
         for(var stat: ctx.statement()){
-            nodes.add(visitStatement(stat));
+            var res = visitStatement(stat);
+            if(res instanceof ASTNodeArray){
+                var res_array = (ASTNodeArray)(res);
+                nodes.addAll(res_array.nodes);
+            } else {
+                nodes.add(visitStatement(stat));
+            }
         }
 
         return new ASTNodeArray<ASTNode>(nodes);
@@ -65,13 +75,13 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
             System.exit(0);
         }
 
-        return new ASTNode();
+        return new ASTNode(ASTFileLocation.fromToken(ctx.start));
     }
 
     public ASTNode visitFuncDecl(LangParser.FuncDeclContext ctx) {
         ASTFuncType type = visitFuncType(ctx.function.typeName);
         ASTNodeArray<ASTNode> body = visitBlock(ctx.function.code);
-        return new ASTFuncDecl(ctx.name.getText(), type, body);
+        return new ASTFuncDecl(ASTFileLocation.fromToken(ctx.start), ctx.name.getText(), type, body);
     }
 
     public ASTType visitTypeDecl(LangParser.TypeDeclContext ctx){
@@ -84,19 +94,20 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
                 try {
                     length = Integer.parseInt(ctx.arrayDecl().size.getText());
                 } catch(NumberFormatException e){
-                    error(String.format("'%s' is not a valid array size", ctx.arrayDecl().size.getText()));
+                    var loc = ASTFileLocation.fromToken(ctx.arrayDecl().size);
+                    error(String.format("'%s' is not a valid array size", ctx.arrayDecl().size.getText()), loc);
                 }
             }
             if(ctx.ID() != null){
-                return new ASTArrayType(ctx.ID().getText(), length);
+                return new ASTArrayType(ASTFileLocation.fromToken(ctx.start), ctx.ID().getText(), length);
             } else {
                 /* handle function type */
                 var funcType = visitFuncType(ctx.funcType());
-                return new ASTArrayFuncType(funcType.args, funcType.ret_type, length);
+                return new ASTArrayFuncType(ASTFileLocation.fromToken(ctx.start), funcType.args, funcType.ret_type, length);
             }
         } else {
             if(ctx.ID() != null){
-                return new ASTType(ctx.ID().getText());
+                return new ASTType(ASTFileLocation.fromToken(ctx.start), ctx.ID().getText());
             } else {
                 /* handle function type */
                 return visitFuncType(ctx.funcType());
@@ -116,7 +127,7 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
             }
         }
         for(var i = 0; i < ctx.ID().size(); i++){
-            var decl = new ASTVarDecl(ctx.ID(i).getText(), type, null, mut);
+            var decl = new ASTVarDecl(ASTFileLocation.fromToken(ctx.start), ctx.ID(i).getText(), type, null, mut);
             decls.add(decl);
         }
         
@@ -137,13 +148,13 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
                 args.addAll(t.nodes);
             }
         }
-        var type = new ASTFuncType(args, ret_type);
+        var type = new ASTFuncType(ASTFileLocation.fromToken(ctx.start), args, ret_type);
         return type;
     }
 
     public ASTExpr visitExpr(LangParser.ExprContext ctx){
         /* TODO: proper type switch */
-        return new ASTExpr();
+        return new ASTExpr(ASTFileLocation.fromToken(ctx.start));
     }
 
     /* this does not properly initialize all fields, mut and init_val are overwritten by visitVarDecl */
@@ -157,7 +168,7 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
         }
         var mut = ASTVarDecl.VarMut.MUT;
         for(var i = 0; i < ctx.ID().size(); i++){
-            var decl = new ASTVarDecl(ctx.ID(i).getText(), type, null, mut);
+            var decl = new ASTVarDecl(ASTFileLocation.fromToken(ctx.start), ctx.ID(i).getText(), type, null, mut);
             decls.add(decl);
         }
         
@@ -178,7 +189,7 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
         if(ctx.init != null){
             /* make sure number of initialized values matches number of variables */
             if(ctx.init.expr().size() != ctx.typeName.ID().size()){
-                error("length of initilizer list has to match number of variables");
+                error("length of initilizer list has to match number of variables", ASTFileLocation.fromToken(ctx.init.expr(0).start));
             }
             for(var i = 0; i < ctx.init.expr().size(); i++){
                 decls.nodes.get(i).init_val = visitExpr(ctx.init.expr(i));
@@ -195,6 +206,14 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
 
     public ASTNodeArray<ASTNode> visitBlock(LangParser.BlockContext ctx){
         ArrayList<ASTNode> l = new ArrayList<ASTNode>();
+        for(var i = 0; i < ctx.statement().size(); i++){
+            var res = visitStatement(ctx.statement(i));
+            if(res instanceof ASTNodeArray){
+                l.addAll(((ASTNodeArray)res).nodes);
+            } else {
+                l.add(res);
+            }
+        }
         return new ASTNodeArray<ASTNode>(l);
     }
 

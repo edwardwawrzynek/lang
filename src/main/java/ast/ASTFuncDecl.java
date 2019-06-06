@@ -5,7 +5,8 @@ public class ASTFuncDecl extends ASTNode {
     ASTFuncType type;
     ASTNodeArray<ASTNode> body;
 
-    public ASTFuncDecl(String name, ASTFuncType type, ASTNodeArray<ASTNode> body){
+    public ASTFuncDecl(ASTFileLocation loc, String name, ASTFuncType type, ASTNodeArray<ASTNode> body){
+        super(loc);
         this.name = name;
         this.type = type;
         this.body = body;

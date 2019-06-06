@@ -12,7 +12,8 @@ public class ASTVarDecl extends ASTExpr{
     public VarMut mutable;
 
     
-    public ASTVarDecl(String name, ASTType type, ASTExpr init_val, VarMut mutable){
+    public ASTVarDecl(ASTFileLocation loc, String name, ASTType type, ASTExpr init_val, VarMut mutable){
+        super(loc);
         this.name = name;
         this.type = type;
         this.init_val = init_val;

@@ -1,7 +1,0 @@
-fn test_func (
-    val a, b: []int, 
-    var c: string, 
-    d: [](arg1: int, val arg2: int) -> [6]int
-    ) -> []int{
-    
-}

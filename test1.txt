@@ -1,8 +1,20 @@
 # Sample program
 # Map on int array
 
-fn main {
-    var func = (a, b: int, c: []int) -> []string {
-        a = 1;
+class Object: Hello {
+    var i = 6;
+
+    fn method () {
+
     }
+
+    fn a -> int {
+        return 1;
+    }
+
+    var f = (a: int) {
+        return 1;
+    };
+
+    #i = i + 1;
 }

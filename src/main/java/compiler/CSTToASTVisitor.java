@@ -36,27 +36,72 @@ public class CSTToASTVisitor extends LangBaseVisitor<ASTNode> {
 
     public ASTNode visitStatement(LangParser.StatementContext ctx) {
         if (ctx instanceof LangParser.IfStmntContext){
-
+            var c = (LangParser.IfStmntContext)ctx;
+            return new ASTIfStmnt(ASTFileLocation.fromToken(c.start), visitExpr(c.cond), visitBlock(c.code));
         } else if (ctx instanceof LangParser.ElseStmntContext){
-
+            var c = (LangParser.ElseStmntContext)ctx;
+            return new ASTElseStmnt(ASTFileLocation.fromToken(c.start), visitBlock(c.code));
         } else if (ctx instanceof LangParser.ElseIfStmntContext){
-
+            var c = (LangParser.ElseIfStmntContext)ctx;
+            return new ASTElseIfStmnt(ASTFileLocation.fromToken(c.start), visitExpr(c.cond), visitBlock(c.code));
         } else if (ctx instanceof LangParser.WhileStmntContext){
-
+            var c = (LangParser.WhileStmntContext)ctx;
+            return new ASTWhileStmnt(ASTFileLocation.fromToken(c.start), visitExpr(c.cond), visitBlock(c.code));
         } else if (ctx instanceof LangParser.DoWhileStmntContext){
-
+            var c = (LangParser.DoWhileStmntContext)ctx;
+            return new ASTDoWhileStmnt(ASTFileLocation.fromToken(c.start), visitExpr(c.cond), visitBlock(c.code));
         } else if (ctx instanceof LangParser.ForStmntContext){
-
+            var c = (LangParser.ForStmntContext)ctx;
+            ASTNode init;
+            if(c.init.expr() != null){
+                init = visitExpr(c.init.expr());
+            } else {
+                init = visitVarDecl(c.init.varDecl()).nodes.get(0);
+            }
+            return new ASTForStmnt(ASTFileLocation.fromToken(c.start), init, visitExpr(c.rep), visitExpr(c.end), visitBlock(c.code) );
         } else if (ctx instanceof LangParser.ReturnStmntContext){
-
+            var c = (LangParser.ReturnStmntContext)ctx;
+            return new ASTReturnStmnt(ASTFileLocation.fromToken(c.start), visitExpr(c.val));
         } else if (ctx instanceof LangParser.ContinueStmntContext){
-
+            return new ASTContinueStmnt(ASTFileLocation.fromToken(ctx.start));
         } else if (ctx instanceof LangParser.BreakStmntContext){
-
+            return new ASTBreakStmnt(ASTFileLocation.fromToken(ctx.start));
         } else if (ctx instanceof LangParser.FuncDeclStmntContext){
             var c = (LangParser.FuncDeclStmntContext) ctx;
             return visitFuncDecl(c.function);
         } else if (ctx instanceof LangParser.ClassDeclStmntContext){
+            var c = (LangParser.ClassDeclStmntContext)ctx;
+            ASTClassDeclStmnt.Type type = ASTClassDeclStmnt.Type.CLASS;
+            if(c.classType.classType.getType() == LangParser.CLASS_CLASS){
+                type = ASTClassDeclStmnt.Type.CLASS;
+            } else if(c.classType.classType.getType() == LangParser.CLASS_OBJECT){
+                type = ASTClassDeclStmnt.Type.OBJECT;
+            } else if(c.classType.classType.getType() == LangParser.CLASS_STRUCT){
+                type = ASTClassDeclStmnt.Type.STRUCT;
+            } else {
+                error("no such class declaration type", ASTFileLocation.fromToken(c.start));
+            }
+            String name = c.classType.name.getText();
+            String superclass;
+            if(c.classType.parentClass != null){
+                 superclass = c.classType.parentClass.getText();
+            } else {
+                superclass = null;
+            }
+            var body = visitBlock(c.classType.body);
+            var fields = new ArrayList<ASTVarDecl>();
+            var methods = new ArrayList<ASTFuncDecl>();
+            for(var i = 0; i < body.nodes.size(); i++){
+                var n = body.nodes.get(i);
+                if (n instanceof ASTVarDecl){
+                    fields.add((ASTVarDecl)n);
+                } else if (n instanceof ASTFuncDecl) {
+                    methods.add((ASTFuncDecl)n);
+                } else {
+                    error("only field and method declarations are allowed in a class", ASTFileLocation.fromToken(c.classType.body.statement(i).start));
+                }
+            }
+            return new ASTClassDeclStmnt(ASTFileLocation.fromToken(c.start), name, new ASTNodeArray<ASTVarDecl>(fields), new ASTNodeArray<ASTFuncDecl>(methods), type, superclass);
 
         } else if (ctx instanceof LangParser.ExprStmntContext){
             var c = (LangParser.ExprStmntContext) ctx;

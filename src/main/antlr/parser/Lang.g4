@@ -91,7 +91,7 @@ funcDecl
     ;
 
 classDecl
-    : classType=('class'|'singelton'|'struct') name=ID (':' parentClass=ID)? body=block
+    : classType=('class'|'object'|'struct') name=ID (':' parentClass=ID)? body=block
     ;
 
 forFirstExpr
@@ -156,6 +156,9 @@ OP_BAND_ASG: '&=';
 OP_BXOR_ASG: '^=';
 OP_BOR_ASG: '|=';
 
+CLASS_CLASS: 'class';
+CLASS_OBJECT: 'object';
+CLASS_STRUCT: 'struct';
 
 literal
     :   NUM

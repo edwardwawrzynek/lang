@@ -10,16 +10,7 @@ import java.lang.Exception
 /* TODO: locations from source files in ast tree */
 class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
 
-    fun error(msg: String, loc: ASTFileLocation) {
-        print(String.format("An error occurred in file '%s', line %d:%d:\n", loc.fileName, loc.line_num, loc.line_pos + 1))
-
-        loc.print()
-
-        println(msg)
-        System.exit(0)
-    }
-
-    override fun visitProgram(ctx: LangParser.ProgramContext): ASTNode {
+    override fun visitProgram(ctx: LangParser.ProgramContext): ASTNodeArray<ASTNode> {
         val nodes = mutableListOf<ASTNode>()
         for (stat in ctx.statement()) {
             val res = visitStatement(stat)

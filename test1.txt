@@ -1,9 +1,18 @@
 # Sample program
 # Map on int array
 
-fn main {
-    var a: int = 1;
-    if a > 5 {
+class ClassB {
+    val b: ClassA;
+    val c: []int;
+}
+
+class ClassA: ClassB {
+    val a: int;
+    var b: ClassB;
+    val c: []ClassA;
+
+    fn method -> int {
 
     }
 }
+

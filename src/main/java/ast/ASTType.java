@@ -1,7 +1,7 @@
 package ast;
 
 public class ASTType extends ASTNode {
-    String lit_type;
+    public String lit_type;
 
     public ASTType(ASTFileLocation loc, String lit_type){
         super(loc);

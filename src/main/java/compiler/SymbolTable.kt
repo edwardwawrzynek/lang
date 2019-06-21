@@ -1,5 +1,6 @@
 package compiler
 
+import ast.ASTVarDecl
 import kotlin.collections.HashMap
 
 class Symbol(/* name of the symbol */
@@ -10,8 +11,22 @@ class Symbol(/* name of the symbol */
     enum class Mutability {
         MUT, IMUT
     }
+
+    companion object {
+        fun fromASTMut(mut: ASTVarDecl.VarMut): Mutability {
+            if (mut == ASTVarDecl.VarMut.MUT) {
+                return Mutability.MUT
+            } else if (mut == ASTVarDecl.VarMut.IMUT){
+                return Mutability.IMUT
+            } else {
+                error("no such ast mutability type", null)
+                return Mutability.MUT
+            }
+        }
+    }
 }
 
+/* TODO: allow function overrides */
 /* if we keep track scope in ast, we don't need child scopes */
 class SymbolTable(
         var parent: SymbolTable?) {
@@ -35,3 +50,6 @@ class SymbolTable(
     }
 
 }
+
+
+

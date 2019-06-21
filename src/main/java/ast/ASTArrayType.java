@@ -1,7 +1,7 @@
 package ast;
 
 public class ASTArrayType extends ASTType {
-    int length;
+    public int length;
 
     public ASTArrayType(ASTFileLocation loc, String lit_type, int length){
         super(loc, lit_type);

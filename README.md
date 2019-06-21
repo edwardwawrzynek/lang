@@ -2,6 +2,9 @@
 [x] Lexer/Parser (text -> CST)
 [x] AST Construct (CST -> AST)
 [ ] Class + Function Type + Variable Symbol Table Construction (Infered types kept null)
+    [ ] Class Name Symbol Table Construction (type null)
+    [ ] Class type symbol table construction
+    [ ] Function + Variable Type Construction
 [ ] Type Inference
 [ ] Type Resolving/Checking
 [ ] Transform Operator Overrides (AST -> AST)

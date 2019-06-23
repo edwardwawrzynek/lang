@@ -9,10 +9,9 @@ class Emit (var file: FileWriter){
     }
 
     /* emit an identifier in the current package (TODO: prefix with package name) */
-    fun writeID(name: String) {
+    fun getID(name: String): String {
         /* try not to conflict with c namespace */
-        write("__")
-        write(name)
+        return "__$name";
     }
 
     fun close() {

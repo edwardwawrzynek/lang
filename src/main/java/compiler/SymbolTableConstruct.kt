@@ -60,13 +60,14 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
 /* emit class shape declarations given a class table */
 fun classTableEmitShapeDecl(emit: Emit, classTable: SymbolTable) {
     /* headers */
+    emit.write("/* --- Class Struct Declarations --- */\n")
     for(key in classTable.getKeys()) {
         val sym = classTable.findSymbol(key)!!
         if(sym.type is ClassType) {
             (sym.type as ClassType).emitShapeDeclHeader(emit)
         }
     }
-
+    emit.write("/* --- Class Struct Definitions --- */\n")
     /* bodies */
     val emitted = mutableListOf<String>()
     for(key in classTable.getKeys()) {

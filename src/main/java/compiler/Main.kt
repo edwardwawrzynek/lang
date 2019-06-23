@@ -27,7 +27,9 @@ object Main {
         astToClassTypes(program, classTable)
 
         val emit = Emit(FileWriter("out.c"))
-        (classTable.findSymbol("ClassA")!!.type as ClassType).emitShapeDecl(emit)
+
+        classTableEmitShapeDecl(emit, classTable)
+
         emit.close()
 
     }

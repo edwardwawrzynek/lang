@@ -40,6 +40,10 @@ class SymbolTable(
         table = HashMap()
     }
 
+    fun getKeys(): MutableSet<String> {
+        return table.keys
+    }
+
     fun addSymbol(name: String, symbol: Symbol) {
         table[name] = symbol
     }

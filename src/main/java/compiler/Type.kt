@@ -7,11 +7,18 @@ open class Type {
     /* create a var of this type */
     protected open fun emitVarTypeDecl(emit: Emit) {
         emit.write("// emitVarTpe called on Type\n___trigger_error")
+        error("emitVarTypeDecl called on Type", null)
     }
 
     fun emitVarDecl(emit: Emit, name: String) {
         emitVarTypeDecl(emit)
         emit.write(" $name;\n")
+    }
+
+    /* get name of type (for builtin array types, func overload names, etc) */
+    open fun getTypeName(): String {
+        error("getName called on Type", null)
+        return ""
     }
 
     companion object {
@@ -71,12 +78,26 @@ open class Type {
 }
 
 /* Type of a class (names of fields + methods are part of type) */
-class ClassType(var name: String, var table: SymbolTable, var superclass: ClassType?) : Type() {
+class ClassType(var name: String, var table: SymbolTable, val superclass: ClassType?) : Type() {
+    fun emitShapeDeclHeader (emit: Emit) {
+        emit.write("struct ")
+        emit.writeID(name)
+        emit.write(";\n")
+        emit.write("typedef struct ")
+        emit.writeID(name)
+        emit.write(" ")
+        emit.writeID(name)
+        emit.write(";\n\n")
+    }
+
     fun emitShapeDecl (emit: Emit) {
-        emit.write("typedef struct {\n")
+        emit.write("struct ")
+        emit.writeID(name)
+        emit.write(" {\n")
         if(superclass != null) {
             emit.write("\t")
-            superclass?.emitVarDecl(emit, "_super")
+            emit.writeID(superclass.name)
+            emit.write(" _super;\n")
         }
         for((name, symbol) in table.table) {
             /* functions go in vtable */
@@ -85,21 +106,23 @@ class ClassType(var name: String, var table: SymbolTable, var superclass: ClassT
                 symbol.type.emitVarDecl(emit, name)
             }
         }
-        emit.write("} ")
-        emit.writeID(name)
-        emit.write(";\n\n")
+        emit.write("};\n\n")
 
         /* add definition for arrays of this type (TODO: gc description) */
         emit.write("struct ")
         emit.writeID(name)
-        emit.write("_array_type_ {\n\tint len;\n\t")
+        emit.write("_array_type {\n\tunsigned int len;\n\t")
         emitVarTypeDecl(emit)
-        emit.write("* vals;\n}\n\n")
+        emit.write("* vals;\n};\n\n")
     }
 
     override fun emitVarTypeDecl(emit: Emit) {
         emit.writeID(this.name)
         emit.write("*")
+    }
+
+    override fun getTypeName(): String {
+        return name
     }
 }
 
@@ -111,13 +134,14 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
     override fun emitVarTypeDecl(emit: Emit) {
         /* TODO: bound checked array (struct for each type of array used) */
         emit.write("struct ")
-        if(type is ClassType) {
-            emit.writeID((type as ClassType).name)
-            emit.write("_array_type *")
-        } else {
-            /* TODO: handle primative array types */
-            emit.write("primative_arrays_not_implemented *")
-        }
+
+        emit.writeID(type.getTypeName())
+        emit.write("_array_type *")
+
+    }
+
+    override fun getTypeName(): String {
+        return "${type.getTypeName()}_array_type"
     }
 }
 
@@ -126,12 +150,21 @@ class VoidType: Type() {
     override fun emitVarTypeDecl(emit: Emit) {
         emit.write("void")
     }
+
+    override fun getTypeName(): String {
+        return "void"
+    }
 }
 
 /* primative string type */
 class StringType : Type() {
     override fun emitVarTypeDecl(emit: Emit) {
         /* TODO: builtin class */
+        emit.write("__string *")
+    }
+
+    override fun getTypeName(): String {
+        return "string"
     }
 }
 
@@ -139,5 +172,9 @@ class StringType : Type() {
 class IntType : Type() {
     override fun emitVarTypeDecl(emit: Emit) {
         emit.write("int")
+    }
+
+    override fun getTypeName(): String {
+        return "int"
     }
 }

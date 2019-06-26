@@ -1,22 +1,14 @@
 # Sample program
 # Map on int array
 
-class ClassB {
-    val b: ClassA;
-    val c: []int;
-
-    fn add(a: int, b:int) -> int {
-        return a + b;
-    }
+class Person {
+    val age: int;
+    val name: string;
 }
 
-class ClassA: ClassB {
+var a: int;
+
+fn main {
     val a: int;
-    var b: ClassB;
-    val c: []ClassA;
 
-    fn method(a: int, b: ClassB, c: []ClassA) -> int{
-
-    }
 }
-

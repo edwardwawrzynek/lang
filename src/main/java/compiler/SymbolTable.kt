@@ -3,13 +3,29 @@ package compiler
 import ast.ASTVarDecl
 import kotlin.collections.HashMap
 
-class Symbol(/* name of the symbol */
-        var name: String, /* mutability of the symbol */
-        var mutable: Mutability, /* type of the symbol */
-        internal var type: Type) {
+class Symbol(
+        var name: String,
+        var mutable: Mutability,
+        var type: Type,
+        var storage: StorageType
+        ) {
 
     enum class Mutability {
         MUT, IMUT
+    }
+
+    enum class StorageType {
+        GLOBAL,     /* global variable, static storage allocation */
+        LOCAL,      /* local variable, stack storage allocation */
+        NONLOCAL,   /* used in nested closure, needs to be alloc'd in heap */
+        CLASSVAR,   /* a member of a class */
+
+        GLBFUNC,    /* global function */
+        NESTFUNC,   /* nested function (closure) */
+        CLASSFUNC,  /* class method */
+
+        CLASS,      /* entry is a class */
+        NAMESPACE,  /* entry is namespace */
     }
 
     companion object {
@@ -51,6 +67,10 @@ class SymbolTable(
     fun findSymbol(name: String): Symbol? {
         val res = table[name]
         return res ?: parent?.findSymbol(name)
+    }
+
+    fun findSymbolNoParent(name: String): Symbol? {
+        return table[name]
     }
 
 }

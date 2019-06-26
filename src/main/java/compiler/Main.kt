@@ -30,6 +30,10 @@ object Main {
 
         classTableEmitShapeDecl(emit, classTable)
 
+        val ast_visitor = ASTVisitor()
+
+        ast_visitor.visitASTNodeArray(program, null, null, classTable)
+
         emit.close()
 
     }

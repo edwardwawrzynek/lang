@@ -1,10 +1,10 @@
 package ast
 
-class ASTElseIfStmnt(loc: ASTFileLocation, var cond: ASTExpr, var code: ASTNodeArray<ASTNode>) : ASTNode(loc), ASTBlockStmnt {
+class ASTDoWhileStmnt(loc: ASTFileLocation, internal var cond: ASTExpr, internal var code: ASTNodeArray<ASTNode>) : ASTNode(loc), ASTBlockStmnt {
 
     override fun print(i: Int) {
         printIndent(i)
-        println("ASTElseIfStmnt: (cond, code)")
+        println("ASTDoWhileStmnt: (cond, code)")
         cond.print(i + 1)
         code.print(i + 1)
     }

@@ -17,7 +17,7 @@ class ASTFileLocation(var line_num: Int, var line_pos: Int, var fileName: String
             System.out.println(line)
 
             for (i in 0 until line_pos) {
-                if (line[i] === '\t') {
+                if (line[i] == '\t') {
                     System.out.print("\t")
                 } else {
                     System.out.print(" ")

@@ -5,6 +5,7 @@ import compiler.*
 
 class ASTNodeArray<T>(var nodes: MutableList<T>) : ASTNode(null) {
     var scope = SymbolTable(null)
+    var ret_type = VoidType()
 
     fun setParentScope(pscope: SymbolTable?) {
         scope.parent = pscope

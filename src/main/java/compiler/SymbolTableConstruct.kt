@@ -18,7 +18,7 @@ fun astToClassNames (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
             val super_type = if (parent != null) (parent.type as ClassType) else null
             val type = ClassType(node.name, SymbolTable(table), super_type)
             /* mutability is irelevant */
-            classTable.addSymbol(node.name, Symbol(node.name, Symbol.Mutability.IMUT, type))
+            classTable.addSymbol(node.name, Symbol(node.name, Symbol.Mutability.IMUT, type, Symbol.StorageType.CLASS))
         }
     }
 }
@@ -39,7 +39,8 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                     table.addSymbol(field.name, Symbol(
                             field.name,
                             Symbol.fromASTMut(field.mutable),
-                            Type.fromASTType(field.type, classTable))
+                            Type.fromASTType(field.type, classTable),
+                            Symbol.StorageType.CLASSVAR)
                     )
                 }
 
@@ -48,8 +49,9 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                     table.addSymbol(method.name, Symbol(
                             method.name,
                             Symbol.Mutability.IMUT,
-                            Type.fromASTType(method.type, classTable)
-                    ))
+                            Type.fromASTType(method.type, classTable),
+                            Symbol.StorageType.CLASSFUNC)
+                    )
                 }
 
             }

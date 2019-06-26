@@ -22,7 +22,10 @@ open class Type {
     }
 
     companion object {
-        fun fromASTType (type: ASTType, classTable: SymbolTable): Type {
+        fun fromASTType (type: ASTType?, classTable: SymbolTable): Type {
+            if(type == null){
+                return InferredType()
+            }
             val res: Type
             when(type){
                 is ASTArrayType -> res = ArrayType(
@@ -32,8 +35,7 @@ open class Type {
                     val ret_type: Type?
                     if (type.ret_type == null) {
                         /* TODO: type inference later */
-                        error("return type was not inferred", type.loc)
-                        ret_type = null
+                        ret_type = VoidType()
                     } else {
                         ret_type = Type.fromASTType(type.ret_type!!, classTable)
                     }
@@ -74,6 +76,19 @@ open class Type {
                 }
             }
         }
+    }
+}
+
+/* type of a var that needs to be infered later */
+class InferredType: Type() {
+    override fun emitVarTypeDecl(emit: Emit) {
+        error("Can't emit var type for InferredType", null)
+    }
+
+
+    override fun getTypeName(): String {
+        error("can't get type name of InferredType", null)
+        return ""
     }
 }
 
@@ -175,7 +190,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
 data class FunctionType(var return_type: Type?, var args: List<Type>) : Type() {
     override fun emitVarDecl(emit: Emit, name: String) {
         if(return_type == null){
-            error("return type not inferred")
+            return_type = VoidType()
         }
         return_type?.emitVarTypeDecl(emit)
         /* void pointer is data arg for usage in closure
@@ -215,6 +230,11 @@ class VoidType: Type() {
     override fun getTypeName(): String {
         return "void"
     }
+
+
+    override fun equals(other: Any?): Boolean {
+        return other is VoidType
+    }
 }
 
 /* primative string type */
@@ -227,6 +247,10 @@ class StringType : Type() {
     override fun getTypeName(): String {
         return "string"
     }
+
+    override fun equals(other: Any?): Boolean {
+        return other is StringType
+    }
 }
 
 /* primative int type */
@@ -237,5 +261,9 @@ class IntType : Type() {
 
     override fun getTypeName(): String {
         return "int"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is IntType
     }
 }

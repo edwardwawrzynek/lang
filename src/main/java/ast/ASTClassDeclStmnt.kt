@@ -1,6 +1,14 @@
 package ast
 
+import compiler.*
+
 class ASTClassDeclStmnt(loc: ASTFileLocation, var name: String, var fields: ASTNodeArray<ASTVarDecl>, var methods: ASTNodeArray<ASTFuncDecl>, var type: Type, var superclass: String?) : ASTNode(loc) {
+
+    val scope = SymbolTable(null)
+    fun setParentScope(pscope: SymbolTable?) {
+        scope.parent = pscope
+    }
+
     enum class Type {
         CLASS, OBJECT, STRUCT
     }

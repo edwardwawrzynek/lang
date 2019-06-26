@@ -8,7 +8,7 @@ class Emit (var file: FileWriter){
         file.write(msg)
     }
 
-    /* emit an identifier in the current package (TODO: prefix with package name) */
+    /* emit an iden`tifier in the current package (TODO: prefix with package name) */
     fun getID(name: String): String {
         /* try not to conflict with c namespace */
         return "__$name";

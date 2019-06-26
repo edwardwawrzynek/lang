@@ -3,7 +3,15 @@
 
 class Person {
     val age: int;
-    val name: string;
+    val name: int;
+
+    fn getName -> int {
+        return name;
+    }
+
+    fn setName(i: int) {
+        name = i;
+    }
 }
 
 var a: int;
@@ -11,4 +19,11 @@ var a: int;
 fn main {
     val a: int;
 
+    fn run {
+
+    }
+}
+
+fn sum(a: int, b: Person) -> int {
+    return a + b;
 }

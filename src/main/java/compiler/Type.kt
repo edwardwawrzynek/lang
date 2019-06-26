@@ -198,7 +198,7 @@ data class FunctionType(var return_type: Type?, var args: List<Type>) : Type() {
             for class methods, it is object
             for closures, it is pointer to allocated locals from higher functions
          */
-        emit.write(" (*$name)(void*, ")
+        emit.write(" (*$name)(void*${if(args.isNotEmpty()) ", " else ""}")
         for(i in 0.until(args.size)){
             args[i].emitVarTypeDecl(emit)
             if(i < args.size -1) {

@@ -2,6 +2,13 @@ package compiler
 
 import ast.ASTFileLocation
 
+var current_id: Int = 0
+
+fun gen_unique_id(): Int {
+    current_id++
+    return current_id
+}
+
 fun error(msg: String, loc: ASTFileLocation?) {
     print("\u001B[31m")
     if(loc == null) {

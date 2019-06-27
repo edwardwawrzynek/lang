@@ -51,14 +51,17 @@ class ASTSymbolConstructVisitor {
             }
         }
 
-        val symbol = Symbol(ast.name, Symbol.Mutability.IMUT, Type.fromASTType(ast.type, classTable), storage)
+        val symbol = Symbol(ast.name, Symbol.Mutability.IMUT, Type.fromASTType(ast.type, classTable), storage, ast)
         scope.addSymbol(ast.name, symbol)
 
         /* emit header */
         val args = (symbol.type as FunctionType).args
+        if(ast.enclosing_func != null){
+            emit.write("static ")
+        }
         (symbol.type as FunctionType).return_type!!.emitVarTypeDecl(emit)
         val name = if(is_class_var) "${emit.getID(encl_class!!.name)}_${ast.getEmitName()}" else emit.getID(ast.getEmitName())
-        emit.write(" ${name} (void * _data${if (args.isNotEmpty()) ", " else ""}")
+        emit.write(" ${name}(void * _data${if (args.isNotEmpty()) ", " else ""}")
 
         for (i in 0.until(args.size)) {
             args[i].emitVarTypeDecl(emit)
@@ -69,8 +72,6 @@ class ASTSymbolConstructVisitor {
         }
 
         emit.write(");\n")
-
-
 
         /* add args to function scope */
         for(arg in ast.type.args){
@@ -106,7 +107,7 @@ class ASTSymbolConstructVisitor {
             }
         }
 
-        val symbol = Symbol(ast.name, Symbol.fromASTMut(ast.mutable), Type.fromASTType(ast.type, classTable), storage)
+        val symbol = Symbol(ast.name, Symbol.fromASTMut(ast.mutable), Type.fromASTType(ast.type, classTable), storage, ast)
 
         scope.addSymbol(ast.name, symbol)
     }

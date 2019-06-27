@@ -1,13 +1,15 @@
 package compiler
 
-import ast.ASTVarDecl
+import ast.*
 import kotlin.collections.HashMap
 
 class Symbol(
         var name: String,
         var mutable: Mutability,
         var type: Type,
-        var storage: StorageType
+        var storage: StorageType,
+        /* ast node that this type comes from - used to get enclosing_func, etc from ASTFuncDecl */
+        var ast_node: ASTNode?
         ) {
 
     enum class Mutability {

@@ -14,16 +14,8 @@ class Person {
     }
 }
 
-var a: int;
-
 fn main {
-    val a: int;
-
-    fn run {
-
-    }
-}
-
-fn sum(a: int, b: Person) -> int {
-    return a + b;
+    val sum = (a: int, b: int) -> int {
+        return a + b;
+    };
 }

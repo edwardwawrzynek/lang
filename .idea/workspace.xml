@@ -4,12 +4,45 @@
     <list default="true" id="08575228-6835-43bf-bd9d-938a066837e5" name="Default Changelist" comment="add position in source file to ast nodes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out.c" beforeDir="false" afterPath="$PROJECT_DIR$/out.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTFuncDecl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ast/ASTFuncDecl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/ASTVisitor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compiler/ASTSymbolConstructVisitor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/Emit.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compiler/Emit.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compiler/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/Type.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compiler/Type.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/error.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compiler/error.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTArrayExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTArrayFuncType.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTArrayLiteralExpr.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTArrayType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTAssignExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTBlockStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTBreakStmnt.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTClassDeclStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTContinueStmnt.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTDoWhileStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTDotExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTElseIfStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTElseStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTExprOp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTFileLocation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTForStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTFuncCallExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTFuncDecl.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTFuncType.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTIfStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTLambdaExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTLiteralExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTNode.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTNodeArray.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTReturnStmnt.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTVarDecl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTVarExpr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ast/ASTWhileStmnt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/ASTSymbolConstructVisitor.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/ASTTypeCheckVisitor.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/CSTToASTVisitor.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/Emit.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/Main.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/SymbolTable.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/SymbolTableConstruct.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/Type.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/compiler/error.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/test1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test1.txt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/classes/" />
@@ -78,91 +111,41 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/compiler/SymbolTable.kt">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/compiler/ASTSymbolConstructVisitor.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="24" column="38" selection-start-line="24" selection-start-column="38" selection-end-line="24" selection-end-column="38" />
+            <state relative-caret-position="460">
+              <caret line="35" column="37" selection-start-line="35" selection-start-column="37" selection-end-line="35" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/compiler/SymbolTableConstruct.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="184">
+              <caret line="54" column="39" selection-start-line="54" selection-start-column="39" selection-end-line="54" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/compiler/SymbolTable.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="165">
+              <caret line="11" column="30" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
               <folding>
-                <element signature="e#18#73#0" expanded="true" />
+                <element signature="e#18#64#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/compiler/Main.kt">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/ast/ASTFuncDecl.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="30" column="113" selection-start-line="30" selection-start-column="113" selection-end-line="30" selection-end-column="113" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test1.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="23" column="5" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/out.c">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ASTSymbolConstructVisitor.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="59" column="91" selection-start-line="59" selection-start-column="91" selection-end-line="59" selection-end-column="91" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTFuncDecl.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" column="5" lean-forward="true" selection-start-line="15" selection-start-column="5" selection-end-line="15" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ASTTypeCheckVisitor.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="15" selection-start-line="15" selection-end-line="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/compiler/Type.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="273">
-              <caret line="162" column="32" lean-forward="true" selection-start-line="162" selection-start-column="32" selection-end-line="162" selection-end-column="32" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/compiler/SymbolTableConstruct.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="55" lean-forward="true" selection-start-line="55" selection-end-line="55" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/compiler/error.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+            <state relative-caret-position="135">
+              <caret line="9" column="31" lean-forward="true" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -197,6 +180,7 @@
       <find>return type not inf</find>
       <find>Symbol(</find>
       <find>enclosing</find>
+      <find>fun_ast</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -205,27 +189,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTElseStmnt.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTReturnStmnt.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTWhileStmnt.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTForStmnt.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTClassDeclStmnt.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/CSTToASTVisitor.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/Symbol.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/Type.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/IntType.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/StringType.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/ClassType.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/SymbolTable.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/Symbol.kt" />
-        <option value="$PROJECT_DIR$/build.gradle" />
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTFuncType.kt" />
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTArrayFuncType.kt" />
-        <option value="$PROJECT_DIR$/src/main/java/ast/ASTArrayLiteralExpr.kt" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/ClassType.kt" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/StringType.kt" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/FunctionType.java" />
-        <option value="$PROJECT_DIR$/src/main/java/compiler/FunctionType.kt" />
         <option value="$PROJECT_DIR$/src/main/java/compiler/IntType.kt" />
         <option value="$PROJECT_DIR$/src/main/java/ast/ASTType.java" />
         <option value="$PROJECT_DIR$/src/main/java/ast/ASTArrayType.java" />
@@ -256,6 +219,27 @@
         <option value="$PROJECT_DIR$/src/main/java/compiler/Main.kt" />
         <option value="$PROJECT_DIR$/test1.txt" />
         <option value="$PROJECT_DIR$/src/main/java/compiler/ASTSymbolConstructVisitor.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTLambdaExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTArrayExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTArrayType.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTAssignExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTBreakStmnt.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTContinueStmnt.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTDotExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTExprOp.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTFuncCallExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTLiteralExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTReturnStmnt.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTType.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTVarDecl.kt" />
+        <option value="$PROJECT_DIR$/src/main/java/ast/ASTVarExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ast/ASTType.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/compiler/Type.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ast/ASTLiteralExpr.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/compiler/ASTSymbolConstructVisitor.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/compiler/SymbolTableConstruct.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/compiler/SymbolTable.kt" />
       </list>
     </option>
   </component>
@@ -269,6 +253,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -292,29 +278,14 @@
               <item name="lang" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="antlr" type="462c0819:PsiDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="lang" type="b2602c69:ProjectViewProjectNode" />
               <item name="lang" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="antlr" type="462c0819:PsiDirectoryNode" />
-              <item name="parser" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="lang" type="b2602c69:ProjectViewProjectNode" />
-              <item name="lang" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="lang" type="b2602c69:ProjectViewProjectNode" />
-              <item name="lang" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
               <item name="ast" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -322,15 +293,13 @@
               <item name="lang" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
               <item name="compiler" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -397,10 +366,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1" y="0" width="1282" height="801" extended-state="0" />
+    <frame x="6" y="7" width="631" height="787" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4892704" visible="true" weight="0.15831988" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4892704" visible="true" weight="0.33901194" />
       <window_info id="Structure" order="1" sideWeight="0.5107296" side_tool="true" weight="0.16074313" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -409,7 +378,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32917964" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.8869144" visible="true" weight="0.2532943" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.8869144" visible="true" weight="0.25859493" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49676898" weight="0.3173484" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -437,137 +406,10 @@
     <option name="LAST_COMMIT_MESSAGE" value="add position in source file to ast nodes" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTVarExpr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="17" lean-forward="true" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTAssignExpr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="19" lean-forward="true" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTLiteral.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTLiteralExpr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTFuncCallExpr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="16" selection-start-line="12" selection-start-column="16" selection-end-line="12" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTDotExpr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="25" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTArrayExpr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="60" selection-start-line="14" selection-start-column="60" selection-end-line="14" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTBreakStmnt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="44" selection-start-line="9" selection-start-column="44" selection-end-line="9" selection-end-column="44" />
-          <folding>
-            <element signature="e#104#105#0" expanded="true" />
-            <element signature="e#124#125#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTContinueStmnt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="47" selection-start-line="9" selection-start-column="47" selection-end-line="9" selection-end-column="47" />
-          <folding>
-            <element signature="e#110#111#0" expanded="true" />
-            <element signature="e#130#131#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTLambdaExpr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="24" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/antlr/src/main/java/compiler/SymbolType.java" />
-    <entry file="file://$PROJECT_DIR$/build/generated-src/antlr/main/parser/LangBaseVisitor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="23" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTReturnStmnt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="23" selection-start-line="13" selection-start-column="23" selection-end-line="13" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/Symbol.kt" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTArrayLiteralExpr.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="35" selection-start-line="7" selection-start-column="35" selection-end-line="7" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="20" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ClassType.kt" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/StringType.kt" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/FunctionType.kt" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/IntType.kt" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTNode.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTFuncType.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" column="8" selection-start-line="6" selection-start-column="8" selection-end-line="6" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTArrayType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
         </state>
       </provider>
     </entry>
@@ -596,13 +438,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="780">
           <caret line="27" column="2" selection-start-line="27" selection-start-column="2" selection-end-line="27" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTVarDecl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
         </state>
       </provider>
     </entry>
@@ -693,34 +528,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/error.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/SymbolTableConstruct.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="55" lean-forward="true" selection-start-line="55" selection-end-line="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ASTTypeCheckVisitor.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="15" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTFuncDecl.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="5" lean-forward="true" selection-start-line="15" selection-start-column="5" selection-end-line="15" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/compiler/SymbolTable.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
@@ -731,34 +538,233 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/Type.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="162" column="32" lean-forward="true" selection-start-line="162" selection-start-column="32" selection-end-line="162" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/compiler/Main.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
+        <state relative-caret-position="420">
           <caret line="30" column="113" selection-start-line="30" selection-start-column="113" selection-end-line="30" selection-end-column="113" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test1.txt">
+    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ASTTypeCheckVisitor.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="5" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
+        <state relative-caret-position="225">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/Type.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2430">
+          <caret line="162" column="32" selection-start-line="162" selection-start-column="32" selection-end-line="162" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/SymbolTableConstruct.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="825">
+          <caret line="55" selection-start-line="55" selection-end-line="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/compiler/error.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/out.c">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/test1.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="6" selection-start-line="19" selection-start-column="6" selection-end-line="19" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ASTSymbolConstructVisitor.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="59" column="91" selection-start-line="59" selection-start-column="91" selection-end-line="59" selection-end-column="91" />
+        <state relative-caret-position="345">
+          <caret line="81" column="17" lean-forward="true" selection-start-line="81" selection-start-column="17" selection-end-line="81" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTFuncDecl.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="4" lean-forward="true" selection-start-line="6" selection-start-column="4" selection-end-line="7" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTLambdaExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="1" lean-forward="true" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTArrayExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="17" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTArrayType.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="23" selection-start-line="2" selection-start-column="23" selection-end-line="2" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTAssignExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="1" lean-forward="true" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTBreakStmnt.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="32" selection-start-line="6" selection-start-column="32" selection-end-line="6" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTContinueStmnt.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="35" selection-start-line="6" selection-start-column="35" selection-end-line="6" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTDotExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="26" selection-start-line="8" selection-start-column="26" selection-end-line="8" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="14" selection-start-line="2" selection-start-column="14" selection-end-line="2" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTExprOp.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="14" selection-start-line="2" selection-start-column="14" selection-end-line="2" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTFuncCallExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="18" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTLiteralExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="22" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTReturnStmnt.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="26" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTType.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="51" selection-start-line="2" selection-start-column="51" selection-end-line="2" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTVarDecl.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="14" selection-start-line="2" selection-start-column="14" selection-end-line="2" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ast/ASTVarExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="14" selection-start-line="2" selection-start-column="14" selection-end-line="2" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ast/ASTArrayLiteralExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="111" selection-start-line="2" selection-start-column="111" selection-end-line="2" selection-end-column="111" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ast/ASTLiteralExpr.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="1" lean-forward="true" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ast/ASTFuncType.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="112" lean-forward="true" selection-start-line="2" selection-start-column="112" selection-end-line="2" selection-end-column="112" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ast/ASTType.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="62" selection-start-line="2" selection-start-column="62" selection-end-line="2" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/compiler/Type.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="54" column="68" selection-start-line="54" selection-start-column="68" selection-end-line="54" selection-end-column="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/compiler/SymbolTableConstruct.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="54" column="39" selection-start-line="54" selection-start-column="39" selection-end-line="54" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/compiler/SymbolTable.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="30" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
+          <folding>
+            <element signature="e#18#64#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ast/ASTFuncDecl.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="31" lean-forward="true" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/compiler/ASTSymbolConstructVisitor.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="460">
+          <caret line="35" column="37" selection-start-line="35" selection-start-column="37" selection-end-line="35" selection-end-column="37" />
         </state>
       </provider>
     </entry>

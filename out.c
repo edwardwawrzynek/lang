@@ -23,8 +23,6 @@ struct __Person_vtable {
 };
 
 /* --- Function Headers --- */
-int __Person_getName (void * _data);
-void __Person_setName (void * _data, int i);
-void __main (void * _data);
-void ___nested_func_7 (void * _data);
-int __sum (void * _data, int a, __Person* b);
+int __Person_getName(void * _data);
+void __Person_setName(void * _data, int i);
+void __main(void * _data);

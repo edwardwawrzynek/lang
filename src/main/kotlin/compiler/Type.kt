@@ -29,7 +29,7 @@ open class Type {
             val res: Type
             when(type){
                 is ASTArrayType -> res = ArrayType(
-                        Type.fromStringLitType(type.lit_type, classTable, type.loc),
+                        Type.fromStringLitType(type.lit_type!!, classTable, type.loc),
                         if (type.length != -1) type.length else null)
                 is ASTFuncType -> {
                     val ret_type: Type?
@@ -52,7 +52,7 @@ open class Type {
                         Type.fromASTType(type as ASTFuncType, classTable),
                         if (type.length != -1) type.length else null)
 
-                else -> res = Type.fromStringLitType(type.lit_type, classTable, type.loc)
+                else -> res = Type.fromStringLitType(type.lit_type!!, classTable, type.loc)
             }
 
             return res

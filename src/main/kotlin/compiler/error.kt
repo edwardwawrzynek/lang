@@ -9,7 +9,7 @@ fun gen_unique_id(): Int {
     return current_id
 }
 
-fun error(msg: String, loc: ASTFileLocation?) {
+fun compiler_error(msg: String, loc: ASTFileLocation?) {
     print("\u001B[31m")
     if(loc == null) {
         println("An error occurred at a null location:\n")

@@ -13,16 +13,27 @@ struct __Person_array_type {
 /* --- Class Struct Definitions --- */
 struct __Person {
 	struct __Person_vtable* _vtable;
-	int name;
+	struct __char_array_type* name;
 	int age;
 };
 struct __Person_vtable {
 	struct vtable_head _header;
 	void (*setName)(void*, int);
-	int (*getName)(void*);
+	struct __char_array_type* (*getName)(void*);
 };
 
 /* --- Function Headers --- */
-int __Person_getName(void * _data);
+struct __char_array_type* __Person_getName(void * _data);
 void __Person_setName(void * _data, int i);
 void __main(void * _data);
+/* --- Program Body --- */
+struct __char_array_type* __Person_getName(void *_data) {
+return ((Person*) _data)->name;
+}
+
+void __Person_setName(void *_data, int i) {
+}
+
+void __main(void *_data) {
+}
+

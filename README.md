@@ -20,5 +20,6 @@
 ## TODO/NOTES
 - TODO: Namespaces (packages, also nested classes, etc)
 - NOTE: For loops need to be emitted in their own c scope if a variable is declared in the initial condition
+- TODO: keep namespace names, etc, in name entry in symbol tables (not key, name in value)
 
 

@@ -5,7 +5,12 @@ import compiler.*
 
 class ASTNodeArray<T>(var nodes: MutableList<T>) : ASTNode(null) {
     var scope = SymbolTable(null)
-    var ret_type = VoidType()
+    var ret_type: Type = InferredType() /* return type of function node arrays needed for type checking */
+
+    /* Function in which this node array is contained */
+    var fun_scope: ASTNodeArray<ASTNode>? = null
+    /* FUnction in which the function containing this array is contained */
+    var higher_fun_scope: ASTNodeArray<ASTNode>? = null
 
     fun setParentScope(pscope: SymbolTable?) {
         scope.parent = pscope

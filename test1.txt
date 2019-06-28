@@ -3,9 +3,9 @@
 
 class Person {
     val age: int;
-    val name: int;
+    val name: string;
 
-    fn getName -> int {
+    fn getName -> string {
         return name;
     }
 
@@ -15,7 +15,5 @@ class Person {
 }
 
 fn main {
-    val sum = (a: int, b: int) -> int {
-        return a + b;
-    };
+
 }

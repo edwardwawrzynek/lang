@@ -1,10 +1,10 @@
 package ast
 
-class ASTReturnStmnt(loc: ASTFileLocation, var `val`: ASTExpr) : ASTNode(loc) {
+class ASTReturnStmnt(loc: ASTFileLocation, var value: ASTExpr) : ASTNode(loc) {
 
     override fun print(i: Int) {
         printIndent(i)
         println("ASTReturnStmnt:")
-        `val`.print(i + 1)
+        value.print(i + 1)
     }
 }

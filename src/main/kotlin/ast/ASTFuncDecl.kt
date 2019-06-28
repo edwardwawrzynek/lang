@@ -4,11 +4,10 @@ import compiler.gen_unique_id
 
 class ASTFuncDecl(loc: ASTFileLocation, var name: String, var type: ASTFuncType, var body: ASTNodeArray<ASTNode>) : ASTNode(loc) {
 
-    var enclosing_func: ASTNodeArray<ASTNode>? = null
     val id_num = gen_unique_id()
 
-    fun getEmitName(): String {
-        if(enclosing_func == null){
+    fun getEmitName(scope: ASTNodeArray<ASTNode>): String {
+        if(scope.higher_fun_scope == null){
             return name
         } else {
             return "_nested_func_$id_num"

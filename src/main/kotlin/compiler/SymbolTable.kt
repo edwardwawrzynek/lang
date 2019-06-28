@@ -12,6 +12,9 @@ class Symbol(
         var ast_node: ASTNode?
         ) {
 
+    /* class in which this variable is a member (only matters for CLASSVAR and CLASSFUNC) */
+    var of_class: ClassType? = null
+
     enum class Mutability {
         MUT, IMUT
     }
@@ -37,7 +40,7 @@ class Symbol(
             } else if (mut == ASTVarDecl.VarMut.IMUT){
                 return Mutability.IMUT
             } else {
-                error("no such ast mutability type", null)
+                compiler_error("no such ast mutability type", null)
                 return Mutability.MUT
             }
         }

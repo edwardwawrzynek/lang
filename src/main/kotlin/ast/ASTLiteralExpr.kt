@@ -1,10 +1,10 @@
 package ast
 
-open class ASTLiteralExpr(loc: ASTFileLocation, var `val`: String?) : ASTExpr(loc) {
+open class ASTLiteralExpr(loc: ASTFileLocation, var value: String?) : ASTExpr(loc) {
 
     override fun print(i: Int) {
         printIndent(i)
         print("ASTLiteralExpr: ")
-        println(`val`)
+        println(value)
     }
 }

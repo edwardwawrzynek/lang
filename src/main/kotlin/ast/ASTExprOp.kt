@@ -1,6 +1,6 @@
 package ast
 
-class ASTExprOp(loc: ASTFileLocation, var type: ExprType, var left: ASTExpr?, var right: ASTExpr?) : ASTExpr(loc) {
+class ASTExprOp(loc: ASTFileLocation, var type: ExprType, var left: ASTExpr, var right: ASTExpr?) : ASTExpr(loc) {
 
     /* if the expr has one or two operands */
     var is_unary: Boolean = false
@@ -30,8 +30,8 @@ class ASTExprOp(loc: ASTFileLocation, var type: ExprType, var left: ASTExpr?, va
         BINARY_OR,
         BINARY_XOR,
         LOGICAL_AND,
-        LOGICAL_OR
-
+        LOGICAL_OR,
+        ARRAY
     }
 
     init {
@@ -49,11 +49,7 @@ class ASTExprOp(loc: ASTFileLocation, var type: ExprType, var left: ASTExpr?, va
         printIndent(i)
         print("ASTExprOp: ")
         println(type)
-        if (left != null) {
-            left!!.print(i + 1)
-        }
-        if (right != null) {
-            right!!.print(i + 1)
-        }
+        left.print(i + 1)
+        right?.print(i + 1)
     }
 }

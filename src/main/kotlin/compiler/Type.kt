@@ -7,7 +7,7 @@ open class Type {
     /* create a var of this type */
     internal open fun emitVarTypeDecl(emit: Emit) {
         emit.write("// emitVarTpe called on Type\n___trigger_error")
-        compiler_error("emitVarTypeDecl called on Type", null)
+        compilerError("emitVarTypeDecl called on Type", null)
     }
 
     open fun emitVarDecl(emit: Emit, name: String) {
@@ -17,12 +17,19 @@ open class Type {
 
     /* get name of type (for builtin array types, func overload names, etc) */
     open fun getTypeName(): String {
-        compiler_error("getName called on Type", null)
+        compilerError("getName called on Type", null)
         return ""
     }
 
     override fun toString(): String {
         return getTypeName()
+    }
+
+    /* return the zero value to emit in c code for this type */
+    open fun getCZeroValue(): String {
+        compilerError("getCZeroValue called on Type", null)
+
+        return ""
     }
 
     companion object {
@@ -46,7 +53,7 @@ open class Type {
                     val args = mutableListOf<Type>()
                     for(arg in type.args) {
                         if (arg.type == null) {
-                            compiler_error("arg type was not inferred", type.loc)
+                            compilerError("arg type was not inferred", type.loc)
                         }
                         args += Type.fromASTType(arg.type, classTable)
                     }
@@ -68,11 +75,12 @@ open class Type {
                  "string" -> return ArrayType(CharType(), null)
                  "int" -> return IntType()
                  "bool" -> return BooleanType()
+                 "char" -> return CharType()
                  else -> {
                     val symbol = classTable.findSymbol(type)
                     if (symbol == null) {
                         /* TODO: class name lookup */
-                        compiler_error("identifier ${type} is not a recognized type", loc!!)
+                        compilerError("identifier ${type} is not a recognized type", loc!!)
                         /* unreachable */
                         return VoidType()
                     } else {
@@ -87,12 +95,12 @@ open class Type {
 /* type of a var that needs to be infered later */
 class InferredType: Type() {
     override fun emitVarTypeDecl(emit: Emit) {
-        compiler_error("Can't emit var type for InferredType", null)
+        compilerError("Can't emit var type for InferredType", null)
     }
 
 
     override fun getTypeName(): String {
-        compiler_error("can't get type name of InferredType", null)
+        compilerError("can't get type name of InferredType", null)
         return ""
     }
 }
@@ -189,6 +197,10 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
     override fun getTypeName(): String {
         return name
     }
+
+    override fun getCZeroValue(): String {
+        return "NULL"
+    }
 }
 
 /* names of args are not part of type - they are part of scope for code */
@@ -212,6 +224,10 @@ data class FunctionType(var return_type: Type?, var args: List<Type>) : Type() {
         }
         emit.write(");\n")
     }
+
+    override fun getCZeroValue(): String {
+        return "NULL"
+    }
 }
 
 /* array type */
@@ -227,6 +243,11 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
 
     override fun toString(): String {
         return "[]$type"
+    }
+
+    override fun getCZeroValue(): String {
+        TODO("empty array default value")
+        return ""
     }
 }
 
@@ -260,10 +281,28 @@ class BooleanType: Type() {
     override fun equals(other: Any?): Boolean {
         return other is BooleanType
     }
+
+    override fun getCZeroValue(): String {
+        return "0"
+    }
 }
 
-/* primative int type, as well as superclass for other int types */
-open class IntType : Type() {
+open class NumberType: Type() {
+    override fun getCZeroValue(): String {
+        return "0"
+    }
+
+    override fun equals(other: Any?): Boolean{
+        return other is NumberType
+    }
+
+    override fun getTypeName(): String {
+        return "castable int"
+    }
+}
+
+/* primative int type */
+class IntType : NumberType() {
     override fun emitVarTypeDecl(emit: Emit) {
         emit.write("int")
     }
@@ -275,9 +314,10 @@ open class IntType : Type() {
     override fun equals(other: Any?): Boolean {
         return other is IntType
     }
+
 }
 
-class CharType: IntType() {
+class CharType: NumberType() {
     override fun emitVarTypeDecl(emit: Emit) {
         emit.write("char")
     }

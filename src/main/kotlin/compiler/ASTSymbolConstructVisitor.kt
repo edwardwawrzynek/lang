@@ -35,7 +35,7 @@ class ASTSymbolConstructVisitor {
         ast.body.higher_fun_scope = fun_ast
 
         if(scope.findSymbolNoParent(ast.name) != null){
-            compiler_error("Redefinition of function ${ast.name}", ast.loc)
+            compilerError("Redefinition of function ${ast.name}", ast.loc)
         }
         if(scope.findSymbol(ast.name) != null){
             warning("Function ${ast.name} shadows higher variable\n", ast.loc)
@@ -45,7 +45,7 @@ class ASTSymbolConstructVisitor {
 
         if(is_class_var){
             if(fun_ast != null){
-                compiler_error("Functions marked with is_class_var can't be in a function", null)
+                compilerError("Functions marked with is_class_var can't be in a function", null)
             }
             storage = Symbol.StorageType.CLASSFUNC
         } else {
@@ -62,7 +62,7 @@ class ASTSymbolConstructVisitor {
         if(storage == Symbol.StorageType.CLASSFUNC){
             val class_sym = classTable.findSymbol(encl_class!!.name)
             if(class_sym == null){
-                compiler_error("can't find class ${encl_class!!.name} in classTable", null)
+                compilerError("can't find class ${encl_class.name} in classTable", null)
                 return
             }
             symbol.of_class = (class_sym.type as ClassType)
@@ -101,7 +101,7 @@ class ASTSymbolConstructVisitor {
     fun visitASTVarDecl(ast: ASTVarDecl, fun_ast: ASTNodeArray<ASTNode>?, scope: SymbolTable, classTable: SymbolTable, is_class_var: Boolean, encl_class: ASTClassDeclStmnt?, emit: Emit) {
         /* TODO: infer type */
         if(scope.findSymbolNoParent(ast.name) != null){
-            compiler_error("Redefinition of variable ${ast.name}", ast.loc)
+            compilerError("Redefinition of variable ${ast.name}", ast.loc)
         }
         if(scope.findSymbol(ast.name) != null){
             warning("Variable ${ast.name} shadows higher variable\n", ast.loc)
@@ -111,7 +111,7 @@ class ASTSymbolConstructVisitor {
 
         if(is_class_var){
             if(fun_ast != null){
-                compiler_error("Variables marked with is_class_var can't be in a function", null)
+                compilerError("Variables marked with is_class_var can't be in a function", null)
             }
             storage = Symbol.StorageType.CLASSVAR
         } else {
@@ -123,12 +123,12 @@ class ASTSymbolConstructVisitor {
             }
         }
 
-        val symbol = Symbol(ast.name, Symbol.fromASTMut(ast.mutable), Type.fromASTType(ast.type, classTable), storage, ast)
+        val symbol = Symbol(if(storage==Symbol.StorageType.GLOBAL) "__${ast.name}" else ast.name, Symbol.fromASTMut(ast.mutable), Type.fromASTType(ast.type, classTable), storage, ast)
 
         if(storage == Symbol.StorageType.CLASSVAR){
             val class_sym = classTable.findSymbol(encl_class!!.name)
             if(class_sym == null){
-                compiler_error("can't find class ${encl_class!!.name} in classTable", null)
+                compilerError("can't find class ${encl_class.name} in classTable", null)
                 return
             }
             symbol.of_class = (class_sym.type as ClassType)

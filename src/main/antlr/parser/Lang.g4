@@ -106,7 +106,7 @@ statement
     | 'while' (('(' cond=expr ')')|(cond=expr)) code=block                          #whileStmnt
     | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) ';'                 #doWhileStmnt
     | 'for' (('(' init=forFirstExpr ';' rep=expr ';' end=expr ')')|(init=forFirstExpr ';' rep=expr ';' end=expr)) code=block  #forStmnt
-    | 'return' val=expr ';'                                         #returnStmnt
+    | 'return' (val=expr)? ';'                                         #returnStmnt
     | 'continue' ';'                                                #continueStmnt
     | 'break' ';'                                                   #breakStmnt
     | function=funcDecl                                             #funcDeclStmnt

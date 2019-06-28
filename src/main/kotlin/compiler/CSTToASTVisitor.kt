@@ -44,7 +44,8 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             }
             return ASTForStmnt(ASTFileLocation.fromToken(ctx.start), init, visitExpr(ctx.rep), visitExpr(ctx.end), visitBlock(ctx.code))
         } else if (ctx is LangParser.ReturnStmntContext) {
-            return ASTReturnStmnt(ASTFileLocation.fromToken(ctx.start), visitExpr(ctx.`val`))
+            val expr = if(ctx.`val` != null) visitExpr(ctx.`val`) else null
+            return ASTReturnStmnt(ASTFileLocation.fromToken(ctx.start), expr)
         } else if (ctx is LangParser.ContinueStmntContext) {
             return ASTContinueStmnt(ASTFileLocation.fromToken(ctx.start))
         } else if (ctx is LangParser.BreakStmntContext) {
@@ -60,7 +61,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             } else if (ctx.classType.classType.type == LangParser.CLASS_STRUCT) {
                 type = ASTClassDeclStmnt.Type.STRUCT
             } else {
-                compiler_error("no such class declaration type", ASTFileLocation.fromToken(ctx.start))
+                compilerError("no such class declaration type", ASTFileLocation.fromToken(ctx.start))
             }
             val name = ctx.classType.name.text
             val superclass: String?
@@ -79,7 +80,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
                 } else if (n is ASTFuncDecl) {
                     methods.add(n)
                 } else {
-                    compiler_error("only field and method declarations are allowed in a class", ASTFileLocation.fromToken(ctx.classType.body.statement(i).start))
+                    compilerError("only field and method declarations are allowed in a class", ASTFileLocation.fromToken(ctx.classType.body.statement(i).start))
                 }
             }
             return ASTClassDeclStmnt(ASTFileLocation.fromToken(ctx.start), name, ASTNodeArray(fields), ASTNodeArray(methods), type, superclass)
@@ -116,7 +117,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
                     length = Integer.parseInt(ctx.arrayDecl().size.text)
                 } catch (e: NumberFormatException) {
                     val loc = ASTFileLocation.fromToken(ctx.arrayDecl().size)
-                    compiler_error(String.format("'%s' is not a valid array size", ctx.arrayDecl().size.text), loc)
+                    compilerError(String.format("'%s' is not a valid array size", ctx.arrayDecl().size.text), loc)
                 }
 
             }
@@ -140,11 +141,11 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
     override fun visitFuncArgVarType(ctx: LangParser.FuncArgVarTypeContext): ASTNodeArray<ASTVarDecl> {
         val decls = ArrayList<ASTVarDecl>()
         val type = visitTypeDecl(ctx.typeName)
-        var mut = ASTVarDecl.VarMut.MUT
+        var mut = ASTVarDecl.VarMut.IMUT
         if (ctx.mut != null) {
             if (ctx.mut.text == "var") {
                 mut = ASTVarDecl.VarMut.MUT
-            } else if (ctx.mut.text == "value") {
+            } else if (ctx.mut.text == "val") {
                 mut = ASTVarDecl.VarMut.IMUT
             }
         }
@@ -199,7 +200,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             } else if (ctx.op.type == LangParser.OP_DEC) {
                 type = ASTExprOp.ExprType.POSTFIX_DEC
             } else {
-                compiler_error("No such postfix operator", ASTFileLocation.fromToken(ctx.start))
+                compilerError("No such postfix operator", ASTFileLocation.fromToken(ctx.start))
             }
             return ASTExprOp(ASTFileLocation.fromToken(ctx.start), type, visitExpr(ctx.varName), null)
 
@@ -219,7 +220,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
                 LangParser.OP_ADD ->
                     //positive prefix operator is just identity function
                     return visitExpr(ctx.varName)
-                else -> compiler_error("No such prefix operator", ASTFileLocation.fromToken(ctx.start))
+                else -> compilerError("No such prefix operator", ASTFileLocation.fromToken(ctx.start))
             }
             return ASTExprOp(ASTFileLocation.fromToken(ctx.start), type, visitExpr(ctx.varName), null)
 
@@ -244,7 +245,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
                 LangParser.OP_BXOR -> type = ASTExprOp.ExprType.BINARY_XOR
                 LangParser.OP_LAND -> type = ASTExprOp.ExprType.LOGICAL_AND
                 LangParser.OP_LOR -> type = ASTExprOp.ExprType.LOGICAL_OR
-                else -> compiler_error("no such infix operator", ASTFileLocation.fromToken(ctx.start))
+                else -> compilerError("no such infix operator", ASTFileLocation.fromToken(ctx.start))
             }
             return ASTExprOp(ASTFileLocation.fromToken(ctx.start), type, visitExpr(ctx.left), visitExpr(ctx.right))
 
@@ -266,7 +267,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
                 LangParser.OP_BAND_ASG -> type = ASTExprOp.ExprType.BINARY_AND
                 LangParser.OP_BOR_ASG -> type = ASTExprOp.ExprType.BINARY_OR
                 LangParser.OP_BXOR_ASG -> type = ASTExprOp.ExprType.BINARY_XOR
-                else -> compiler_error("no such assignment operator", ASTFileLocation.fromToken(ctx.start))
+                else -> compilerError("no such assignment operator", ASTFileLocation.fromToken(ctx.start))
             }
             val op_expr = ASTExprOp(ASTFileLocation.fromToken(ctx.start), type, visitExpr(ctx.left), visitExpr(ctx.right))
             val left_asg = visitExpr(ctx.left)
@@ -287,7 +288,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         } else if (ctx is LangParser.IdExprContext) {
             return ASTVarExpr(ASTFileLocation.fromToken(ctx.start), ctx.ID().text)
         }
-        compiler_error("unhandled expr type", ASTFileLocation.fromToken(ctx.start))
+        compilerError("unhandled expr type", ASTFileLocation.fromToken(ctx.start))
         return ASTExpr(ASTFileLocation.fromToken(ctx.start))
     }
 
@@ -313,7 +314,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         var mutable = ASTVarDecl.VarMut.MUT
         if (ctx.mut.text == "var") {
             mutable = ASTVarDecl.VarMut.MUT
-        } else if (ctx.mut.text == "value") {
+        } else if (ctx.mut.text == "val") {
             mutable = ASTVarDecl.VarMut.IMUT
         }
 
@@ -323,7 +324,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         if (ctx.init != null) {
             /* make sure number of initialized values matches number of variables */
             if (ctx.init.expr().size != ctx.typeName.ID().size) {
-                compiler_error("length of initilizer list has to match number of variables", ASTFileLocation.fromToken(ctx.init.expr(0).start))
+                compilerError("length of initilizer list has to match number of variables", ASTFileLocation.fromToken(ctx.init.expr(0).start))
             }
             for (i in 0 until ctx.init.expr().size) {
                 decls.nodes[i].init_val = visitExpr(ctx.init.expr(i))

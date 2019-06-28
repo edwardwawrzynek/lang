@@ -1,16 +1,23 @@
 # Sample program
 # Map on int array
 
+var a: int;
+val global: int = a;
+
 class Person {
     val age: int;
     val name: string;
 
     fn getName -> string {
         return name;
+
     }
 
-    fn setName(i: int) {
-        name = i;
+    fn addToAge (inc: int) -> int {
+        var res = age + inc;
+        var num: char = 6;
+
+        return 5;
     }
 }
 

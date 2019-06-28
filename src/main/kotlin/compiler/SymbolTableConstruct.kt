@@ -11,7 +11,7 @@ fun astToClassNames (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
             if (node.superclass != null) {
                 parent = classTable.findSymbol(node.superclass!!)
                 if(parent == null){
-                    compiler_error("Superclass ${node.superclass} of class ${node.name} is not defined", node.loc)
+                    compilerError("Superclass ${node.superclass} of class ${node.name} is not defined", node.loc)
                 }
             }
             val table = if (parent != null) (parent.type as ClassType).table else null
@@ -30,7 +30,7 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
         if (node is ASTClassDeclStmnt) {
             val entry = classTable.findSymbol(node.name)
             if (entry == null) {
-                compiler_error("No class header in classTable for class ${node.name}", node.loc)
+                compilerError("No class header in classTable for class ${node.name}", node.loc)
             } else {
                 val table = (entry.type as ClassType).table
 

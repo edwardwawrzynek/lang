@@ -15,6 +15,9 @@ class Symbol(
     /* class in which this variable is a member (only matters for CLASSVAR and CLASSFUNC) */
     var of_class: ClassType? = null
 
+    /* used during type checking phase to make sure var's aren't used before they are declared */
+    var is_declared: Boolean = false
+
     enum class Mutability {
         MUT, IMUT
     }
@@ -40,7 +43,7 @@ class Symbol(
             } else if (mut == ASTVarDecl.VarMut.IMUT){
                 return Mutability.IMUT
             } else {
-                compiler_error("no such ast mutability type", null)
+                compilerError("no such ast mutability type", null)
                 return Mutability.MUT
             }
         }

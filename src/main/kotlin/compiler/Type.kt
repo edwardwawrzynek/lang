@@ -32,6 +32,25 @@ open class Type {
         return ""
     }
 
+    /* return true if type can be implicitly converted to other type */
+    open fun canImplicitConvert(other: Type): Boolean {
+        return false
+    }
+
+    /* return true if operator is defined for this type and other type (if not a single arg op) */
+    open fun hasOpDefined(op: ASTExprOp.ExprType, other: Type?): Boolean {
+        return false
+    }
+
+    open fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+        error("can't emit op on Type")
+    }
+
+    /* return true if internal representation is nullable */
+    open fun isPointer(): Boolean {
+        error("isPointer called on Type")
+    }
+
     companion object {
         fun fromASTType (type: ASTType?, classTable: SymbolTable): Type {
             if(type == null){
@@ -74,6 +93,7 @@ open class Type {
                  "void" -> return VoidType()
                  "string" -> return ArrayType(CharType(), null)
                  "int" -> return IntType()
+                 "long" -> return LongType()
                  "bool" -> return BooleanType()
                  "char" -> return CharType()
                  else -> {
@@ -100,8 +120,7 @@ class InferredType: Type() {
 
 
     override fun getTypeName(): String {
-        compilerError("can't get type name of InferredType", null)
-        return ""
+        return "InferredType"
     }
 }
 
@@ -147,12 +166,6 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
 
         /* emit vtable header */
         emit.write("struct ${emit.getID(name)}_vtable;\n")
-
-        /* add definition for arrays of this type (TODO: gc description) */
-        emit.write("struct ${emit.getID(name)}_array_type {\n")
-        emit.write("\tunsigned int len;\n\t")
-        emitVarTypeDecl(emit)
-        emit.write("* vals;\n};\n\n")
     }
 
     fun emitShapeDecl (emit: Emit) {
@@ -201,6 +214,28 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
     override fun getCZeroValue(): String {
         return "NULL"
     }
+
+    override fun canImplicitConvert(other: Type): Boolean {
+        if(other is BooleanType){
+            return true
+        }
+        if(other == this){
+            return true
+        }
+        var s = superclass
+        while(s != null){
+            if(other == s){
+                return true
+            }
+            s = s.superclass
+        }
+
+        return false
+    }
+
+    override fun isPointer(): Boolean {
+        return true
+    }
 }
 
 /* names of args are not part of type - they are part of scope for code */
@@ -228,17 +263,21 @@ data class FunctionType(var return_type: Type?, var args: List<Type>) : Type() {
     override fun getCZeroValue(): String {
         return "NULL"
     }
+
+    override fun isPointer(): Boolean {
+        return true
+    }
 }
 
 /* array type */
 data class ArrayType(var type: Type, val length: Int?): Type() {
     override fun emitVarTypeDecl(emit: Emit) {
         /* TODO: bound checked array (struct for each type of array used) */
-        emit.write("struct ${emit.getID(type.getTypeName())}_array_type*")
+        emit.write("struct array_type*")
     }
 
     override fun getTypeName(): String {
-        return "${type.getTypeName()}_array_type"
+        return "array_type"
     }
 
     override fun toString(): String {
@@ -265,12 +304,20 @@ class VoidType: Type() {
     override fun equals(other: Any?): Boolean {
         return other is VoidType
     }
+
+    override fun canImplicitConvert(other: Type): Boolean {
+        return other is VoidType
+    }
+
+    override fun isPointer(): Boolean {
+        return false
+    }
 }
 
 /* primative boolean type */
 class BooleanType: Type() {
     override fun emitVarTypeDecl(emit: Emit) {
-        emit.write("uint8_t")
+        emit.write("bool")
     }
 
     override fun getTypeName(): String {
@@ -285,19 +332,87 @@ class BooleanType: Type() {
     override fun getCZeroValue(): String {
         return "0"
     }
+
+    override fun canImplicitConvert(other: Type): Boolean {
+        return other is BooleanType
+    }
+
+    override fun isPointer(): Boolean {
+        return false
+    }
 }
 
 open class NumberType: Type() {
+
     override fun getCZeroValue(): String {
         return "0"
     }
 
-    override fun equals(other: Any?): Boolean{
-        return other is NumberType
+    override fun canImplicitConvert(other: Type): Boolean {
+        return other is BooleanType || other is NumberType
     }
 
-    override fun getTypeName(): String {
-        return "castable int"
+    override fun isPointer(): Boolean {
+        return false
+    }
+
+    override fun hasOpDefined(op: ASTExprOp.ExprType, other: Type?): Boolean {
+        return op != ASTExprOp.ExprType.ARRAY && (ASTExprOp.ExprType.isUnary(op) || other is NumberType)
+    }
+
+    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+        if(ASTExprOp.ExprType.isUnary(op)){
+            when(op) {
+                ASTExprOp.ExprType.POSTFIX_INC -> {
+                    emit.write("(")
+                    type_visitor.visitASTExpr(expr1, scope, emit)
+                    emit.write("++)")
+                }
+                ASTExprOp.ExprType.POSTFIX_DEC -> {
+                    emit.write("(")
+                    type_visitor.visitASTExpr(expr1, scope, emit)
+                    emit.write("--)")
+                }
+                else -> {
+                    val op_str = when(op) {
+                        ASTExprOp.ExprType.PREFIX_INC -> "++"
+                        ASTExprOp.ExprType.PREFIX_DEC -> "--"
+                        ASTExprOp.ExprType.NEGATIVE -> "-"
+                        ASTExprOp.ExprType.BINARY_NOT -> "~"
+                        else -> error("not valid unary op")
+                    }
+                    emit.write("($op_str")
+                    type_visitor.visitASTExpr(expr1, scope, emit)
+                    emit.write(")")
+                }
+            }
+            return NumberType()
+        } else {
+            val op_str = when(op) {
+                ASTExprOp.ExprType.ADD -> "+"
+                ASTExprOp.ExprType.SUB -> "-"
+                ASTExprOp.ExprType.MULT -> "*"
+                ASTExprOp.ExprType.DIV -> "/"
+                ASTExprOp.ExprType.MOD -> "%"
+                ASTExprOp.ExprType.LSHFT -> "<<"
+                ASTExprOp.ExprType.RSHFT -> ">>"
+                ASTExprOp.ExprType.LT -> "<"
+                ASTExprOp.ExprType.LTE -> "<="
+                ASTExprOp.ExprType.GT -> ">"
+                ASTExprOp.ExprType.GTE -> ">="
+                ASTExprOp.ExprType.EQ -> "=="
+                ASTExprOp.ExprType.BINARY_AND -> "&"
+                ASTExprOp.ExprType.BINARY_OR -> "|"
+                ASTExprOp.ExprType.BINARY_XOR -> "^"
+                else -> error("not valid binary op")
+            }
+            emit.write("(")
+            type_visitor.visitASTExpr(expr1, scope, emit)
+            emit.write(op_str)
+            type_visitor.visitASTExpr(expr2!!, scope, emit)
+            emit.write(")")
+            return if(op == ASTExprOp.ExprType.EQ) BooleanType() else NumberType()
+        }
     }
 }
 
@@ -315,6 +430,20 @@ class IntType : NumberType() {
         return other is IntType
     }
 
+}
+
+class LongType: NumberType(){
+    override fun emitVarTypeDecl(emit: Emit) {
+        emit.write("long")
+    }
+
+    override fun getTypeName(): String {
+        return "long"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is LongType
+    }
 }
 
 class CharType: NumberType() {

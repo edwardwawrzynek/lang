@@ -4,7 +4,7 @@ import ast.ASTFileLocation
 
 var current_id: Int = 0
 
-fun gen_unique_id(): Int {
+fun genUniqueId(): Int {
     current_id++
     return current_id
 }

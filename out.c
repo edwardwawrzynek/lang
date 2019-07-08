@@ -2,49 +2,50 @@
 #include "lang_runtime.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 /* --- Class Struct Declarations --- */
-struct __Person;
-typedef struct __Person __Person;
-struct __Person_vtable;
-struct __Person_array_type {
-	unsigned int len;
-	__Person** vals;
+struct __Super;
+typedef struct __Super __Super;
+struct __Super_vtable;
+struct __Child;
+typedef struct __Child __Child;
+struct __Child_vtable;
+/* --- Class Struct Definitions --- */
+struct __Super {
+	struct __Super_vtable* _vtable;
+	struct array_type* array;
+	int v1;
+};
+struct __Super_vtable {
+	struct vtable_head _header;
 };
 
-/* --- Class Struct Definitions --- */
-struct __Person {
-	struct __Person_vtable* _vtable;
-	struct __char_array_type* name;
-	int age;
+struct __Child {
+	__Super _super;
+	long v2;
 };
-struct __Person_vtable {
-	struct vtable_head _header;
-	struct __char_array_type* (*getName)(void*);
-	int (*addToAge)(void*, int);
+struct __Child_vtable {
+	struct __Super_vtable _vtable_super;
 };
 
 /* --- Function Headers --- */
-struct __char_array_type* __Person_getName(void * _data);
-int __Person_addToAge(void * _data, int inc);
+bool __sum(void * _data, int a, int b);
 void __main(void * _data);
 /* --- Program Body --- */
-int __a = 0;
-int __global;
-struct __char_array_type* __Person_getName(void *_data) {
-return ((__Person*) _data)->name;
-}
-
-int __Person_addToAge(void *_data, int inc) {
-void res = ;
-char num = 6;
-return 5;
+int __arg;
+char __test;
+bool __sum(void *_data, int a, int b) {
+return (((!((a==b))))&&(a));
 }
 
 void __main(void *_data) {
+__Child* p = NULL;
+bool b = (p != NULL);
 }
 
 void main (int argc, char **argv) {
-__global = __a;
-__main();
+__arg = (int)5;
+__test = (char)'a';
+__main(NULL);
 };

@@ -30,7 +30,7 @@ class ASTTypeCheckVisitor {
             return
         }
 
-        if(sym.storage == Symbol.StorageType.NESTFUNC){
+        if(sym.storage == Symbol.StorageType.NESTFUNC) {
             emit.write("static ")
         }
         (sym.type as FunctionType).return_type!!.emitVarTypeDecl(emit)
@@ -39,6 +39,12 @@ class ASTTypeCheckVisitor {
         emit.write(" ${sym.name}(void *_data${if (args.isNotEmpty()) ", " else ""}")
 
         for(i in 0.until(args.size)){
+            val sym = ast.body.scope.findSymbol(ast.type.args[i].name)
+            if(sym == null){
+                compilerError("can't find arg ${ast.type.args[i].name} in symbol tables", ast.loc)
+            }
+            sym!!.is_declared = true
+
             args[i].emitVarTypeDecl(emit)
             emit.write(" ${ast.type.args[i].name}")
             if (i < args.size - 1) {
@@ -56,7 +62,7 @@ class ASTTypeCheckVisitor {
             ast.body.ret_type = VoidType()
         }
 
-        if(ast.body.ret_type != (sym.type as FunctionType).return_type){
+        if(!ast.body.ret_type.canImplicitConvert((sym.type as FunctionType).return_type!!)){
             compilerError("return type of ${ast.name} (${ast.body.ret_type}) does not match declared return type of ${(sym.type as FunctionType).return_type!!}", ast.loc)
         }
 
@@ -87,6 +93,24 @@ class ASTTypeCheckVisitor {
         }
     }
 
+    fun emitAssigmentImplicitConvert(emit: Emit, to_type: Type, init_val: ASTExpr, scope: ASTNodeArray<ASTNode>): Type{
+        if(to_type is BooleanType){
+            emit.write("(")
+            val type = visitASTExpr(init_val, scope, emit)
+            if(type.isPointer()) {
+                emit.write(" != NULL)")
+            } else {
+                emit.write(")")
+            }
+            return BooleanType()
+        } else {
+            emit.write("(")
+            to_type.emitVarTypeDecl(emit)
+            emit.write(")")
+            return visitASTExpr(init_val, scope, emit)
+        }
+    }
+
     fun visitASTVarDecl(ast: ASTVarDecl, scope: ASTNodeArray<ASTNode>, emit: Emit) {
         val sym = scope.scope.findSymbol(ast.name)
         if(sym == null){
@@ -104,9 +128,10 @@ class ASTTypeCheckVisitor {
                         sym.type = type
                     }
                     sym.type.emitVarTypeDecl(emit)
+
                     emit.write(" ${sym.name} = ")
-                    val type = visitASTExpr(ast.init_val!!, scope, emit)
-                    if(type != sym.type){
+                    val type = emitAssigmentImplicitConvert(emit, sym.type, ast.init_val!!, scope)
+                    if(!type.canImplicitConvert(sym.type)){
                         compilerError("declared type of variable ${ast.name} (${sym.type}) does not match type of initial value ($type)", ast.loc)
                     }
                     emit.write(";\n")
@@ -124,14 +149,15 @@ class ASTTypeCheckVisitor {
 
             Symbol.StorageType.GLOBAL -> {
                 if(ast.init_val != null) {
+                    /* attempt to infer type */
+                    if (sym.type is InferredType) {
+                        val type = visitASTExpr(ast.init_val!!, scope, DummyEmit())
+                        sym.type = type
+                    }
                     sym.type.emitVarTypeDecl(emit)
                     emit.write(" ${sym.name};\n")
                     val type = visitASTExpr(ast.init_val!!, scope, DummyEmit())
-                    /* attempt to infer type */
-                    if (sym.type is InferredType) {
-                        sym.type = type
-                    }
-                    if(type != sym.type){
+                    if(!type.canImplicitConvert(sym.type)){
                         compilerError("declared type of variable ${ast.name} (${sym.type}) does not match type of initial value ($type)", ast.loc)
                     }
                     global_var_inits += GlobalVarInit(ast, scope)
@@ -154,7 +180,7 @@ class ASTTypeCheckVisitor {
                     if (sym.type is InferredType) {
                         sym.type = type
                     }
-                    if(type != sym.type){
+                    if(!type.canImplicitConvert(sym.type)){
                         compilerError("declared type of variable ${ast.name} (${sym.type}) does not match type of initial value ($type)", ast.loc)
                     }
                     TODO("class var inline initilization")
@@ -162,7 +188,8 @@ class ASTTypeCheckVisitor {
                     if (sym.type is InferredType) {
                         compilerError("can not infer type of variable ${ast.name} without initial value", ast.loc)
                     }
-                    /* TODO: allow imutable vars to be set in constructor */
+
+                    /* TODO: allow immutable vars to be set in constructor, along with other vars + defualt values */
                 }
             }
 
@@ -178,6 +205,7 @@ class ASTTypeCheckVisitor {
             is ASTArrayLiteralExpr -> return VoidType()
             is ASTLiteralExpr -> return visitASTLiteralExpr(ast, scope, emit)
             is ASTVarExpr -> return visitASTVarExpr(ast, scope, emit)
+            is ASTExprOp -> return visitASTExprOp(ast, scope, emit)
         }
 
         return VoidType()
@@ -198,7 +226,7 @@ class ASTTypeCheckVisitor {
         }
         else {
             emit.write(ast.value!!)
-            return NumberType()
+            return LongType()
         }
         return VoidType()
     }
@@ -227,16 +255,56 @@ class ASTTypeCheckVisitor {
     }
 
     fun visitASTExprOp(ast: ASTExprOp, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
-        if(ast.is_unary){
-            val type = visitASTExpr(ast.left, scope, emit)
-            /* TODO: check if op is defined, emit */
-            return type
-        } else {
-            /* TODO: check if op is defined, emit */
-            val type1 = visitASTExpr(ast.left, scope, emit)
-            val type2 = visitASTExpr(ast.right!!, scope, emit)
+        /* TODO: handle logical ops */
+        if(ASTExprOp.ExprType.isLogical(ast.type)){
+            val type1 = visitASTExpr(ast.left, scope, DummyEmit())
+            if(!type1.canImplicitConvert(BooleanType())){
+                compilerError("cannot convert expr to type ${BooleanType()}", ast.left.loc)
+            }
 
-            return type1
+            if(ast.is_unary){
+                val op_str = when(ast.type){
+                    ASTExprOp.ExprType.LOGICAL_NOT -> "!"
+                    else -> error("no such unary logical op")
+                }
+                emit.write("($op_str")
+                emitAssigmentImplicitConvert(emit, BooleanType(), ast.left, scope)
+                emit.write(")")
+
+            } else {
+                val type2 = visitASTExpr(ast.right!!, scope, DummyEmit())
+                if(!type2.canImplicitConvert(BooleanType())){
+                    compilerError("cannot convert expr to type ${BooleanType()}", ast.right!!.loc)
+                }
+                val op_str = when(ast.type){
+                    ASTExprOp.ExprType.LOGICAL_AND -> "&&"
+                    ASTExprOp.ExprType.LOGICAL_OR -> "||"
+                    else -> error("no such unary binary op")
+                }
+                emit.write("(")
+                emitAssigmentImplicitConvert(emit, BooleanType(), ast.left, scope)
+                emit.write(op_str)
+                emitAssigmentImplicitConvert(emit, BooleanType(), ast.right!!, scope)
+                emit.write(")")
+
+            }
+
+            return BooleanType()
+        } else {
+            if (ast.is_unary) {
+                val type = visitASTExpr(ast.left, scope, DummyEmit())
+                if (!type.hasOpDefined(ast.type, null)) {
+                    compilerError("Operation ${ast.type} is not defined on type $type", ast.loc)
+                }
+                return type.emitOp(ast.type, this, emit, ast.left, ast.right, scope)
+            } else {
+                val type1 = visitASTExpr(ast.left, scope, DummyEmit())
+                val type2 = visitASTExpr(ast.right!!, scope, DummyEmit())
+                if (!type1.hasOpDefined(ast.type, type2)) {
+                    compilerError("Operation ${ast.type} is not defined on types $type1 and $type2", ast.loc)
+                }
+                return type1.emitOp(ast.type, this, emit, ast.left, ast.right, scope)
+            }
         }
     }
 
@@ -252,7 +320,7 @@ class ASTTypeCheckVisitor {
 
         if(scope.fun_scope!!.ret_type is InferredType){
             scope.fun_scope!!.ret_type = type
-        } else if(scope.fun_scope!!.ret_type != type){
+        } else if(!type.canImplicitConvert(scope.fun_scope!!.ret_type)){
             compilerError("return type of $type conflicts with earlier type return type of ${scope.fun_scope!!.ret_type}", ast.loc)
         }
     }
@@ -264,14 +332,15 @@ class ASTTypeCheckVisitor {
             if(sym == null){
                 compilerError("can't find variable ${glb.ast.name}", null)
             }
+
             emit.write("${sym!!.name} = ")
-            visitASTExpr(glb.ast.init_val!!, glb.scope, emit)
+            emitAssigmentImplicitConvert(emit, sym.type, glb.ast.init_val!!, glb.scope)
             emit.write(";\n")
         }
         val main = scope.scope.findSymbol("main")
-        if(main == null || main?.type !is FunctionType){
+        if(main == null || main.type !is FunctionType){
             compilerError("No main function was declared", null)
         }
-        emit.write("${emit.getID("main")}();\n};\n")
+        emit.write("${emit.getID("main")}(NULL);\n};\n")
     }
 }

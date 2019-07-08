@@ -1,26 +1,26 @@
-# Sample program
-# Map on int array
+# Test Program for dev
 
-var a: int;
-val global: int = a;
+var arg: int = 5
 
-class Person {
-    val age: int;
-    val name: string;
+var test = 'a'
 
-    fn getName -> string {
-        return name;
+class Super {
+    var v1: int
 
-    }
+    var array: string
+}
 
-    fn addToAge (inc: int) -> int {
-        var res = age + inc;
-        var num: char = 6;
+class Child: Super {
+    var v2: long
+}
 
-        return 5;
-    }
+fn sum (a: int, b: int) -> bool {
+    return (a != b)
+
 }
 
 fn main {
+    var p: Child
 
+    var b: bool = p
 }

@@ -73,19 +73,19 @@ fun classTableEmitShapeDecl(emit: Emit, classTable: SymbolTable) {
     }
     emit.write("/* --- Class Struct Definitions --- */\n")
     /* bodies */
-    val emitted = mutableListOf<String>()
+    val emitted = mutableListOf<ClassType>()
     for(key in classTable.getKeys()) {
-        if(key in emitted){
-            continue
-        }
         val sym = classTable.findSymbol(key)!!
 
         fun emitClass(c: ClassType, emit: Emit) {
+            if(c in emitted){
+                return
+            }
             if(c.superclass != null){
                 emitClass(c.superclass, emit)
             }
             c.emitShapeDecl(emit)
-            emitted.add(c.name)
+            emitted.add(c)
         }
         
         if(sym.type is ClassType) {

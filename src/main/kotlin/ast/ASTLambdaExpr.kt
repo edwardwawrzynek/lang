@@ -1,11 +1,11 @@
 package ast
 
-import compiler.gen_unique_id
+import compiler.genUniqueId
 
 class ASTLambdaExpr(loc: ASTFileLocation, internal var type: ASTFuncType, internal var body: ASTNodeArray<ASTNode>) : ASTExpr(loc) {
 
     var enclosing_func: ASTNodeArray<ASTNode>? = null
-    val id_num = gen_unique_id()
+    val id_num = genUniqueId()
 
     override fun print(i: Int) {
         printIndent(i)

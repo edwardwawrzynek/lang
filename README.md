@@ -5,7 +5,7 @@
     [x] Class Name Symbol Table Construction (type null)
     [x] Class type symbol table construction
     [x] Function + Variable Type Construction
-[ ] Type Inference
+[x] Type Inference
 [ ] Type Resolving/Checking
 [ ] Transform Operator Overrides (AST -> AST)
 [ ] Closure Handling / Free variables (AST -> AST)
@@ -22,4 +22,6 @@
 - NOTE: For loops need to be emitted in their own c scope if a variable is declared in the initial condition
 - TODO: keep namespace names, etc, in name entry in symbol tables (not key, name in value)
 
-
+## Overrideable ops
+- Logical ops can't be overloaded, as they test refs + nulls
+- When a logical op is used (==, !=, !, &&, ||), all values are converted to bool before use

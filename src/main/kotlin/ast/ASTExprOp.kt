@@ -25,24 +25,34 @@ class ASTExprOp(loc: ASTFileLocation, var type: ExprType, var left: ASTExpr, var
         GT,
         GTE,
         EQ,
-        NEQ,
         BINARY_AND,
         BINARY_OR,
         BINARY_XOR,
         LOGICAL_AND,
         LOGICAL_OR,
-        ARRAY
+        ARRAY;
+
+        companion object {
+            fun isUnary(type: ExprType): Boolean {
+                return(type == PREFIX_DEC || type == PREFIX_INC
+                        || type == POSTFIX_DEC || type == POSTFIX_INC
+                        || type == NEGATIVE || type == LOGICAL_NOT
+                        || type == BINARY_NOT)
+            }
+
+            /* logical ops require args converted to boolean first */
+            fun isLogical(type: ExprType): Boolean {
+                return type == LOGICAL_NOT || type == LOGICAL_AND || type == LOGICAL_OR
+            }
+
+            fun isNotOverridable(type: ExprType): Boolean {
+                return isLogical(type) || type == EQ
+            }
+        }
     }
 
     init {
-        is_unary = false
-
-        if (type == ExprType.PREFIX_DEC || type == ExprType.PREFIX_INC
-                || type == ExprType.POSTFIX_DEC || type == ExprType.POSTFIX_INC
-                || type == ExprType.NEGATIVE || type == ExprType.LOGICAL_NOT
-                || type == ExprType.BINARY_NOT) {
-            is_unary = true
-        }
+        is_unary = ExprType.isUnary(type)
     }
 
     override fun print(i: Int) {

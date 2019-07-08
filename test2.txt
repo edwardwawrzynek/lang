@@ -1,7 +1,25 @@
-fn test_func (
-    val a, b: []int, 
-    var c: string, 
-    d: [](arg1: int, val arg2: int) -> [6]int
-    ) -> []int{
-    
+# Sample program
+# Map on int array
+
+a: int;
+global := 5;
+
+class Person {
+    age: int;
+    name: string;
+
+    fn getName -> string {
+        return name;
+    }
+
+    fn addToAge (inc: int) -> int {
+        res := age + inc;
+        num := 6;
+
+        return 5;
+    }
+}
+
+fn main {
+
 }

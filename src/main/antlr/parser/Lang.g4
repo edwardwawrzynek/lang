@@ -103,17 +103,18 @@ statement
     : 'if' (('(' cond=expr ')')|(cond=expr)) code=block             #ifStmnt
     | 'elif' (('(' cond=expr ')')|(cond=expr)) code=block           #elseIfStmnt
     | 'else' code=block                                             #elseStmnt
-    | 'while' (('(' cond=expr ')')|(cond=expr)) code=block                          #whileStmnt
-    | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) ';'                 #doWhileStmnt
-    | 'for' (('(' init=forFirstExpr ';' rep=expr ';' end=expr ')')|(init=forFirstExpr ';' rep=expr ';' end=expr)) code=block  #forStmnt
-    | 'return' (val=expr)? ';'                                         #returnStmnt
-    | 'continue' ';'                                                #continueStmnt
-    | 'break' ';'                                                   #breakStmnt
+    | 'while' (('(' cond=expr ')')|(cond=expr)) code=block          #whileStmnt
+    | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) '\n'                #doWhileStmnt
+    | 'for' (('(' init=forFirstExpr ',' rep=expr ',' end=expr ')')|(init=forFirstExpr ',' rep=expr ',' end=expr)) code=block  #forStmnt
+    | 'return' (val=expr)? '\n'                                     #returnStmnt
+    | 'continue' '\n'                                               #continueStmnt
+    | 'break' '\n'                                                  #breakStmnt
     | function=funcDecl                                             #funcDeclStmnt
     | classType=classDecl                                           #classDeclStmnt
-    | expr ';'                                                      #exprStmnt
+    | expr '\n'                                                     #exprStmnt
     | code=block                                                    #blockStmnt
-    | decl=varDecl ';'                                              #varDeclStmnt
+    | decl=varDecl '\n'                                             #varDeclStmnt
+    | '\n'                                                          #blankLineStmnt
     ;
 
 OP_INC: '++';
@@ -173,6 +174,6 @@ NUM :   '-'?[0-9]+;
 ID  :   [a-zA-Z_]+[a-zA-Z_0-9]*;
 STR :   '"' (~'"')* '"';
 CHR :   '\'' '\\'?(~'\'') '\'';
-WS  :   [ \t\r\n] -> channel(HIDDEN);
+WS  :   [ \t\r] -> channel(HIDDEN);
 COMMENT : '#' .*? '\n' -> channel(HIDDEN);
 MULTICOMMENT : '##>' .*? '##<' -> channel(HIDDEN);

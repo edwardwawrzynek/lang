@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.*
 import ast.*
 import java.util.ArrayList
 import java.lang.Exception
+import kotlin.system.exitProcess
 
 /* TODO: locations from source files in ast tree */
 class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
@@ -14,17 +15,22 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         val nodes = mutableListOf<ASTNode>()
         for (stat in ctx.statement()) {
             val res = visitStatement(stat)
-            if (res is ASTNodeArray<*>) {
+            if (res == null){
+               //Nothing to do
+            } else if (res is ASTNodeArray<*>) {
                 nodes.addAll(res.nodes as MutableList<ASTNode>)
             } else {
-                nodes.add(visitStatement(stat))
+                val n = visitStatement(stat)
+                if(n != null) {
+                    nodes.add(n)
+                }
             }
         }
 
         return ASTNodeArray(nodes)
     }
 
-    fun visitStatement(ctx: LangParser.StatementContext): ASTNode {
+    fun visitStatement(ctx: LangParser.StatementContext): ASTNode? {
         if (ctx is LangParser.IfStmntContext) {
             return ASTIfStmnt(ASTFileLocation.fromToken(ctx.start), visitExpr(ctx.cond), visitBlock(ctx.code))
         } else if (ctx is LangParser.ElseStmntContext) {
@@ -92,12 +98,14 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             return visitBlock(ctx.code)
         } else if (ctx is LangParser.VarDeclStmntContext) {
             return visitVarDecl(ctx.decl)
+        } else if (ctx is LangParser.BlankLineStmntContext){
+            return null
         } else {
             println("No such statement context type")
-            System.exit(0)
+            exitProcess(0)
         }
 
-        return ASTNode(ASTFileLocation.fromToken(ctx.start))
+        return null
     }
 
     override fun visitFuncDecl(ctx: LangParser.FuncDeclContext): ASTNode {
@@ -239,7 +247,10 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
                 LangParser.OP_GT -> type = ASTExprOp.ExprType.GT
                 LangParser.OP_GTE -> type = ASTExprOp.ExprType.GTE
                 LangParser.OP_EQ -> type = ASTExprOp.ExprType.EQ
-                LangParser.OP_NEQ -> type = ASTExprOp.ExprType.NEQ
+                LangParser.OP_NEQ -> {
+                    val expr = ASTExprOp(ASTFileLocation.fromToken(ctx.start), ASTExprOp.ExprType.LOGICAL_NOT,ASTExprOp(ASTFileLocation.fromToken(ctx.start), ASTExprOp.ExprType.EQ, visitExpr(ctx.left), visitExpr(ctx.right)), null)
+                    return expr
+                }
                 LangParser.OP_BAND -> type = ASTExprOp.ExprType.BINARY_AND
                 LangParser.OP_BOR -> type = ASTExprOp.ExprType.BINARY_OR
                 LangParser.OP_BXOR -> type = ASTExprOp.ExprType.BINARY_XOR
@@ -346,7 +357,9 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             if (res is ASTNodeArray<*>) {
                 l.addAll(res.nodes as MutableList<ASTNode>)
             } else {
-                l.add(res)
+                if(res != null) {
+                    l.add(res)
+                }
             }
         }
         return ASTNodeArray(l)

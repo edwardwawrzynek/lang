@@ -1,5 +1,13 @@
 /* Prototype of basic runtime defs */
 
+/* Array Type */
+struct array_type {
+    /* number of entries in the array */
+    unsigned int len;
+    /* actual data in the array will need to be casted to pointer to type when used (int array cats vals to int*, Object to Object**) */
+    void * vals;
+};
+
 /**
  * The Garbage Collection systems needs a way to know what parts of
  * objects are data, pointers, or pointers to arrays

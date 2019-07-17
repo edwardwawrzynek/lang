@@ -98,6 +98,10 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             return visitBlock(ctx.code)
         } else if (ctx is LangParser.VarDeclStmntContext) {
             return visitVarDecl(ctx.decl)
+        } else if (ctx is LangParser.DeclareProtoStmntContext){
+            val res = visitBlock(ctx.protos)
+            res.is_proto_decl = true
+            return ASTNodeArray(mutableListOf(res))
         } else if (ctx is LangParser.BlankLineStmntContext){
             return null
         } else {

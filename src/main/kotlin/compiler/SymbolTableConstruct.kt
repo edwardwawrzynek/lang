@@ -21,6 +21,9 @@ fun astToClassNames (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
             /* TODO: namespacing */
             classTable.addSymbol(node.name, Symbol(node.name, Symbol.Mutability.IMUT, type, Symbol.StorageType.CLASS, node))
         }
+        if (node is ASTNodeArray<*> && node.is_proto_decl){
+            astToClassNames(node as ASTNodeArray<ASTNode>, classTable)
+        }
     }
 }
 
@@ -57,6 +60,9 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                 }
 
             }
+        }
+        if (node is ASTNodeArray<*> && node.is_proto_decl){
+            astToClassTypes(node as ASTNodeArray<ASTNode>, classTable)
         }
     }
 }

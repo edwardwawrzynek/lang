@@ -11,6 +11,8 @@ class ASTNodeArray<T>(var nodes: MutableList<T>) : ASTNode(null) {
     var fun_scope: ASTNodeArray<ASTNode>? = null
     /* FUnction in which the function containing this array is contained */
     var higher_fun_scope: ASTNodeArray<ASTNode>? = null
+    /* if the block contains code only to be treated as a prototype declaration and not actually emitted */
+    var is_proto_decl = false
 
     fun setParentScope(pscope: SymbolTable?) {
         scope.parent = pscope

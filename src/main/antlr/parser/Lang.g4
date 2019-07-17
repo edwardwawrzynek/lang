@@ -111,6 +111,7 @@ statement
     | 'break' '\n'                                                  #breakStmnt
     | function=funcDecl                                             #funcDeclStmnt
     | classType=classDecl                                           #classDeclStmnt
+    | 'declare_proto' protos=block                                  #declareProtoStmnt
     | expr '\n'                                                     #exprStmnt
     | code=block                                                    #blockStmnt
     | decl=varDecl '\n'                                             #varDeclStmnt

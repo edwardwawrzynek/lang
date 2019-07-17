@@ -288,6 +288,10 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
         TODO("empty array default value")
         return ""
     }
+
+    override fun canImplicitConvert(other: Type): Boolean {
+        return equals(other)
+    }
 }
 
 /* primative void type */

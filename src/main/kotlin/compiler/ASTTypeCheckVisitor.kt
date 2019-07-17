@@ -8,20 +8,28 @@ data class GlobalVarInit(val ast: ASTVarDecl, val scope: ASTNodeArray<ASTNode>)
 class ASTTypeCheckVisitor {
     val global_var_inits = mutableListOf<GlobalVarInit>()
 
-
     /* TODO: handle closures (they need to be emitted outside of body */
-    fun visitASTNodeArray(ast: ASTNodeArray<ASTNode>, emit: Emit) {
-        for(node in ast.nodes) {
+    fun visitASTNodeArray(ast: ASTNodeArray<ASTNode>, emitter: Emit) {
+        val emit = if(ast.is_proto_decl) DummyEmit() else emitter
+
+        for (node in ast.nodes) {
             when (node) {
                 is ASTFuncDecl -> visitASTFuncDecl(node, ast, emit)
                 is ASTClassDeclStmnt -> visitASTClassDeclStmnt(node, ast, emit)
                 is ASTVarDecl -> visitASTVarDecl(node, ast, emit)
 
+                is ASTExpr -> {
+                    visitASTExpr(node, ast, emit)
+                    emit.write(";\n")
+                }
+
                 is ASTReturnStmnt -> visitASTReturnStmnt(node, ast, emit)
+
+                is ASTNodeArray<*> -> visitASTNodeArray(node as ASTNodeArray<ASTNode>, emit)
             }
         }
     }
-
+    
     fun visitASTFuncDecl(ast: ASTFuncDecl, scope: ASTNodeArray<ASTNode>, emit: Emit) {
         /* emit body */
         val sym = scope.scope.findSymbol(ast.name)
@@ -29,6 +37,7 @@ class ASTTypeCheckVisitor {
             compilerError("function ${ast.name} not found in symbol tables", null)
             return
         }
+        sym.is_declared = true
 
         if(sym.storage == Symbol.StorageType.NESTFUNC) {
             emit.write("static ")
@@ -44,7 +53,6 @@ class ASTTypeCheckVisitor {
                 compilerError("can't find arg ${ast.type.args[i].name} in symbol tables", ast.loc)
             }
             sym!!.is_declared = true
-
             args[i].emitVarTypeDecl(emit)
             emit.write(" ${ast.type.args[i].name}")
             if (i < args.size - 1) {
@@ -206,6 +214,7 @@ class ASTTypeCheckVisitor {
             is ASTLiteralExpr -> return visitASTLiteralExpr(ast, scope, emit)
             is ASTVarExpr -> return visitASTVarExpr(ast, scope, emit)
             is ASTExprOp -> return visitASTExprOp(ast, scope, emit)
+            is ASTFuncCallExpr -> return visitASTFuncCallExpr(ast, scope, emit)
         }
 
         return VoidType()
@@ -228,7 +237,6 @@ class ASTTypeCheckVisitor {
             emit.write(ast.value!!)
             return LongType()
         }
-        return VoidType()
     }
 
     fun visitASTVarExpr(ast: ASTVarExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
@@ -246,9 +254,10 @@ class ASTTypeCheckVisitor {
             Symbol.StorageType.LOCAL -> emit.write(sym.name)
             Symbol.StorageType.GLOBAL -> emit.write(sym.name)
             Symbol.StorageType.CLASSVAR -> {
-                emit.write("((${emit.getID((sym.of_class!!).getTypeName())}*) _data)->${sym.name}")
+                emit.write("(((${emit.getID((sym.of_class!!).getTypeName())}*) _data)->${sym.name})")
             }
             Symbol.StorageType.NONLOCAL -> TODO("closure variable access")
+            Symbol.StorageType.GLBFUNC -> emit.write(sym.name)
         }
 
         return sym.type
@@ -288,7 +297,6 @@ class ASTTypeCheckVisitor {
                 emit.write(")")
 
             }
-
             return BooleanType()
         } else {
             if (ast.is_unary) {
@@ -306,6 +314,29 @@ class ASTTypeCheckVisitor {
                 return type1.emitOp(ast.type, this, emit, ast.left, ast.right, scope)
             }
         }
+    }
+
+    fun visitASTFuncCallExpr(ast: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
+        val left = visitASTExpr(ast.func, scope, emit)
+        if(left !is FunctionType){
+            compilerError("function call performed on variable of type $left", ast.func.loc)
+        }
+        emit.write("(")
+        /* TODO: get function type (global, closure, class, and adjust first arg appropriately */
+        emit.write("NULL, ")
+        for(i in 0.until(ast.args.nodes.size)) {
+            val type = visitASTExpr(ast.args.nodes[i], scope, DummyEmit())
+            if(!type.canImplicitConvert((left as FunctionType).args[i])){
+                compilerError("type of arg ($type) doesn't match expected type of ${(left as FunctionType).args[i]}", ast.args.nodes[i].loc)
+            }
+            emitAssigmentImplicitConvert(emit, (left as FunctionType).args[i], ast.args.nodes[i], scope)
+            if(i < ast.args.nodes.size - 1) {
+                emit.write(", ")
+            }
+        }
+
+        emit.write(")")
+        return (left as FunctionType).return_type ?: VoidType()
     }
 
     fun visitASTReturnStmnt(ast: ASTReturnStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit){

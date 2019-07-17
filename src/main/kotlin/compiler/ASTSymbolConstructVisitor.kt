@@ -14,7 +14,13 @@ classTable: global table of classes
 class ASTSymbolConstructVisitor {
     fun visitASTNodeArray(ast: ASTNodeArray<ASTNode>, fun_ast: ASTNodeArray<ASTNode>?, parent_scope: SymbolTable?, classTable: SymbolTable, emit: Emit) {
         /* link scope of objects */
-        ast.setParentScope(parent_scope)
+        if(ast.scope === parent_scope) {
+            if(!ast.is_proto_decl){
+                compilerError("ast scope and parent scope matches", ast.loc)
+            }
+        } else {
+            ast.setParentScope(parent_scope)
+        }
         /* set nested function links */
         ast.fun_scope = fun_ast
         ast.higher_fun_scope = fun_ast?.higher_fun_scope
@@ -25,6 +31,12 @@ class ASTSymbolConstructVisitor {
                 is ASTVarDecl -> visitASTVarDecl(node, fun_ast, ast.scope, classTable, false, null, emit)
                 is ASTBlockStmnt -> visitASTBlockStmnt(node, fun_ast, ast.scope, classTable, emit)
                 is ASTClassDeclStmnt -> visitASTClassDeclStmnt(node, fun_ast, ast.scope, classTable, emit)
+                is ASTNodeArray<*> -> {
+                    if(node.is_proto_decl){
+                        node.scope = ast.scope
+                    }
+                    visitASTNodeArray(node as ASTNodeArray<ASTNode>, fun_ast, ast.scope, classTable, emit)
+                }
             }
         }
 
@@ -77,11 +89,10 @@ class ASTSymbolConstructVisitor {
         }
         (symbol.type as FunctionType).return_type!!.emitVarTypeDecl(emit)
 
-        emit.write(" ${symbol.name}(void * _data${if (args.isNotEmpty()) ", " else ""}")
+        emit.write(" ${symbol.name}(void *${if (args.isNotEmpty()) ", " else ""}")
 
         for (i in 0.until(args.size)) {
             args[i].emitVarTypeDecl(emit)
-            emit.write(" ${ast.type.args[i].name}")
             if (i < args.size - 1) {
                 emit.write(", ")
             }

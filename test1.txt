@@ -1,26 +1,15 @@
-# Test Program for dev
-
-var arg: int = 5
-
-var test = 'a'
-
-class Super {
-    var v1: int
-
-    var array: string
+declare_proto {
+    fn printNumber(msg: int) -> void {}
 }
 
-class Child: Super {
-    var v2: long
-}
+class Test {
+    val v: int
 
-fn sum (a: int, b: int) -> bool {
-    return (a != b)
-
+    fn getV -> int {
+        return v
+    }
 }
 
 fn main {
-    var p: Child
-
-    var b: bool = p
+    printNumber(42)
 }

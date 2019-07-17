@@ -1,3 +1,10 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 /* Prototype of basic runtime defs */
 
 /* Array Type */
@@ -34,3 +41,22 @@ struct vtable_head {
      * parent allows for (somewhat inefficient) hierarchy checks */
      void * parent_vtable;
 };
+
+/* basic runtime ops */
+void __printNumber(void * _data, int msg) {
+    printf("%d\n", msg);
+}
+
+void * gc_alloc(size_t size){
+    return malloc(size);
+}
+
+struct array_type * makeString(char * msg) {
+    struct array_type * res = gc_alloc(sizeof(struct array_type));
+    res->len = strlen(msg);
+    char * str = gc_alloc(res->len);
+    res->vals = (void *)str;
+    for(size_t i = 0; i < res->len; i++){
+        str[i] = msg[i];
+    }
+}

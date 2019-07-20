@@ -40,13 +40,13 @@ open class Type {
         return false
     }
 
-    open fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+    open fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         error("can't emit op on Type")
     }
 
     /* field access types */
     enum class FieldType {
-        NONE, /* no such fieled */
+        NONE, /* no such field */
         READWRITE,
         READONLY,
         WRITEONLY,
@@ -58,12 +58,12 @@ open class Type {
     }
 
     /* emit code for reading a field. access_expr is expr before dot */
-    open fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+    open fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         error("invalid field read")
     }
 
     /* emit code for writing a field. access_expr is code before dot, val_expr is expr field is being set to */
-    open fun emitFieldWrite(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, val_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+    open fun emitFieldWrite(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, val_expr: ASTExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         error("invalid field write")
     }
 
@@ -73,7 +73,7 @@ open class Type {
     }
 
     /* emit a function call with the given field name */
-    open fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>): Type {
+    open fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         error("invalid field name call")
     }
 
@@ -83,7 +83,7 @@ open class Type {
     }
 
     companion object {
-        fun fromASTType(type: ASTType?, classTable: SymbolTable, binding_type: FunctionType.Binding?): Type {
+        fun fromASTType(type: ASTType?, classTable: SymbolTable, binding_type: FunctionType.Binding?, namespace: Namespace?): Type {
             if(type == null){
                 return InferredType()
             }
@@ -92,38 +92,38 @@ open class Type {
                 is ASTArrayFuncType -> {
                     val castd_type = ASTFuncType(type.loc!!, type.args, type.ret_type)
                     res = ArrayType(
-                            Type.fromASTType(castd_type, classTable, FunctionType.Binding.CLOSURE),
+                            Type.fromASTType(castd_type, classTable, FunctionType.Binding.CLOSURE, namespace),
                             if (type.length != -1) type.length else null)
                 }
                 is ASTArrayType -> res = ArrayType(
-                        Type.fromStringLitType(type.lit_type!!, classTable, type.loc),
+                        Type.fromStringLitType(type.lit_type!!, classTable, type.loc, namespace),
                         if (type.length != -1) type.length else null)
                 is ASTFuncType -> {
                     val ret_type: Type?
                     if (type.ret_type == null) {
                         ret_type = VoidType()
                     } else {
-                        ret_type = Type.fromASTType(type.ret_type, classTable, FunctionType.Binding.CLOSURE)
+                        ret_type = Type.fromASTType(type.ret_type, classTable, FunctionType.Binding.CLOSURE, namespace)
                     }
                     val args = mutableListOf<Type>()
                     for(arg in type.args) {
                         if (arg.type == null) {
                             compilerError("arg type was not inferred", type.loc)
                         }
-                        val typ = Type.fromASTType(arg.type, classTable, FunctionType.Binding.CLOSURE)
+                        val typ = Type.fromASTType(arg.type, classTable, FunctionType.Binding.CLOSURE, namespace)
 
                         args += typ
                     }
                     res = FunctionType(ret_type, args, binding_type)
                 }
 
-                else -> res = Type.fromStringLitType(type.lit_type!!, classTable, type.loc)
+                else -> res = Type.fromStringLitType(type.lit_type!!, classTable, type.loc, namespace)
             }
 
             return res
         }
 
-        private fun fromStringLitType(type: String, classTable: SymbolTable, loc: ASTFileLocation?): Type {
+        private fun fromStringLitType(type: String, classTable: SymbolTable, loc: ASTFileLocation?, namespace: Namespace?): Type {
              when(type) {
                  "void" -> return VoidType()
                  "string" -> return ArrayType(CharType(), null)
@@ -134,7 +134,30 @@ open class Type {
                  "bool" -> return BooleanType()
                  "char" -> return CharType()
                  else -> {
-                    val symbol = classTable.findSymbol(type)
+                     val symbol: Symbol?
+
+                     if('.' in type) {
+                         /* handle scoped namespaces */
+                     } else {
+                         if (namespace == null) {
+                             symbol = classTable.findSymbol(type)
+                         } else {
+                             /* search up the whole namespace tree */
+                             fun searchUpNamespaces(name: String, namespace: Namespace): Symbol? {
+                                 val sym = classTable.findSymbolByNamespaceName(namespace, name)
+                                 if (sym == null) {
+                                     if (namespace.parent == null) {
+                                         return null
+                                     } else {
+                                         return searchUpNamespaces(name, namespace.parent)
+                                     }
+                                 } else {
+                                     return sym
+                                 }
+                             }
+                             symbol = searchUpNamespaces(type, namespace)
+                         }
+                     }
                     if (symbol == null) {
                         compilerError("identifier ${type} is not a recognized type", loc!!)
                     } else {
@@ -193,24 +216,24 @@ struct vtable_head {
 }
 
  */
-class ClassType(var name: String, var table: SymbolTable, val superclass: ClassType?) : Type() {
+/* shortName is non namespace'd name */
+class ClassType(var name: String, var shortName: String, var table: SymbolTable, val superclass: ClassType?) : Type() {
 
     val overridden_methods = mutableListOf<String>()
 
     fun emitShapeDeclHeader (emit: Emit) {
-        emit.write("struct ${emit.getID(name)};\n")
-        //emit.write("typedef struct ${emit.getID(name)} ${emit.getID(name)};\n")
+        emit.write("struct ${getName(emit)};\n")
 
         /* emit vtable header */
-        emit.write("struct ${emit.getID(name)}_vtable;\n")
+        emit.write("struct ${getName(emit)}_vtable;\n")
     }
 
     fun emitShapeDecl (emit: Emit) {
-        emit.write("struct ${emit.getID(name)} {\n")
+        emit.write("struct ${getName(emit)} {\n")
         if(superclass != null) {
-            emit.write("\tstruct ${emit.getID(superclass.name)} _super;\n")
+            emit.write("\tstruct ${superclass.getName(emit)} _super;\n")
         } else {
-            emit.write("\tstruct ${emit.getID(name)}_vtable* _vtable;\n")
+            emit.write("\tstruct ${getName(emit)}_vtable* _vtable;\n")
         }
         for((name, symbol) in table.table) {
             /* functions go in vtable */
@@ -224,10 +247,10 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         }
         emit.write("};\n")
 
-        emit.write("struct ${emit.getID(name)}_vtable {\n")
+        emit.write("struct ${getName(emit)}_vtable {\n")
 
         if(superclass != null) {
-            emit.write("\tstruct ${emit.getID(superclass.name)}_vtable _vtable_super;\n")
+            emit.write("\tstruct ${superclass.getName(emit)}_vtable _vtable_super;\n")
         } else {
             emit.write("\tstruct _lang_vtable_head _header;\n")
         }
@@ -243,13 +266,13 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
     }
 
     fun emitVtableInstance(emit: Emit) {
-        emit.write("struct ${emit.getID(name)}_vtable ${emit.getID(name)}_vtable_inst = ")
+        emit.write("struct ${getName(emit)}_vtable ${getName(emit)}_vtable_inst = ")
         emitVtableInstanceBody(this, emit)
         emit.write(";\n")
     }
 
     fun emitVtableInstanceHeader(emit: Emit) {
-        emit.write("extern struct ${emit.getID(name)}_vtable ${emit.getID(name)}_vtable_inst;\n")
+        emit.write("extern struct ${getName(emit)}_vtable ${getName(emit)}_vtable_inst;\n")
     }
 
     /* find which superclass has the most recent implementation of a method */
@@ -290,7 +313,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
                 error("can't find method ${f.name} in table")
             }
 
-            emit.write(".${f.name} = &${emit.getID(implementor.name)}_${f.name},\n")
+            emit.write(".${f.name} = &${implementor.getName(emit)}_${f.name},\n")
         }
         if(type.superclass != null) {
             emit.write("._vtable_super = ")
@@ -301,7 +324,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
             if(superclass == null) {
                 supervtable = "NULL"
             } else {
-                supervtable = "&${emit.getID(superclass.name)}_vtable_inst"
+                supervtable = "&${superclass.getName(emit)}_vtable_inst"
             }
             emit.write("._header = {\n/* TODO: gc_desk */\n.parent_vtable = $supervtable,\n},\n")
         }
@@ -309,10 +332,15 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
     }
 
     override fun emitVarTypeDecl(emit: Emit) {
-        emit.write("struct ${emit.getID(name)}*")
+        emit.write("struct $name*")
     }
 
     override fun getTypeName(): String {
+        return shortName
+    }
+
+    /* get the properly prefixed name */
+    fun getName(emit: Emit): String {
         return name
     }
 
@@ -354,7 +382,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         return FieldType.READWRITE
     }
 
-    override fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+    override fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         val sym = table.findSymbol(name)
         if(sym == null) {
             error("invalid field read")
@@ -366,17 +394,17 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         if(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS) {
             /* TODO: closure conversion (not here, but special care needed for class bound functions) */
             val root = findRootClass()
-            emit.write("((struct ${emit.getID(implementor.name)}_vtable *)(((struct ${emit.getID(root.name)} *)(")
-            type_visitor.visitASTExpr(access_expr, scope, emit)
+            emit.write("((struct ${implementor.getName(emit)}_vtable *)(((struct ${root.getName(emit)} *)(")
+            type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
             emit.write("))->_vtable))->$name")
             return sym.type
         } else {
             emit.write("(")
             if (implementor != this) {
-                emit.write("(struct ${emit.getID(implementor.name)} *)")
+                emit.write("(struct ${implementor.getName(emit)} *)")
             }
             emit.write("(")
-            type_visitor.visitASTExpr(access_expr, scope, emit)
+            type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
             emit.write("))")
             emit.write("->$name")
 
@@ -384,10 +412,10 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         }
     }
 
-    override fun emitFieldWrite(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, val_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
-        val type = emitFieldRead(name, type_visitor, emit, access_expr, scope)
+    override fun emitFieldWrite(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, val_expr: ASTExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
+        val type = emitFieldRead(name, type_visitor, emit, access_expr, scope, namespace)
         emit.write(" = ")
-        val val_type = type_visitor.emitExprImplicitConvert(emit, type, val_expr, scope)
+        val val_type = type_visitor.emitExprImplicitConvert(emit, type, val_expr, namespace, scope)
         if(!val_type.canImplicitConvert(type)) {
             compilerError("type of value being assigned ($val_type) does not match expected type ($type)", val_expr.loc)
         }
@@ -406,7 +434,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         return false
     }
 
-    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>): Type {
+    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
 
         val sym = table.findSymbol(name)
         if(sym == null) {
@@ -423,8 +451,8 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         val root = findRootClass()
         emit.write("(_lang_temp_this = ")
         emit.write("(")
-        type_visitor.visitASTExpr(access_expr, scope, emit)
-        emit.write("), ((struct ${emit.getID(implementor.name)}_vtable *)(((struct ${emit.getID(root.name)} *)_lang_temp_this)->_vtable))->$name")
+        type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
+        emit.write("), ((struct ${implementor.getName(emit)}_vtable *)(((struct ${root.getName(emit)} *)_lang_temp_this)->_vtable))->$name")
         emit.write("(_lang_temp_this")
 
         if (func_expr.args.nodes.size > 0) emit.write(", ")
@@ -433,7 +461,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         }
 
         for (i in 0.until(func_expr.args.nodes.size)) {
-            val type = type_visitor.emitExprImplicitConvert(emit, (sym.type as FunctionType).args[i], func_expr.args.nodes[i], scope)
+            val type = type_visitor.emitExprImplicitConvert(emit, (sym.type as FunctionType).args[i], func_expr.args.nodes[i], namespace, scope)
             if (!type.canImplicitConvert((sym.type as FunctionType).args[i])) {
                 compilerError("type of arg ($type) doesn't match expected type of ${(sym.type as FunctionType).args[i]}", func_expr.args.nodes[i].loc)
             }
@@ -489,11 +517,11 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         return true
     }
 
-    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         val func = opToFuncName(op)
         val args = if(ASTExprOp.ExprType.isUnary(op)) mutableListOf<ASTExpr>() else mutableListOf(expr2!!)
         val dummyFunc = ASTFuncCallExpr(expr1.loc!!, ASTExpr(expr1.loc), ASTNodeArray(args))
-        return emitFieldCall(func, type_visitor, emit, expr1, dummyFunc, scope)
+        return emitFieldCall(func, type_visitor, emit, expr1, dummyFunc, scope, namespace)
     }
 
 }
@@ -625,31 +653,31 @@ class ArrayType(var type: Type, val length: Int?): Type() {
         }
     }
 
-    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         when(op) {
             ASTExprOp.ExprType.ARRAY -> {
                 emit.write("((")
                 type.emitVarTypeDecl(emit)
                 emit.write("*)((")
-                type_visitor.visitASTExpr(expr1, scope, emit)
+                type_visitor.visitASTExpr(expr1, scope, namespace, emit)
                 emit.write(")->vals))[")
-                type_visitor.visitASTExpr(expr2!!, scope, emit)
+                type_visitor.visitASTExpr(expr2!!, scope, namespace, emit)
                 emit.write("]")
                 return type
             }
             ASTExprOp.ExprType.ADD -> {
                 emit.write("_lang_array_cat(")
-                type_visitor.visitASTExpr(expr1, scope, emit)
+                type_visitor.visitASTExpr(expr1, scope, namespace, emit)
                 emit.write(", ")
-                type_visitor.visitASTExpr(expr2!!, scope, emit)
+                type_visitor.visitASTExpr(expr2!!, scope, namespace, emit)
                 emit.write(", ${type.isPointer()})")
                 return this
             }
             ASTExprOp.ExprType.LSHFT -> {
                 emit.write("_lang_array_add_${if(type.isPointer()) "pointer" else type.getTypeName()}(")
-                type_visitor.visitASTExpr(expr1, scope, emit)
+                type_visitor.visitASTExpr(expr1, scope, namespace, emit)
                 emit.write(", ")
-                type_visitor.visitASTExpr(expr2!!, scope, emit)
+                type_visitor.visitASTExpr(expr2!!, scope, namespace, emit)
                 emit.write(")")
                 return this
             }
@@ -666,11 +694,11 @@ class ArrayType(var type: Type, val length: Int?): Type() {
         }
     }
 
-    override fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+    override fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         when(name) {
             "len" -> {
                 emit.write("(")
-                type_visitor.visitASTExpr(access_expr, scope, emit)
+                type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
                 emit.write("->len)")
                 return LongType()
             }
@@ -685,16 +713,16 @@ class ArrayType(var type: Type, val length: Int?): Type() {
         }
     }
 
-    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>): Type {
+    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         when(name) {
             "removeAt" -> {
                 if(func_expr.args.nodes.size != 1) {
                     compilerError("number of arguments (${func_expr.args.nodes.size}) doesn't match expected number of 1", if(func_expr.args.nodes.size > 0) func_expr.args.nodes[0].loc else func_expr.loc)
                 }
                 emit.write("_lang_array_remove_at(")
-                type_visitor.visitASTExpr(access_expr, scope, emit)
+                type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
                 emit.write(", ")
-                val type = type_visitor.emitExprImplicitConvert(emit, LongType(), func_expr.args.nodes[0], scope)
+                val type = type_visitor.emitExprImplicitConvert(emit, LongType(), func_expr.args.nodes[0], namespace, scope)
                 if(!type.canImplicitConvert(LongType())) {
                     compilerError("type of arg $type doesn't match expected type of long", func_expr.args.nodes[0].loc)
                 }
@@ -815,18 +843,18 @@ open class NumberType: Type() {
         return op != ASTExprOp.ExprType.ARRAY && (ASTExprOp.ExprType.isUnary(op) || other is NumberType)
     }
 
-    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
         if(ASTExprOp.ExprType.isUnary(op)){
             val typ: Type
             when(op) {
                 ASTExprOp.ExprType.POSTFIX_INC -> {
                     emit.write("(")
-                    typ = type_visitor.visitASTExpr(expr1, scope, emit)
+                    typ = type_visitor.visitASTExpr(expr1, scope, namespace, emit)
                     emit.write("++)")
                 }
                 ASTExprOp.ExprType.POSTFIX_DEC -> {
                     emit.write("(")
-                    typ = type_visitor.visitASTExpr(expr1, scope, emit)
+                    typ = type_visitor.visitASTExpr(expr1, scope, namespace, emit)
                     emit.write("--)")
                 }
                 else -> {
@@ -838,7 +866,7 @@ open class NumberType: Type() {
                         else -> error("not valid unary op")
                     }
                     emit.write("($op_str")
-                    typ = type_visitor.visitASTExpr(expr1, scope, emit)
+                    typ = type_visitor.visitASTExpr(expr1, scope, namespace, emit)
                     emit.write(")")
                 }
             }
@@ -863,9 +891,9 @@ open class NumberType: Type() {
                 else -> error("not valid binary op")
             }
             emit.write("(")
-            val typ1 = type_visitor.visitASTExpr(expr1, scope, emit)
+            val typ1 = type_visitor.visitASTExpr(expr1, scope, namespace, emit)
             emit.write(op_str)
-            val typ2 = type_visitor.visitASTExpr(expr2!!, scope, emit)
+            val typ2 = type_visitor.visitASTExpr(expr2!!, scope, namespace, emit)
             emit.write(")")
             return if(op == ASTExprOp.ExprType.EQ) BooleanType() else (if(typ1 is FloatingType || typ2 is FloatingType) FloatingType() else NumberType())
         }

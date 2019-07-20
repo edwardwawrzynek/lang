@@ -1,3 +1,4 @@
+
 declare_proto {
     fn print(msg: string) -> void {}
     fn putc(c: char) -> void {}
@@ -15,11 +16,11 @@ class Object {
 }
 
 class vec3 {
-	x: long
-	y: long
-	z: long
+	x: double
+	y: double
+	z: double
 
-	fn construct(x: long, y: long, z: long) {
+	fn construct(x: double, y: double, z: double) {
 		this.x = x
 		this.y = y
 		this.z = z
@@ -28,9 +29,43 @@ class vec3 {
 	fn _op_add(o: vec3) -> vec3
 		=> vec3(x + o.x, y + o.y, z + o.z)
 
+	fn _op_sub(o: vec3) -> vec3
+		=> vec3(x - o.x, y - o.y, z - o.z)
+}
+
+namespace pkg_cont {
+	class contTest {
+		a: int
+
+		fn construct(a: int) {
+			this.a = a
+		}
+	}
+
+	namespace pkg {
+
+		class Test: Object {
+			a: int
+
+			fn construct(a: int) {
+				this.a = a
+			}
+
+			fn getA -> int => a
+
+			fn setA (a: int) -> int => this.a = a
+		}
+
+		a: Test = Test(1)
+		b: contTest = contTest(2)
+
+		fn test {
+			print(a.to_string())
+		}
+
+	}
 }
 
 fn main() {
-	val a: vec3 = null
-	val b := null
+
 }

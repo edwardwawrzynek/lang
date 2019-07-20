@@ -14,6 +14,10 @@ class ASTFuncDecl(loc: ASTFileLocation, val name: String, val type: ASTFuncType,
         }
     }
 
+    fun isNested(scope: ASTNodeArray<ASTNode>): Boolean {
+        return scope.higher_fun_scope != null
+    }
+
     override fun print(i: Int) {
         printIndent(i)
         println("ASTFuncDecl: (name, type, body)")

@@ -10,6 +10,14 @@ fun genUniqueId(): Int {
     return current_id
 }
 
+fun namespaceAppend(name: String, add: String): String {
+    if(name == ""){
+        return add
+    } else {
+        return "${name}__$add"
+    }
+}
+
 fun compilerError(msg: String, loc: ASTFileLocation?): Nothing {
     print("\u001B[31m")
     if(loc == null) {

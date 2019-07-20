@@ -75,6 +75,37 @@ class SymbolTable(
         return table[name]
     }
 
+    fun findByNamespaceNames(namespace: Namespace): SymbolTable {
+        val names = mutableListOf<String>()
+        /* find root, then search down from there */
+        fun findRoot(namespace: Namespace) {
+            if(namespace.name != "") {
+                names.add(namespace.name)
+            }
+            if(namespace.parent != null) {
+                findRoot(namespace.parent)
+            }
+        }
+
+        findRoot(namespace)
+        var cur: SymbolTable = this
+        for(i in names.size-1 downTo 0) {
+            val sym = cur.findSymbol(names[i])?.type
+            if(sym == null || sym !is Namespace) error("can't find namespace ${names[i]}")
+            cur = sym.table
+        }
+        return cur
+    }
+
+    /* find the namespace entries with matching names with namespace, then find symbol in those namespaces. Used for matching ASTSymbolTableConstruct namespaces with classTable ones */
+    fun findSymbolByNamespaceName(namespace: Namespace?, name: String): Symbol? {
+        if(namespace == null) {
+            return findSymbol(name)
+        } else {
+            return findByNamespaceNames(namespace).findSymbol(name)
+        }
+    }
+
 }
 
 

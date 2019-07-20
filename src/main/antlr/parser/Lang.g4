@@ -156,6 +156,7 @@ statement
     | function=funcDecl                                             #funcDeclStmnt
     | classType=classDecl                                           #classDeclStmnt
     | 'declare_proto' protos=block                                  #declareProtoStmnt
+    | 'namespace' name=ID cont=block								#namespaceStmnt
 	| decl=varDecl eos                                              #varDeclStmnt
     | expr eos                                                      #exprStmnt
     ;

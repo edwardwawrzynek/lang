@@ -100,6 +100,8 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             val res = visitBlock(ctx.protos)
             res.is_proto_decl = true
             return ASTNodeArray(mutableListOf(res))
+        } else if (ctx is LangParser.NamespaceStmntContext) {
+            return ASTNamespaceStmnt(ASTFileLocation.fromToken(ctx.start), ctx.name.text, visitBlock(ctx.cont))
         } else {
             println("No such statement context type")
             exitProcess(0)

@@ -1,15 +1,7 @@
 declare_proto {
-    fn printNumber(msg: int) -> void {}
-}
-
-class Test {
-    val v: int
-
-    fn getV -> int {
-        return v
-    }
+    fn print(msg: string) -> void {}
 }
 
 fn main {
-    printNumber(42)
+    print("Hello, World!\n")
 }

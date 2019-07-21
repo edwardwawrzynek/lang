@@ -8,7 +8,6 @@ import java.util.ArrayList
 import java.lang.Exception
 import kotlin.system.exitProcess
 
-/* TODO: locations from source files in ast tree */
 class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
 
     override fun visitProgram(ctx: LangParser.ProgramContext): ASTNodeArray<ASTNode> {

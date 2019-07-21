@@ -64,7 +64,6 @@ open class Type {
                 is ASTFuncType -> {
                     val ret_type: Type?
                     if (type.ret_type == null) {
-                        /* TODO: type inference later */
                         ret_type = VoidType()
                     } else {
                         ret_type = Type.fromASTType(type.ret_type!!, classTable)
@@ -99,7 +98,6 @@ open class Type {
                  else -> {
                     val symbol = classTable.findSymbol(type)
                     if (symbol == null) {
-                        /* TODO: class name lookup */
                         compilerError("identifier ${type} is not a recognized type", loc!!)
                         /* unreachable */
                         return VoidType()
@@ -189,7 +187,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         if(superclass != null) {
             emit.write("\tstruct ${emit.getID(superclass.name)}_vtable _vtable_super;\n")
         } else {
-            emit.write("\tstruct vtable_head _header;\n")
+            emit.write("\tstruct _lang_vtable_head _header;\n")
         }
 
         for((name, symbol) in table.table) {
@@ -273,11 +271,11 @@ data class FunctionType(var return_type: Type?, var args: List<Type>) : Type() {
 data class ArrayType(var type: Type, val length: Int?): Type() {
     override fun emitVarTypeDecl(emit: Emit) {
         /* TODO: bound checked array (struct for each type of array used) */
-        emit.write("struct array_type*")
+        emit.write("_lang_array*")
     }
 
     override fun getTypeName(): String {
-        return "array_type"
+        return "_lang_array"
     }
 
     override fun toString(): String {

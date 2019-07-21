@@ -98,7 +98,6 @@ forFirstExpr
     : (expr|varDecl)
     ;
 
-//TODO: for loop should only allow expr or var decl in first arg
 statement
     : 'if' (('(' cond=expr ')')|(cond=expr)) code=block             #ifStmnt
     | 'elif' (('(' cond=expr ')')|(cond=expr)) code=block           #elseIfStmnt

@@ -229,8 +229,7 @@ class ASTTypeCheckVisitor {
             return CharType()
         }
         if(ast.value!![0] == '\"'){
-            TODO("make string literals")
-            emit.write(ast.value!!)
+            emit.write("_lang_make_string(${ast.value!!})")
             return ArrayType(CharType(), null)
         }
         else {
@@ -357,7 +356,7 @@ class ASTTypeCheckVisitor {
     }
 
     fun emitMainFunc(scope: ASTNodeArray<ASTNode>, emit: Emit){
-        emit.write("void main (int argc, char **argv) {\n")
+        emit.write("int main (int argc, char **argv) {\n")
         for(glb in global_var_inits){
             val sym = glb.scope.scope.findSymbol(glb.ast.name)
             if(sym == null){

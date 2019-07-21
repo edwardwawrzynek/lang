@@ -1,25 +1,27 @@
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+/****
+Main Runtime Header
+Included everything necessary for the compiler to produce a working program
+Mostly just memory management at this point
+****/
 
-/* Prototype of basic runtime defs */
+#ifndef _LANG_CORE_H
+#define _LANG_CORE_H
+
+#include <stddef.h>
 
 /* Array Type */
-struct array_type {
+typedef struct {
     /* number of entries in the array */
-    unsigned int len;
+    size_t len;
     /* actual data in the array will need to be casted to pointer to type when used (int array cats vals to int*, Object to Object**) */
     void * vals;
-};
+} _lang_array;
 
 /**
  * The Garbage Collection systems needs a way to know what parts of
  * objects are data, pointers, or pointers to arrays
  * packing space is listed as data, as the gc will ignore data anyway */
-struct gc_desk {
+struct _lang_gc_desk {
     /* TODO */
     /* Notes:
         - We can probably assume pointers will all be the same size and have the same alignment
@@ -32,9 +34,10 @@ struct gc_desk {
 
 };
 
-struct vtable_head {
+/* Upper most vtable in all classes hierarchies */
+struct _lang_vtable_head {
     /* Garbage Collection description of object */
-    struct gc_desk gc;
+    struct _lang_gc_desk gc;
     /* Pointer to vtable of parent class
      * because each class uses the same unique vtable,
      * runtime type checking is done based on an object's vtable pointer
@@ -42,21 +45,8 @@ struct vtable_head {
      void * parent_vtable;
 };
 
-/* basic runtime ops */
-void __printNumber(void * _data, int msg) {
-    printf("%d\n", msg);
-}
+/* Core functions (see core.c) */
+void * _lang_gc_alloc(size_t size);
+_lang_array * _lang_make_string(char * msg);
 
-void * gc_alloc(size_t size){
-    return malloc(size);
-}
-
-struct array_type * makeString(char * msg) {
-    struct array_type * res = gc_alloc(sizeof(struct array_type));
-    res->len = strlen(msg);
-    char * str = gc_alloc(res->len);
-    res->vals = (void *)str;
-    for(size_t i = 0; i < res->len; i++){
-        str[i] = msg[i];
-    }
-}
+#endif

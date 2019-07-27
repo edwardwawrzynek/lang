@@ -2,13 +2,53 @@
 #include "core.h"
 
 /* --- Class Struct Declarations --- */
+struct __Object;
+typedef struct __Object __Object;
+struct __Object_vtable;
 /* --- Class Struct Definitions --- */
+struct __Object {
+	struct __Object_vtable* _vtable;
+	int i;
+};
+struct __Object_vtable {
+	struct _lang_vtable_head _header;
+};
+
 /* --- Function Headers --- */
 void __print(void *, _lang_array*);
+bool __toBool(void *, __Object*);
+_lang_array* __test(void *, int, int);
+_lang_closure* __run(void *);
+void __test_func(void *, _lang_closure*);
 void __main(void *);
+static int ___nested_func_12(void *, _lang_array*);
 /* --- Program Body --- */
+bool __toBool(void *_data, __Object* o) {
+return (o != NULL);
+}
+
+_lang_array* __test(void *_data, int a, int b) {
+return (_lang_array*)_lang_make_string("hello");
+}
+
+_lang_closure* __run(void *_data) {
+return (_lang_closure*)__test;
+}
+
+void __test_func(void *_data, _lang_closure* f) {
+f(NULL, (int)1, (int)2);
+}
+
 void __main(void *_data) {
+_lang_array* s = (_lang_array*)_lang_make_string("hello");
+_lang_closure* func = NULL;
+__test_func(NULL, (_lang_closure*)func);
 __print(NULL, (_lang_array*)_lang_make_string("Hello, World!\n"));
+long i = (long)6;
+static int ___nested_func_12(void *_data, _lang_array* arg) {
+return (int)(1+i);
+}
+
 }
 
 int main (int argc, char **argv) {

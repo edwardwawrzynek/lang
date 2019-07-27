@@ -6,6 +6,7 @@ import compiler.*
 class ASTNodeArray<T>(var nodes: MutableList<T>) : ASTNode(null) {
     var scope = SymbolTable(null)
     var ret_type: Type = InferredType() /* return type of function node arrays needed for type checking */
+    var decld_ret_type: Type? = null
 
     /* Function in which this node array is contained */
     var fun_scope: ASTNodeArray<ASTNode>? = null

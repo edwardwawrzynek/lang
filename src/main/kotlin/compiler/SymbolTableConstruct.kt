@@ -38,25 +38,32 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                 val table = (entry.type as ClassType).table
 
                 for (field in node.fields.nodes) {
+                    val sym = Symbol(
+                        field.name,
+                        Symbol.fromASTMut(field.mutable),
+                        Type.fromASTType(field.type, classTable),
+                        Symbol.StorageType.CLASSVAR,
+                        field.type!!)
+                    if(sym.type is FunctionType){
+                        (sym.type as FunctionType).binding_type = FunctionType.Binding.CLASS
+                    }
+                    table.addSymbol(field.name, sym)
 
-                    table.addSymbol(field.name, Symbol(
-                            field.name,
-                            Symbol.fromASTMut(field.mutable),
-                            Type.fromASTType(field.type, classTable),
-                            Symbol.StorageType.CLASSVAR,
-                            field.type!!)
-                    )
                 }
 
                 for (method in node.methods.nodes) {
+                    val sym = Symbol(
+                        method.name,
+                        Symbol.Mutability.IMUT,
+                        Type.fromASTType(method.type, classTable),
+                        Symbol.StorageType.CLASSFUNC,
+                        method.type)
+
+                    if(sym.type is FunctionType){
+                        (sym.type as FunctionType).binding_type = FunctionType.Binding.CLASS
+                    }
                     /* mutability is irelevant */
-                    table.addSymbol(method.name, Symbol(
-                            method.name,
-                            Symbol.Mutability.IMUT,
-                            Type.fromASTType(method.type, classTable),
-                            Symbol.StorageType.CLASSFUNC,
-                            method.type)
-                    )
+                    table.addSymbol(method.name, sym)
                 }
 
             }

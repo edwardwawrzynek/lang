@@ -8,7 +8,7 @@ data class GlobalVarInit(val ast: ASTVarDecl, val scope: ASTNodeArray<ASTNode>)
 class ASTTypeCheckVisitor {
     val global_var_inits = mutableListOf<GlobalVarInit>()
 
-    /* TODO: handle closures (they need to be emitted outside of body */
+    /* TODO: handle closures (they need to be emitted outside of body) */
     fun visitASTNodeArray(ast: ASTNodeArray<ASTNode>, emitter: Emit) {
         val emit = if(ast.is_proto_decl) DummyEmit() else emitter
 
@@ -43,6 +43,7 @@ class ASTTypeCheckVisitor {
             emit.write("static ")
         }
         (sym.type as FunctionType).return_type!!.emitVarTypeDecl(emit)
+        ast.body.decld_ret_type = (sym.type as FunctionType).return_type
 
         val args = (sym.type as FunctionType).args
         emit.write(" ${sym.name}(void *_data${if (args.isNotEmpty()) ", " else ""}")
@@ -244,7 +245,7 @@ class ASTTypeCheckVisitor {
             compilerError("no such variable: ${ast.name}", ast.loc)
         }
 
-        if(!sym!!.is_declared){
+        if(!sym!!.is_declared && !(sym!!.type is FunctionType)){
             compilerError("variable ${ast.name} used before declaration", ast.loc)
         }
 
@@ -344,7 +345,8 @@ class ASTTypeCheckVisitor {
         if(ast.value == null){
             type = VoidType()
         } else {
-            type = visitASTExpr((ast.value as ASTExpr), scope, emit)
+            type = emitAssigmentImplicitConvert(emit, scope.fun_scope!!.decld_ret_type!!, (ast.value as ASTExpr), scope)
+            //type = visitASTExpr((ast.value as ASTExpr), scope, emit)
         }
         emit.write(";\n")
 

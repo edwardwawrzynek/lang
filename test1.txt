@@ -2,6 +2,34 @@ declare_proto {
     fn print(msg: string) -> void {}
 }
 
+class Object {
+	var i: int
+}
+
+fn toBool(o: Object) -> bool {
+	return o;
+}
+
+fn test(a: int, b: int) -> string {
+	return "hello"
+}
+
+fn run -> (a: int, b: int) -> string {
+	return test
+}
+
+fn test_func(f: (A: int, b: int) -> string) {
+	f(1,2)
+}
+
 fn main {
+	var s = "hello";
+	var func: (a: int, b: int) -> string
+	test_func(func)
     print("Hello, World!\n")
+    var i = 6
+
+    fn nest(arg: string) -> int {
+		return 1 + i
+    }
 }

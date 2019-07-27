@@ -17,6 +17,14 @@ typedef struct {
     void * vals;
 } _lang_array;
 
+/* Closure Type */
+typedef struct {
+	/* function pointer */
+	void * func;
+	/* pointer to gc-managed struct containing the data passed to the function */
+	void * data;
+} _lang_closure;
+
 /**
  * The Garbage Collection systems needs a way to know what parts of
  * objects are data, pointers, or pointers to arrays

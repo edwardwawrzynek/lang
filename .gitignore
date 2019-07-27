@@ -1,5 +1,9 @@
 #hide vscode config
 .vscode
+#hide idea files
+/.idea
+/.settings
+/.project
 #hide antlr generated files
 .antlr
 *.class
@@ -8,6 +12,11 @@
 #hide gradle files
 .gradle
 /build/
+/out
+gradlew.bat
+#hide object files
+*.o
+*.a
 
 # Ignore Gradle GUI config
 gradle-app.setting

@@ -18,8 +18,7 @@
 - Local var and function tables
 
 ## TODO/NOTES
-- TODO: move var storage info to type entries, not syms, needed for handling non-simple vars
-- TODO: custom code to handle declare_proto
+- TODO: custom code to handle declare_proto (now just needs to handle global vars, functions handled)
 - TODO: Namespaces (packages, also nested classes, etc)
 - NOTE: For loops need to be emitted in their own c scope if a variable is declared in the initial condition
 - TODO: keep namespace names, etc, in name entry in symbol tables (not key, name in value)

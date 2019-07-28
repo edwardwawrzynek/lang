@@ -62,4 +62,8 @@ class ASTExprOp(loc: ASTFileLocation, var type: ExprType, var left: ASTExpr, var
         left.print(i + 1)
         right?.print(i + 1)
     }
+
+    override fun isLValue(): Boolean {
+        return type == ExprType.ARRAY
+    }
 }

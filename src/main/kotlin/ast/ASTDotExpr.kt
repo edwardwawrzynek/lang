@@ -2,6 +2,10 @@ package ast
 
 class ASTDotExpr(loc: ASTFileLocation, var left: ASTExpr, var right: ASTExpr) : ASTExpr(loc) {
 
+    override fun isLValue(): Boolean {
+        return true
+    }
+
     override fun print(i: Int) {
         printIndent(i)
         println("ASTDotExpr:")

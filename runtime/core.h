@@ -8,6 +8,7 @@ Mostly just memory management at this point
 #define _LANG_CORE_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 /* Array Type */
 typedef struct {
@@ -16,6 +17,9 @@ typedef struct {
     /* actual data in the array will need to be casted to pointer to type when used (int array cats vals to int*, Object to Object**) */
     void * vals;
 } _lang_array;
+
+/* Empty Array Value */
+extern _lang_array _lang_empty_array;
 
 /* Closure Type */
 typedef struct {
@@ -54,7 +58,14 @@ struct _lang_vtable_head {
 };
 
 /* Core functions (see core.c) */
-void * _lang_gc_alloc(size_t size);
-_lang_array * _lang_make_string(char * msg);
+void * _lang_gc_alloc(size_t);
+
+_lang_array * _lang_make_string(char *);
+_lang_array * _lang_array_cat(_lang_array *, _lang_array *);
+_lang_array * _lang_array_add_char(_lang_array *, char);
+_lang_array * _lang_array_add_bool(_lang_array *, bool);
+_lang_array * _lang_array_add_int(_lang_array *, int);
+_lang_array * _lang_array_add_long(_lang_array *, long);
+_lang_array * _lang_array_add_pointer(_lang_array *, void *);
 
 #endif

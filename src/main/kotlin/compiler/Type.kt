@@ -348,13 +348,60 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
         return "[]$type"
     }
 
+    override fun isPointer(): Boolean {
+        return true
+    }
+
     override fun getCZeroValue(): String {
-        TODO("empty array default value")
-        return ""
+        return "(&_lang_empty_array)"
     }
 
     override fun canImplicitConvert(other: Type): Boolean {
         return equals(other)
+    }
+
+    override fun hasOpDefined(op: ASTExprOp.ExprType, other: Type?): Boolean {
+        return when(op) {
+            ASTExprOp.ExprType.ARRAY -> other is NumberType
+            ASTExprOp.ExprType.ADD ->  other == this
+            ASTExprOp.ExprType.LSHFT -> other!!.canImplicitConvert(type)
+            else -> false
+        }
+    }
+
+    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+        when(op) {
+            ASTExprOp.ExprType.ARRAY -> {
+                emit.write("/* TODO: bounds check */")
+                emit.write("((")
+                type.emitVarTypeDecl(emit)
+                emit.write("*)((")
+                type_visitor.visitASTExpr(expr1, scope, emit)
+                emit.write(")->vals))[")
+                type_visitor.visitASTExpr(expr2!!, scope, emit)
+                emit.write("]")
+                return type
+            }
+            ASTExprOp.ExprType.ADD -> {
+                emit.write("_lang_array_cat(")
+                type_visitor.visitASTExpr(expr1, scope, emit)
+                emit.write(", ")
+                type_visitor.visitASTExpr(expr2!!, scope, emit)
+                emit.write(")")
+                return this
+            }
+            ASTExprOp.ExprType.LSHFT -> {
+                emit.write("_lang_array_add_${if(type.isPointer()) "pointer" else type.getTypeName()}(")
+                type_visitor.visitASTExpr(expr1, scope, emit)
+                emit.write(", ")
+                type_visitor.visitASTExpr(expr2!!, scope, emit)
+                emit.write(")")
+                return this
+            }
+            else -> {
+                error("not valid array op")
+            }
+        }
     }
 }
 
@@ -417,7 +464,7 @@ open class NumberType: Type() {
     }
 
     override fun canImplicitConvert(other: Type): Boolean {
-        return other is BooleanType || other is NumberType
+        return other is BooleanType || (other is NumberType && other !is CharType)
     }
 
     override fun isPointer(): Boolean {
@@ -525,5 +572,9 @@ class CharType: NumberType() {
 
     override fun equals(other: Any?): Boolean {
         return other is CharType
+    }
+
+    override fun canImplicitConvert(other: Type): Boolean {
+        return other is BooleanType || other is CharType
     }
 }

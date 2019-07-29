@@ -14,7 +14,8 @@ class ASTTypeCheckVisitor {
         val emit = emitter
         if(ast.is_proto_decl) return
 
-        for (node in ast.nodes) {
+        for (i in 0.until(ast.nodes.size)) {
+            val node = ast.nodes[i]
             when (node) {
                 is ASTFuncDecl -> visitASTFuncDecl(node, ast, emit)
                 is ASTClassDeclStmnt -> visitASTClassDeclStmnt(node, ast, emit)
@@ -26,6 +27,20 @@ class ASTTypeCheckVisitor {
                 }
 
                 is ASTReturnStmnt -> visitASTReturnStmnt(node, ast, emit)
+
+                is ASTIfStmnt -> visitASTIfStmnt(node, ast, emit)
+                is ASTElseIfStmnt -> {
+                    if(i < 1 || (ast.nodes[i-1] !is ASTIfStmnt && ast.nodes[i-1] !is ASTElseIfStmnt)){
+                        compilerError("elsif is not directly preceded by if or elsif statement", node.loc)
+                    }
+                    visitASTElseIfStmnt(node, ast, emit)
+                }
+                is ASTElseStmnt -> {
+                    if(i < 1 || (ast.nodes[i-1] !is ASTIfStmnt && ast.nodes[i-1] !is ASTElseIfStmnt)){
+                        compilerError("else is not directly preceded by if or elsif statement", node.loc)
+                    }
+                    visitASTElseStmnt(node, ast, emit)
+                }
 
                 is ASTNodeArray<*> -> visitASTNodeArray(node as ASTNodeArray<ASTNode>, emit)
             }
@@ -383,6 +398,34 @@ class ASTTypeCheckVisitor {
         }
 
         return left
+    }
+
+    fun visitASTIfStmnt(ast: ASTIfStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("if(")
+        val type = emitExprImplicitConvert(emit, BooleanType(), ast.cond, scope)
+        if(!type.canImplicitConvert(BooleanType())) {
+            compilerError("condition cannot be converted to bool", ast.cond.loc)
+        }
+        emit.write(") {\n")
+        visitASTNodeArray(ast.code, emit)
+        emit.write("\n}\n")
+    }
+
+    fun visitASTElseIfStmnt(ast: ASTElseIfStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("else if(")
+        val type = emitExprImplicitConvert(emit, BooleanType(), ast.cond, scope)
+        if(!type.canImplicitConvert(BooleanType())) {
+            compilerError("condition cannot be converted to bool", ast.cond.loc)
+        }
+        emit.write(") {\n")
+        visitASTNodeArray(ast.code, emit)
+        emit.write("\n}\n")
+    }
+
+    fun visitASTElseStmnt(ast: ASTElseStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("else {\n")
+        visitASTNodeArray(ast.code, emit)
+        emit.write("\n}\n")
     }
 
     fun emitMainFunc(scope: ASTNodeArray<ASTNode>, emit: Emit){

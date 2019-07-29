@@ -5,18 +5,10 @@
 /* --- Class Struct Definitions --- */
 /* --- Function Headers --- */
 void __print(void *, _lang_array*);
-_lang_array* __test(void *);
+_lang_array* __readLine(void *);
 void __main(void *);
 /* --- Program Body --- */
 void __main(void *_data) {
-_lang_array* array = (&_lang_empty_array);
-_lang_array* a1 = (_lang_array*)_lang_make_string("hello, world!");
-_lang_array* a2 = (_lang_array*)_lang_make_string("this is a second string");
-_lang_array* a3 = (_lang_array*)_lang_make_string("another");
-array = (_lang_array*)_lang_array_cat(array, _lang_array_add_pointer(array, _lang_array_cat(a1, a2)));
-array = (_lang_array*)_lang_array_add_pointer(array, a2);
-array = (_lang_array*)_lang_array_add_pointer(array, a3);
-__print(NULL, (_lang_array*)/* TODO: bounds check */((_lang_array**)((array)->vals))[0]);
 }
 
 int main (int argc, char **argv) {

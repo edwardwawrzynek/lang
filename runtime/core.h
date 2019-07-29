@@ -9,6 +9,7 @@ Mostly just memory management at this point
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
 
 /* Array Type */
 typedef struct {

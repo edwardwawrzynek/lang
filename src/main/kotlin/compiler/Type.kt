@@ -372,7 +372,6 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
     override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
         when(op) {
             ASTExprOp.ExprType.ARRAY -> {
-                emit.write("/* TODO: bounds check */")
                 emit.write("((")
                 type.emitVarTypeDecl(emit)
                 emit.write("*)((")

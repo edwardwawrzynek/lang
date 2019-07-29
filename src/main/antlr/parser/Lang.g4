@@ -100,7 +100,7 @@ forFirstExpr
 
 statement
     : 'if' (('(' cond=expr ')')|(cond=expr)) code=block             #ifStmnt
-    | 'elif' (('(' cond=expr ')')|(cond=expr)) code=block           #elseIfStmnt
+    | 'elsif' (('(' cond=expr ')')|(cond=expr)) code=block           #elseIfStmnt
     | 'else' code=block                                             #elseStmnt
     | 'while' (('(' cond=expr ')')|(cond=expr)) code=block          #whileStmnt
     | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) '\n'                #doWhileStmnt

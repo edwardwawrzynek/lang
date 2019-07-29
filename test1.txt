@@ -1,20 +1,8 @@
 declare_proto {
     fn print(msg: string) -> void {}
-    fn test() -> []int {}
+    fn readLine -> string {}
 }
 
 fn main {
 
-	var array: []string
-
-	var a1 = "hello, world!"
-	var a2 = "this is a second string"
-	var a3 = "another"
-
-	array += array << (a1 + a2)
-	array <<= a2
-	array <<= a3
-
-
-	print(array[0])
 }

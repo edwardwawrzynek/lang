@@ -42,6 +42,12 @@ class ASTTypeCheckVisitor {
                     visitASTElseStmnt(node, ast, emit)
                 }
 
+                is ASTWhileStmnt -> visitASTWhileStmnt(node, ast, emit)
+                is ASTDoWhileStmnt -> visitASTDoWhileStmnt(node, ast, emit)
+                is ASTForStmnt -> visitASTForStmnt(node, ast, emit)
+                is ASTBreakStmnt -> visitASTBreakStmnt(node, ast, emit)
+                is ASTContinueStmnt -> visitASTContinueStmnt(node, ast, emit)
+
                 is ASTNodeArray<*> -> visitASTNodeArray(node as ASTNodeArray<ASTNode>, emit)
             }
         }
@@ -153,6 +159,9 @@ class ASTTypeCheckVisitor {
                         val type = visitASTExpr(ast.init_val!!, scope, DummyEmit())
                         sym.type = type
                     }
+                    if(sym.mutable == Symbol.Mutability.IMUT) {
+                        emit.write("const ")
+                    }
                     sym.type.emitVarTypeDecl(emit)
 
                     emit.write(" ${sym.name} = ")
@@ -179,6 +188,9 @@ class ASTTypeCheckVisitor {
                     if (sym.type is InferredType) {
                         val type = visitASTExpr(ast.init_val!!, scope, DummyEmit())
                         sym.type = type
+                    }
+                    if(sym.mutable == Symbol.Mutability.IMUT) {
+                        emit.write("const ")
                     }
                     sym.type.emitVarTypeDecl(emit)
                     emit.write(" ${sym.name};\n")
@@ -221,6 +233,10 @@ class ASTTypeCheckVisitor {
 
             Symbol.StorageType.NONLOCAL -> {
                 TODO("closure variable declaration emitting")
+            }
+
+            else -> {
+                error("not valid storage type")
             }
         }
 
@@ -408,7 +424,7 @@ class ASTTypeCheckVisitor {
         }
         emit.write(") {\n")
         visitASTNodeArray(ast.code, emit)
-        emit.write("\n}\n")
+        emit.write("}\n")
     }
 
     fun visitASTElseIfStmnt(ast: ASTElseIfStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
@@ -419,13 +435,64 @@ class ASTTypeCheckVisitor {
         }
         emit.write(") {\n")
         visitASTNodeArray(ast.code, emit)
-        emit.write("\n}\n")
+        emit.write("}\n")
     }
 
     fun visitASTElseStmnt(ast: ASTElseStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
         emit.write("else {\n")
         visitASTNodeArray(ast.code, emit)
-        emit.write("\n}\n")
+        emit.write("}\n")
+    }
+
+    fun visitASTWhileStmnt(ast: ASTWhileStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("while (");
+        val type = emitExprImplicitConvert(emit, BooleanType(), ast.cond, scope)
+        if(!type.canImplicitConvert(BooleanType())) {
+            compilerError("condition cannot be converted to bool", ast.cond.loc)
+        }
+        emit.write(") {\n");
+        visitASTNodeArray(ast.code, emit)
+        emit.write("}\n")
+    }
+
+    fun visitASTDoWhileStmnt(ast: ASTDoWhileStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("do {\n");
+        visitASTNodeArray(ast.code, emit)
+        emit.write("} while (")
+        val type = emitExprImplicitConvert(emit, BooleanType(), ast.cond, scope)
+        if(!type.canImplicitConvert(BooleanType())) {
+            compilerError("condition cannot be converted to bool", ast.cond.loc)
+        }
+        emit.write(");\n")
+    }
+
+    fun visitASTForStmnt(ast: ASTForStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("for (")
+
+        if (ast.inital is ASTExpr) {
+            visitASTExpr(ast.inital as ASTExpr, scope, emit)
+            emit.write("; ")
+        } else if (ast.inital is ASTVarDecl) {
+            visitASTVarDecl(ast.inital as ASTVarDecl, scope, emit)
+        } else {
+            error("for inital condition not var decl or expr")
+        }
+        if(!emitExprImplicitConvert(emit, BooleanType(), ast.cond, scope).canImplicitConvert(BooleanType())) {
+            compilerError("condition cannot be converted to bool", ast.cond.loc)
+        }
+        emit.write("; ")
+        visitASTExpr(ast.end, scope, emit)
+        emit.write(") {\n")
+        visitASTNodeArray(ast.code, emit)
+        emit.write("}\n")
+    }
+
+    fun visitASTBreakStmnt(ast: ASTBreakStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("break;\n")
+    }
+
+    fun visitASTContinueStmnt(ast: ASTContinueStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
+        emit.write("continue;\n")
     }
 
     fun emitMainFunc(scope: ASTNodeArray<ASTNode>, emit: Emit){

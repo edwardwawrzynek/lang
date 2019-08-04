@@ -59,7 +59,7 @@ typeDecl
     ;
 
 varType
-    : (name=ID ','?)+ (':' typeName=typeDecl)?
+    : (name=ID ','?)+ ':' (typeName=typeDecl)?
     ;
 
 funcArgVarType
@@ -71,7 +71,7 @@ varInit
     ;
 
 varDecl
-    : mut=('var'|'val') typeName=varType ('=' init=varInit)?
+    : (mut=('var'|'val'))? typeName=varType ('=' init=varInit)?
     ;
 
 funcArgDecl
@@ -79,11 +79,15 @@ funcArgDecl
     ;
 
 funcType
-    : ('(' args=funcArgDecl ')')? ('->' retType=typeDecl)?
+    : '(' args=funcArgDecl ')' '->' retType=typeDecl
     ;
 
+funcTypeWithBody
+	: ('(' args=funcArgDecl ')')? ('->' retType=typeDecl)?
+	;
+
 funcBody
-    : typeName=funcType code=block
+    : typeName=funcTypeWithBody code=block
     ;
 
 funcDecl
@@ -112,7 +116,6 @@ statement
     | classType=classDecl                                           #classDeclStmnt
     | 'declare_proto' protos=block                                  #declareProtoStmnt
     | expr '\n'                                                     #exprStmnt
-    | code=block                                                    #blockStmnt
     | decl=varDecl '\n'                                             #varDeclStmnt
     | '\n'                                                          #blankLineStmnt
     ;

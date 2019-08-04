@@ -47,7 +47,8 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             } else {
                 init = visitVarDecl(ctx.init.varDecl()).nodes[0]
             }
-            return ASTForStmnt(ASTFileLocation.fromToken(ctx.start), init, visitExpr(ctx.rep), visitExpr(ctx.end), visitBlock(ctx.code))
+            val res = ASTForStmnt(ASTFileLocation.fromToken(ctx.start), init, visitExpr(ctx.rep), visitExpr(ctx.end), visitBlock(ctx.code))
+            return ASTNodeArray(mutableListOf(ASTNodeArray(mutableListOf(res))))
         } else if (ctx is LangParser.ReturnStmntContext) {
             val expr = if(ctx.`val` != null) visitExpr(ctx.`val`) else null
             return ASTReturnStmnt(ASTFileLocation.fromToken(ctx.start), expr)
@@ -93,8 +94,6 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         } else if (ctx is LangParser.ExprStmntContext) {
             return visitExpr(ctx.expr())
 
-        } else if (ctx is LangParser.BlockStmntContext) {
-            return visitBlock(ctx.code)
         } else if (ctx is LangParser.VarDeclStmntContext) {
             return visitVarDecl(ctx.decl)
         } else if (ctx is LangParser.DeclareProtoStmntContext){
@@ -107,12 +106,10 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             println("No such statement context type")
             exitProcess(0)
         }
-
-        return null
     }
 
     override fun visitFuncDecl(ctx: LangParser.FuncDeclContext): ASTNode {
-        val type = visitFuncType(ctx.function.typeName)
+        val type = visitFuncTypeWithBody(ctx.function.typeName)
         val body = visitBlock(ctx.function.code)
         return ASTFuncDecl(ASTFileLocation.fromToken(ctx.start), ctx.name.text, type, body)
     }
@@ -185,6 +182,23 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         return ASTFuncType(ASTFileLocation.fromToken(ctx.start), args, ret_type)
     }
 
+    override fun visitFuncTypeWithBody(ctx: LangParser.FuncTypeWithBodyContext): ASTFuncType {
+        val ret_type: ASTType?
+        if (ctx.retType == null) {
+            ret_type = null
+        } else {
+            ret_type = visitTypeDecl(ctx.retType)
+        }
+        val args = ArrayList<ASTVarDecl>()
+        if (ctx.args != null) {
+            for (i in 0 until ctx.args.funcArgVarType().size) {
+                val t = visitFuncArgVarType(ctx.args.funcArgVarType(i))
+                args.addAll(t.nodes)
+            }
+        }
+        return ASTFuncType(ASTFileLocation.fromToken(ctx.start), args, ret_type)
+    }
+
     fun visitExpr(ctx: LangParser.ExprContext): ASTExpr {
         if (ctx is LangParser.ParenExprContext) {
 /* parens don't do anything */
@@ -216,7 +230,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             return ASTExprOp(ASTFileLocation.fromToken(ctx.start), type, visitExpr(ctx.varName), null)
 
         } else if (ctx is LangParser.LambdaExprContext) {
-            val type = visitFuncType(ctx.varName.typeName)
+            val type = visitFuncTypeWithBody(ctx.varName.typeName)
             val body = visitBlock(ctx.varName.code)
             return ASTLambdaExpr(ASTFileLocation.fromToken(ctx.start), type, body)
 
@@ -326,7 +340,9 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
 
     override fun visitVarDecl(ctx: LangParser.VarDeclContext): ASTNodeArray<ASTVarDecl> {
         var mutable = ASTVarDecl.VarMut.MUT
-        if (ctx.mut.text == "var") {
+        if(ctx.mut == null) {
+            mutable = ASTVarDecl.VarMut.MUT
+        } else if (ctx.mut.text == "var") {
             mutable = ASTVarDecl.VarMut.MUT
         } else if (ctx.mut.text == "val") {
             mutable = ASTVarDecl.VarMut.IMUT

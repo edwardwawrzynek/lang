@@ -2,13 +2,40 @@
 #include "core.h"
 
 /* --- Class Struct Declarations --- */
+struct __Person;
+typedef struct __Person __Person;
+struct __Person_vtable;
 /* --- Class Struct Definitions --- */
+struct __Person {
+	struct __Person_vtable* _vtable;
+	const _lang_array* name;
+	int age;
+};
+struct __Person_vtable {
+	struct _lang_vtable_head _header;
+	int (*getAge)(void*);
+};
+
 /* --- Function Headers --- */
 void __print(void *, _lang_array*);
 _lang_array* __readLine(void *);
+int __Person_getAge(void *);
 void __main(void *);
 /* --- Program Body --- */
+int __Person_getAge(void *_data) {
+return (int)(((__Person*) _data)->age);
+}
+
 void __main(void *_data) {
+_lang_array* msg = (_lang_array*)__readLine(NULL);
+const long i = (long)0;
+const int n = (int)5;
+for (i = (long)0; (bool)((i<10)); (i++)) {
+__print(NULL, (_lang_array*)msg);
+if((bool)((i>5))) {
+break;
+}
+}
 }
 
 int main (int argc, char **argv) {

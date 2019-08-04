@@ -1,6 +1,6 @@
 package ast
 
-class ASTVarDecl(loc: ASTFileLocation, var name: String, var type: ASTType?, var init_val: ASTExpr?, var mutable: VarMut) : ASTExpr(loc) {
+class ASTVarDecl(loc: ASTFileLocation, var name: String, var type: ASTType?, var init_val: ASTExpr?, var mutable: VarMut) : ASTNode(loc) {
 
     enum class VarMut {
         MUT, IMUT

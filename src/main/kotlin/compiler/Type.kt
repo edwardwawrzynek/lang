@@ -190,6 +190,9 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
             /* functions go in vtable */
             if(symbol.type !is FunctionType) {
                 emit.write("\t")
+                if(symbol.mutable == Symbol.Mutability.IMUT) {
+                    emit.write("const ")
+                }
                 symbol.type.emitVarDecl(emit, name)
             }
         }

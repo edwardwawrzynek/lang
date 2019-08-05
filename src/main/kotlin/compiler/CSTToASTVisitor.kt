@@ -117,18 +117,8 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
     override fun visitTypeDecl(ctx: LangParser.TypeDeclContext): ASTType {
         /* handle array */
         if (ctx.arrayDecl() != null) {
-            var length = -1
-            if (ctx.arrayDecl().size == null) {
-                length = -1
-            } else {
-                try {
-                    length = Integer.parseInt(ctx.arrayDecl().size.text)
-                } catch (e: NumberFormatException) {
-                    val loc = ASTFileLocation.fromToken(ctx.arrayDecl().size)
-                    compilerError(String.format("'%s' is not a valid array size", ctx.arrayDecl().size.text), loc)
-                }
+            val length = -1
 
-            }
             if (ctx.ID() != null) {
                 return ASTArrayType(ASTFileLocation.fromToken(ctx.start), ctx.ID().text, length)
             } else {
@@ -305,10 +295,10 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             if (ctx.literal().arrayLiteral() == null) {
                 return ASTLiteralExpr(ASTFileLocation.fromToken(ctx.start), ctx.literal().text)
             } else {
-                val lits = ArrayList<ASTLiteralExpr>()
+                val lits = ArrayList<ASTExpr>()
                 for (n in 0 until ctx.literal().arrayLiteral().expr().size) {
                     val l = ctx.literal().arrayLiteral().expr(n)
-                    lits.add(ASTLiteralExpr(ASTFileLocation.fromToken(l.start), l.text))
+                    lits.add(visitExpr(l))
                 }
                 return ASTArrayLiteralExpr(ASTFileLocation.fromToken(ctx.start), lits)
             }

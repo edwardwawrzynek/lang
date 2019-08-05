@@ -51,7 +51,7 @@ block
     ;
 
 arrayDecl
-    : '[' (size=NUM)? ']'
+    : '[' ']'
     ;
 
 typeDecl

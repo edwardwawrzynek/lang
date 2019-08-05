@@ -18,14 +18,13 @@ declare_proto {
 }
 
 fn main {
-	msgs := ["hello", "this is a test", "this is the third test"]
+	msgs := ["start", "middle 1", "middle 2", "end"]
 
-	msgs += ["fourth", "fifth"]
-
-	msgs <<= "last"
+	msgs = msgs.removeAt(2)
 
 	for i := 0, i < msgs.len, i++ {
 		print(msgs[i])
 		putc('\n')
 	}
+
 }

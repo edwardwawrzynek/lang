@@ -18,7 +18,7 @@ extern _lang_array _lang_empty_array;
 _lang_array * _lang_make_string(char *);
 
 /* add element to array */
-_lang_array * _lang_array_cat(_lang_array * a0, _lang_array * a1, size_t elem_size);
+_lang_array * _lang_array_cat(_lang_array * a0, _lang_array * a1, size_t elem_size, bool);
 _lang_array * _lang_array_add_char(_lang_array *, char);
 _lang_array * _lang_array_add_bool(_lang_array *, bool);
 _lang_array * _lang_array_add_int(_lang_array *, int);
@@ -31,5 +31,7 @@ _lang_array * _lang_make_array_int(size_t, ...);
 _lang_array * _lang_make_array_long(size_t, ...);
 _lang_array * _lang_make_array_bool(size_t, ...);
 _lang_array * _lang_make_array_pointer(size_t, ...);
+
+_lang_array * _lang_array_remove_at(_lang_array * a, size_t pos, size_t elem_size, bool is_pointer);
 
 #endif

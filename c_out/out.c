@@ -29,9 +29,8 @@ void __Object_destruct(void *);
 void __main(void *);
 /* --- Program Body --- */
 void __main(void *_data) {
-_lang_array* msgs = (_lang_array*)_lang_make_array_pointer(3, _lang_make_string("hello"), _lang_make_string("this is a test"), _lang_make_string("this is the third test"));
-msgs = (_lang_array*)_lang_array_cat(msgs, _lang_make_array_pointer(2, _lang_make_string("fourth"), _lang_make_string("fifth")), sizeof(void *));
-msgs = (_lang_array*)_lang_array_add_pointer(msgs, _lang_make_string("last"));
+_lang_array* msgs = (_lang_array*)_lang_make_array_pointer(4, _lang_make_string("start"), _lang_make_string("middle 1"), _lang_make_string("middle 2"), _lang_make_string("end"));
+msgs = (_lang_array*)_lang_array_remove_at(msgs, (long)2, sizeof(long), false);
 for (long i = (long)0;
 (bool)((i<(msgs->len))); (i++)) {
 __print(NULL, (_lang_array*)((_lang_array**)((msgs)->vals))[i]);

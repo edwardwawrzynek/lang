@@ -260,12 +260,12 @@ class ASTTypeCheckVisitor {
             if(ast.lits.isEmpty()) {
                 TODO("array of fully castable (potentially null) type")
             }
-            val first_type = visitASTLiteralExpr(ast.lits[0], scope, DummyEmit())
+            val first_type = visitASTExpr(ast.lits[0], scope, DummyEmit())
             emit.write("_lang_make_array_${if(first_type.isPointer()) "pointer" else first_type.getTypeName()}(${ast.lits.size}, ")
             var type: Type? = null
             for(i in 0.until(ast.lits.size)) {
                 val lit = ast.lits[i]
-                val typ = visitASTLiteralExpr(lit, scope, emit)
+                val typ = visitASTExpr(lit, scope, emit)
                 if(type == null) {
                     type = typ
                 } else if(typ != type) {
@@ -384,31 +384,46 @@ class ASTTypeCheckVisitor {
     }
 
     fun visitASTFuncCallExpr(ast: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
-        val left = visitASTExpr(ast.func, scope, emit)
-        if(left !is FunctionType){
-            compilerError("function call performed on variable of type $left (not a function)", ast.func.loc)
-        }
-        emit.write("(")
-        if((left as FunctionType).binding_type != FunctionType.Binding.GLOBAL) {
-            TODO("non global function calls")
-        }
-        /* TODO: get function type (global, closure, class, and adjust first arg appropriately) */
-        emit.write("NULL")
-        if(ast.args.nodes.size > 0) emit.write(", ")
-
-        for(i in 0.until(ast.args.nodes.size)) {
-            val type = visitASTExpr(ast.args.nodes[i], scope, DummyEmit())
-            if(!type.canImplicitConvert((left as FunctionType).args[i])){
-                compilerError("type of arg ($type) doesn't match expected type of ${(left as FunctionType).args[i]}", ast.args.nodes[i].loc)
+        if(ast.func is ASTDotExpr) {
+            val access_expr = (ast.func as ASTDotExpr).left
+            val name = ((ast.func as ASTDotExpr).right as? ASTVarExpr)?.name
+            if(name == null) {
+                error("invalid astdotexpr name")
             }
-            emitExprImplicitConvert(emit, (left as FunctionType).args[i], ast.args.nodes[i], scope)
-            if(i < ast.args.nodes.size - 1) {
-                emit.write(", ")
+            val type = visitASTExpr(access_expr, scope, DummyEmit())
+            if(!type.hasFieldCall(name)) {
+                compilerError("type $type has no method $name", (ast.func as ASTDotExpr).right.loc)
             }
-        }
+            return type.emitFieldCall(name, this, emit, access_expr, ast, scope)
+        } else {
+            val left = visitASTExpr(ast.func, scope, emit)
+            if (left !is FunctionType) {
+                compilerError("function call performed on variable of type $left (not a function)", ast.func.loc)
+            }
+            emit.write("(")
+            if ((left as FunctionType).binding_type != FunctionType.Binding.GLOBAL) {
+                TODO("non global function calls")
+            }
+            /* TODO: get function type (global, closure, class, and adjust first arg appropriately) */
+            emit.write("NULL")
+            if (ast.args.nodes.size > 0) emit.write(", ")
+            if (ast.args.nodes.size != left.args.size) {
+                compilerError("number of arguments (${ast.args.nodes.size}) doesn't match expected number of ${left.args.size}", if (ast.args.nodes.size > 0) ast.args.nodes[0].loc else ast.loc)
+            }
+            for (i in 0.until(ast.args.nodes.size)) {
+                val type = visitASTExpr(ast.args.nodes[i], scope, DummyEmit())
+                if (!type.canImplicitConvert((left as FunctionType).args[i])) {
+                    compilerError("type of arg ($type) doesn't match expected type of ${(left as FunctionType).args[i]}", ast.args.nodes[i].loc)
+                }
+                emitExprImplicitConvert(emit, (left as FunctionType).args[i], ast.args.nodes[i], scope)
+                if (i < ast.args.nodes.size - 1) {
+                    emit.write(", ")
+                }
+            }
 
-        emit.write(")")
-        return (left as FunctionType).return_type ?: VoidType()
+            emit.write(")")
+            return (left as FunctionType).return_type ?: VoidType()
+        }
     }
 
     fun visitASTReturnStmnt(ast: ASTReturnStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit){

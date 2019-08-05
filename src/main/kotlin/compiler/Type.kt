@@ -69,6 +69,16 @@ open class Type {
         error("invalid field write")
     }
 
+    /* check if the type has a function call with the given field name */
+    open fun hasFieldCall(name: String): Boolean {
+        return false
+    }
+
+    /* emit a function call with the given field name */
+    open fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>): Type {
+        error("invalid field name call")
+    }
+
     /* return true if internal representation is nullable */
     open fun isPointer(): Boolean {
         error("isPointer called on Type")
@@ -404,7 +414,7 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
                 type_visitor.visitASTExpr(expr1, scope, emit)
                 emit.write(", ")
                 type_visitor.visitASTExpr(expr2!!, scope, emit)
-                emit.write(", sizeof(${if(type.isPointer()) "void *" else type}))")
+                emit.write(", sizeof(${if(type.isPointer()) "void *" else type}), ${type.isPointer()})")
                 return this
             }
             ASTExprOp.ExprType.LSHFT -> {
@@ -437,6 +447,33 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
                 return LongType()
             }
             else -> error("invalid field read")
+        }
+    }
+
+    override fun hasFieldCall(name: String): Boolean {
+        return when(name) {
+            "removeAt" -> true
+            else -> false
+        }
+    }
+
+    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>): Type {
+        when(name) {
+            "removeAt" -> {
+                if(func_expr.args.nodes.size != 1) {
+                    compilerError("number of arguments (${func_expr.args.nodes.size}) doesn't match expected number of 1", if(func_expr.args.nodes.size > 0) func_expr.args.nodes[0].loc else func_expr.loc)
+                }
+                emit.write("_lang_array_remove_at(")
+                type_visitor.visitASTExpr(access_expr, scope, emit)
+                emit.write(", ")
+                val type = type_visitor.emitExprImplicitConvert(emit, LongType(), func_expr.args.nodes[0], scope)
+                if(!type.canImplicitConvert(LongType())) {
+                    compilerError("type of arg $type doesn't match expected type of long", func_expr.args.nodes[0].loc)
+                }
+                emit.write(", sizeof(${if(type.isPointer()) "void *" else type}), ${type.isPointer()})")
+                return this
+            }
+            else -> error("invalid field call name")
         }
     }
 }

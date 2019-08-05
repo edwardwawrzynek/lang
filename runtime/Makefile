@@ -1,10 +1,10 @@
 TARGET = liblangruntime.a
 
 CC = gcc
-CFLAGS = -g -Wall -fPIC
+CFLAGS = -g -Wall -fPIC -I.
 
-OBJS = core.o io.o
-DEPS = core.h io.h
+OBJS = core/array.o core/gc.o io/io.o
+DEPS = core/array.h core/gc.h core/core.h io/io.h
 
 .PHONY: all clean
 

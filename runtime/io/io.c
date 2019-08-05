@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "core.h"
-#include "io.h"
+#include "core/core.h"
+#include "io/io.h"
 /* Input/Output functions */
 
 /* Print a string to stdout */

@@ -69,11 +69,7 @@ class ASTSymbolConstructVisitor {
         }
 
         val name = if(is_class_var) "${emit.getID(encl_class!!.name)}_${ast.getEmitName(ast.body)}" else emit.getID(ast.getEmitName(ast.body))
-        val symbol = Symbol(name, Symbol.Mutability.IMUT, Type.fromASTType(ast.type, classTable), storage, ast)
-
-        if(symbol.type is FunctionType) {
-            (symbol.type as FunctionType).binding_type = FunctionType.Binding.fromStorageType(storage)
-        }
+        val symbol = Symbol(name, Symbol.Mutability.IMUT, Type.fromASTType(ast.type, classTable, FunctionType.Binding.fromStorageType(storage)), storage, ast)
 
         if(storage == Symbol.StorageType.CLASSFUNC){
             val class_sym = classTable.findSymbol(encl_class!!.name)
@@ -139,10 +135,7 @@ class ASTSymbolConstructVisitor {
             }
         }
 
-        val symbol = Symbol(if(storage==Symbol.StorageType.GLOBAL) "__${ast.name}" else ast.name, Symbol.fromASTMut(ast.mutable), Type.fromASTType(ast.type, classTable), storage, ast)
-        if(symbol.type is FunctionType) {
-            (symbol.type as FunctionType).binding_type = FunctionType.Binding.fromStorageType(storage)
-        }
+        val symbol = Symbol(if(storage==Symbol.StorageType.GLOBAL) "__${ast.name}" else ast.name, Symbol.fromASTMut(ast.mutable), Type.fromASTType(ast.type, classTable, FunctionType.Binding.fromStorageType(storage)), storage, ast)
 
 
         if(storage == Symbol.StorageType.CLASSVAR){

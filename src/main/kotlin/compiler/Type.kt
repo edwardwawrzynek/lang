@@ -52,12 +52,18 @@ open class Type {
     }
 
     companion object {
-        fun fromASTType (type: ASTType?, classTable: SymbolTable): Type {
+        fun fromASTType(type: ASTType?, classTable: SymbolTable, binding_type: FunctionType.Binding?): Type {
             if(type == null){
                 return InferredType()
             }
             val res: Type
             when(type){
+                is ASTArrayFuncType -> {
+                    val castd_type = ASTFuncType(type.loc!!, type.args, type.ret_type)
+                    res = ArrayType(
+                            Type.fromASTType(castd_type, classTable, FunctionType.Binding.CLOSURE),
+                            if (type.length != -1) type.length else null)
+                }
                 is ASTArrayType -> res = ArrayType(
                         Type.fromStringLitType(type.lit_type!!, classTable, type.loc),
                         if (type.length != -1) type.length else null)
@@ -66,32 +72,18 @@ open class Type {
                     if (type.ret_type == null) {
                         ret_type = VoidType()
                     } else {
-                        ret_type = Type.fromASTType(type.ret_type!!, classTable)
-                        if(ret_type is FunctionType){
-                            ret_type.binding_type = FunctionType.Binding.CLOSURE
-                        }
+                        ret_type = Type.fromASTType(type.ret_type!!, classTable, FunctionType.Binding.CLOSURE)
                     }
                     val args = mutableListOf<Type>()
                     for(arg in type.args) {
                         if (arg.type == null) {
                             compilerError("arg type was not inferred", type.loc)
                         }
-                        val typ = Type.fromASTType(arg.type, classTable)
-                        if(typ is FunctionType){
-                            typ.binding_type = FunctionType.Binding.CLOSURE
-                        }
+                        val typ = Type.fromASTType(arg.type, classTable, FunctionType.Binding.CLOSURE)
+
                         args += typ
                     }
-                    res = FunctionType(ret_type, args)
-                }
-                is ASTArrayFuncType -> {
-                    res = ArrayType(
-                        Type.fromASTType(type as ASTFuncType, classTable),
-                        if (type.length != -1) type.length else null)
-
-                    if(res.type is FunctionType) {
-                        (res.type as FunctionType).binding_type = FunctionType.Binding.CLOSURE
-                    }
+                    res = FunctionType(ret_type, args, binding_type)
                 }
 
                 else -> res = Type.fromStringLitType(type.lit_type!!, classTable, type.loc)
@@ -253,7 +245,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
 }
 
 /* names of args are not part of type - they are part of scope for code */
-class FunctionType(var return_type: Type?, var args: List<Type>) : Type() {
+class FunctionType(var return_type: Type?, var args: List<Type>, val binding_type: Binding?) : Type() {
     enum class Binding {
         GLOBAL,
         CLASS,
@@ -270,7 +262,7 @@ class FunctionType(var return_type: Type?, var args: List<Type>) : Type() {
             }
         }
     }
-    var binding_type: Binding? = null
+    /*var binding_type: Binding? = null*/
 
     override fun equals(other: Any?): Boolean {
         if(other !is FunctionType) return false

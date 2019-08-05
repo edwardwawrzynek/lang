@@ -41,12 +41,9 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                     val sym = Symbol(
                         field.name,
                         Symbol.fromASTMut(field.mutable),
-                        Type.fromASTType(field.type, classTable),
+                        Type.fromASTType(field.type, classTable, FunctionType.Binding.CLASS),
                         Symbol.StorageType.CLASSVAR,
                         field.type!!)
-                    if(sym.type is FunctionType){
-                        (sym.type as FunctionType).binding_type = FunctionType.Binding.CLASS
-                    }
                     table.addSymbol(field.name, sym)
 
                 }
@@ -55,14 +52,10 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                     val sym = Symbol(
                         method.name,
                         Symbol.Mutability.IMUT,
-                        Type.fromASTType(method.type, classTable),
+                        Type.fromASTType(method.type, classTable, FunctionType.Binding.CLASS),
                         Symbol.StorageType.CLASSFUNC,
                         method.type)
-
-                    if(sym.type is FunctionType){
-                        (sym.type as FunctionType).binding_type = FunctionType.Binding.CLASS
-                    }
-                    /* mutability is irelevant */
+                    /* mutability is irrelevant */
                     table.addSymbol(method.name, sym)
                 }
 

@@ -1,14 +1,8 @@
-#include "core.h"
+#include "core/core.h"
 #include <string.h>
 #include <stdlib.h>
 
 _lang_array _lang_empty_array = {.len = 0, .vals = NULL};
-
-/* Allocate a section of memory
-   TODO: actual garbage collection */
-void * _lang_gc_alloc(size_t size){
-    return malloc(size);
-}
 
 /* Make a []char from a c string */
 _lang_array * _lang_make_string(char * msg) {

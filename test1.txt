@@ -3,26 +3,9 @@ declare_proto {
     fn readLine -> string {}
 }
 
-class Person {
-	age: int
-	val name: string
-
-	fn getAge -> int {
-		return age
-	}
-}
-
 fn main {
-	msg := readLine()
-	val i := 0
-	val n: int = 5
+	var func: [](_:string) -> void
 
-	for i = 0, i < 10, i++ {
-		print(msg)
-		if(i > 5){
-			break
-		}
-	}
-
+	func[1] = print
 
 }

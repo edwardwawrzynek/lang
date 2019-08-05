@@ -8,6 +8,14 @@ void __print(void * _data, _lang_array * msg) {
     fwrite((char *)(msg->vals), 1, msg->len, stdout);
 }
 
+void __putc(void * _data, char c) {
+	putchar(c);
+}
+
+void __printNumber(void * _data, long n) {
+	printf("%li", n);
+}
+
 /* TODO: variable length */
 char buf[256];
 

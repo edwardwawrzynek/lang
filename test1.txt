@@ -1,11 +1,31 @@
 declare_proto {
     fn print(msg: string) -> void {}
+    fn putc(c: char) -> void {}
+    fn printNumber(n: long) -> void {}
     fn readLine -> string {}
 }
 
+declare_proto {
+	class Object {
+		fn equals(other: Object) -> bool {}
+
+		fn to_string -> string {}
+
+		fn to_hash -> long {}
+
+		fn destruct {}
+	}
+}
+
 fn main {
-	var func: [](_:string) -> void
+	msgs := ["hello", "this is a test", "this is the third test"]
 
-	func[1] = print
+	msgs += ["fourth", "fifth"]
 
+	msgs <<= "last"
+
+	for i := 0, i < msgs.len, i++ {
+		print(msgs[i])
+		putc('\n')
+	}
 }

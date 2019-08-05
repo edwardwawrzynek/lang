@@ -21,7 +21,6 @@
 - TODO: make inheritance lookup symbols in parent table, use existing entries if overriding functions or vars
 - TODO: custom code to handle declare_proto (now just needs to handle global vars, functions handled)
 - TODO: Namespaces (packages, also nested classes, etc)
-- NOTE: For loops need to be emitted in their own c scope if a variable is declared in the initial condition
 - TODO: keep namespace names, etc, in name entry in symbol tables (not key, name in value)
 
 ## Op Overriding Notes

@@ -10,9 +10,9 @@ program
 
 expr
     :   '(' expr ')'                                #parenExpr
+	|   varName=expr '.' sub=expr                   #dotExpr
     |   name=expr '(' args=funcArgsExpr ')'         #funcExpr
     |   varName=expr '[' sub=expr ']'                   #arrayExpr
-    |   varName=expr '.' sub=expr                       #dotExpr
     |   varName=expr op=('++'|'--')                        #postfixExpr
     |   varName=funcBody                                #lambdaExpr
 

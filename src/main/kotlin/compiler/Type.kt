@@ -46,6 +46,29 @@ open class Type {
         error("can't emit op on Type")
     }
 
+    /* field access types */
+    enum class FieldType {
+        NONE, /* no such fieled */
+        READWRITE,
+        READONLY,
+        WRITEONLY,
+    }
+
+    /* check if type has a field, and, if so, how it can be accessed */
+    open fun hasField(name: String): FieldType {
+        return FieldType.NONE
+    }
+
+    /* emit code for reading a field. access_expr is expr before dot */
+    open fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+        error("invalid field read")
+    }
+
+    /* emit code for writing a field. access_expr is code before dot, val_expr is expr field is being set to */
+    open fun emitFieldWrite(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, val_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+        error("invalid field write")
+    }
+
     /* return true if internal representation is nullable */
     open fun isPointer(): Boolean {
         error("isPointer called on Type")
@@ -381,7 +404,7 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
                 type_visitor.visitASTExpr(expr1, scope, emit)
                 emit.write(", ")
                 type_visitor.visitASTExpr(expr2!!, scope, emit)
-                emit.write(")")
+                emit.write(", sizeof(${if(type.isPointer()) "void *" else type}))")
                 return this
             }
             ASTExprOp.ExprType.LSHFT -> {
@@ -395,6 +418,25 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
             else -> {
                 error("not valid array op")
             }
+        }
+    }
+
+    override fun hasField(name: String): FieldType {
+        return when(name) {
+            "len" -> FieldType.READONLY
+            else -> FieldType.NONE
+        }
+    }
+
+    override fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+        when(name) {
+            "len" -> {
+                emit.write("(")
+                type_visitor.visitASTExpr(access_expr, scope, emit)
+                emit.write("->len)")
+                return LongType()
+            }
+            else -> error("invalid field read")
         }
     }
 }

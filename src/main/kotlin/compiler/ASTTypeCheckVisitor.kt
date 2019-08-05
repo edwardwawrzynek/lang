@@ -244,30 +244,55 @@ class ASTTypeCheckVisitor {
 
     fun visitASTExpr(ast: ASTExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
         when(ast){
-            is ASTArrayLiteralExpr -> return VoidType()
             is ASTLiteralExpr -> return visitASTLiteralExpr(ast, scope, emit)
             is ASTVarExpr -> return visitASTVarExpr(ast, scope, emit)
             is ASTExprOp -> return visitASTExprOp(ast, scope, emit)
             is ASTFuncCallExpr -> return visitASTFuncCallExpr(ast, scope, emit)
             is ASTAssignExpr -> return visitASTAssignExpr(ast, scope, emit)
+            is ASTDotExpr -> return visitASTDotExpr(ast, scope, emit)
         }
 
         return VoidType()
     }
 
     fun visitASTLiteralExpr(ast: ASTLiteralExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
-        if(ast.value == null){
-            compilerError("ASTLiteralExpr literal value can't be null", ast.loc)
-        }
-        if(ast.value!![0] == '\''){
-            emit.write(ast.value!!)
-            return CharType()
-        } else if(ast.value!![0] == '\"'){
-            emit.write("_lang_make_string(${ast.value!!})")
-            return ArrayType(CharType(), null)
+        if(ast is ASTArrayLiteralExpr) {
+            if(ast.lits.isEmpty()) {
+                TODO("array of fully castable (potentially null) type")
+            }
+            val first_type = visitASTLiteralExpr(ast.lits[0], scope, DummyEmit())
+            emit.write("_lang_make_array_${if(first_type.isPointer()) "pointer" else first_type.getTypeName()}(${ast.lits.size}, ")
+            var type: Type? = null
+            for(i in 0.until(ast.lits.size)) {
+                val lit = ast.lits[i]
+                val typ = visitASTLiteralExpr(lit, scope, emit)
+                if(type == null) {
+                    type = typ
+                } else if(typ != type) {
+                    /* TODO: implicit conversions of array */
+                    compilerError("array literal type $typ doesn't match earlier element type of $type", lit.loc)
+                }
+                if(i < ast.lits.size - 1) {
+                    emit.write(", ")
+                }
+            }
+            emit.write(")")
+
+            return ArrayType(type!!, -1)
         } else {
-            emit.write(ast.value!!)
-            return LongType()
+            if (ast.value == null) {
+                compilerError("ASTLiteralExpr literal value can't be null", ast.loc)
+            }
+            if (ast.value!![0] == '\'') {
+                emit.write(ast.value!!)
+                return CharType()
+            } else if (ast.value!![0] == '\"') {
+                emit.write("_lang_make_string(${ast.value!!})")
+                return ArrayType(CharType(), null)
+            } else {
+                emit.write(ast.value!!)
+                return LongType()
+            }
         }
     }
 
@@ -298,6 +323,8 @@ class ASTTypeCheckVisitor {
             }
             Symbol.StorageType.NONLOCAL -> TODO("closure variable access")
             Symbol.StorageType.GLBFUNC -> emit.write(sym.name)
+
+            else -> TODO("variable type access not implemented")
         }
 
         return sym.type
@@ -414,6 +441,24 @@ class ASTTypeCheckVisitor {
         }
 
         return left
+    }
+
+    fun visitASTDotExpr(ast: ASTDotExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
+        val ltype = visitASTExpr(ast.left, scope, DummyEmit())
+        if(ast.right !is ASTVarExpr) {
+            compilerError("right side of field access has to be a ASTVarExpr", ast.right.loc)
+        }
+        val name = (ast.right as ASTVarExpr).name
+        val accesstyp = ltype.hasField(name)
+        var type: Type? = null
+        when(accesstyp) {
+            Type.FieldType.NONE -> compilerError("field $name does not exist on type $ltype", ast.right.loc)
+            Type.FieldType.WRITEONLY -> compilerError("field $name is write only", ast.right.loc)
+            Type.FieldType.READONLY, Type.FieldType.READWRITE -> {
+                type = ltype.emitFieldRead(name, this, emit, ast.left, scope)
+            }
+        }
+        return type!!
     }
 
     fun visitASTIfStmnt(ast: ASTIfStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {

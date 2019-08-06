@@ -1,6 +1,6 @@
 package ast
 
-class ASTArrayType(loc: ASTFileLocation, lit_type: String, var length: Int) : ASTType(loc, lit_type) {
+class ASTArrayType(loc: ASTFileLocation, lit_type: String, val length: Int) : ASTType(loc, lit_type) {
 
     override fun print(i: Int) {
         printIndent(i)

@@ -2,7 +2,7 @@ package ast
 
 import compiler.*
 
-class ASTClassDeclStmnt(loc: ASTFileLocation, var name: String, var fields: ASTNodeArray<ASTVarDecl>, var methods: ASTNodeArray<ASTFuncDecl>, var type: Type, var superclass: String?) : ASTNode(loc) {
+class ASTClassDeclStmnt(loc: ASTFileLocation, val name: String, val fields: ASTNodeArray<ASTVarDecl>, val methods: ASTNodeArray<ASTFuncDecl>, val type: Type, val superclass: String?) : ASTNode(loc) {
 
     val scope = SymbolTable(null)
     fun setParentScope(pscope: SymbolTable?) {

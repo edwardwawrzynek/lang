@@ -1,6 +1,6 @@
 package ast
 
-class ASTArrayFuncType(loc: ASTFileLocation, args: List<ASTVarDecl>, ret_type: ASTType?, var length: Int) : ASTFuncType(loc, args, ret_type) {
+class ASTArrayFuncType(loc: ASTFileLocation, args: List<ASTVarDecl>, ret_type: ASTType?, val length: Int) : ASTFuncType(loc, args, ret_type) {
 
     override fun print(i: Int) {
         printIndent(i)

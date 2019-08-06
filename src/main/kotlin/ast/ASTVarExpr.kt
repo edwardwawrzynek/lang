@@ -1,6 +1,6 @@
 package ast
 
-class ASTVarExpr(loc: ASTFileLocation, internal var name: String) : ASTExpr(loc) {
+class ASTVarExpr(loc: ASTFileLocation, val name: String) : ASTExpr(loc) {
 
     override fun isLValue(): Boolean {
         return true

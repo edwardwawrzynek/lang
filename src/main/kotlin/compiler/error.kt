@@ -1,6 +1,7 @@
 package compiler
 
 import ast.ASTFileLocation
+import kotlin.system.exitProcess
 
 var current_id: Int = 0
 
@@ -9,7 +10,7 @@ fun genUniqueId(): Int {
     return current_id
 }
 
-fun compilerError(msg: String, loc: ASTFileLocation?) {
+fun compilerError(msg: String, loc: ASTFileLocation?): Nothing {
     print("\u001B[31m")
     if(loc == null) {
         println("An error occurred at a null location:\n")
@@ -21,7 +22,7 @@ fun compilerError(msg: String, loc: ASTFileLocation?) {
 
     print(msg)
     println("\u001B[0m")
-    System.exit(0)
+    exitProcess(0)
 }
 
 fun warning(msg: String, loc: ASTFileLocation?) {

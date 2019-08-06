@@ -5,7 +5,7 @@ import java.io.*
 import compiler.Main
 import org.antlr.v4.runtime.*
 
-class ASTFileLocation(var line_num: Int, var line_pos: Int, var fileName: String) {
+class ASTFileLocation(val line_num: Int, val line_pos: Int, val fileName: String) {
 
     fun print() {
         try {

@@ -7,6 +7,14 @@
  * The Garbage Collection systems needs a way to know what parts of
  * objects are data, pointers, or pointers to arrays
  * packing space is listed as data, as the gc will ignore data anyway */
+
+enum _lang_gc_type {
+	OBJECT,			/* normal gc type, a mix of data and pointers */
+	ARRAY_DATA,		/* _lang_array, where vals is a pointer to some kind of data */
+	ARRAY_POINTERS, /* _lang_array, wehere vals is a pointer to array of pointers to objects */
+	CLOSURE,		/* _lang_closure */
+};
+
 struct _lang_gc_desk {
     /* TODO */
     /* Notes:

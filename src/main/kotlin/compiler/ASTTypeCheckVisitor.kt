@@ -52,13 +52,12 @@ class ASTTypeCheckVisitor {
             }
         }
     }
-    
+
     fun visitASTFuncDecl(ast: ASTFuncDecl, scope: ASTNodeArray<ASTNode>, emit: Emit) {
         /* emit body */
         val sym = scope.scope.findSymbol(ast.name)
         if(sym == null){
             compilerError("function ${ast.name} not found in symbol tables", null)
-            return
         }
         sym.is_declared = true
 
@@ -72,11 +71,11 @@ class ASTTypeCheckVisitor {
         emit.write(" ${sym.name}(void *_data${if (args.isNotEmpty()) ", " else ""}")
 
         for(i in 0.until(args.size)){
-            val sym = ast.body.scope.findSymbol(ast.type.args[i].name)
-            if(sym == null){
+            val asym = ast.body.scope.findSymbol(ast.type.args[i].name)
+            if(asym == null){
                 compilerError("can't find arg ${ast.type.args[i].name} in symbol tables", ast.loc)
             }
-            sym!!.is_declared = true
+            asym.is_declared = true
             args[i].emitVarTypeDecl(emit)
             emit.write(" ${ast.type.args[i].name}")
             if (i < args.size - 1) {
@@ -149,7 +148,7 @@ class ASTTypeCheckVisitor {
             compilerError("can't find var ${ast.name}", ast.loc)
         }
 
-        sym!!.is_declared = true
+        sym.is_declared = true
 
         when(sym.storage){
             Symbol.StorageType.LOCAL -> {
@@ -283,14 +282,14 @@ class ASTTypeCheckVisitor {
             if (ast.value == null) {
                 compilerError("ASTLiteralExpr literal value can't be null", ast.loc)
             }
-            if (ast.value!![0] == '\'') {
-                emit.write(ast.value!!)
+            if (ast.value[0] == '\'') {
+                emit.write(ast.value)
                 return CharType()
-            } else if (ast.value!![0] == '\"') {
-                emit.write("_lang_make_string(${ast.value!!})")
+            } else if (ast.value[0] == '\"') {
+                emit.write("_lang_make_string(${ast.value})")
                 return ArrayType(CharType(), null)
             } else {
-                emit.write(ast.value!!)
+                emit.write(ast.value)
                 return LongType()
             }
         }
@@ -310,7 +309,7 @@ class ASTTypeCheckVisitor {
             compilerError("no such variable: ${ast.name}", ast.loc)
         }
 
-        if(!sym!!.is_declared && !(sym!!.type is FunctionType)){
+        if(!sym.is_declared && !(sym.type is FunctionType)){
             compilerError("variable ${ast.name} used before declaration", ast.loc)
         }
 
@@ -350,7 +349,7 @@ class ASTTypeCheckVisitor {
             } else {
                 val type2 = visitASTExpr(ast.right!!, scope, DummyEmit())
                 if(!type2.canImplicitConvert(BooleanType())){
-                    compilerError("cannot convert expr to type ${BooleanType()}", ast.right!!.loc)
+                    compilerError("cannot convert expr to type ${BooleanType()}", ast.right.loc)
                 }
                 val op_str = when(ast.type){
                     ASTExprOp.ExprType.LOGICAL_AND -> "&&"
@@ -360,7 +359,7 @@ class ASTTypeCheckVisitor {
                 emit.write("(")
                 emitExprImplicitConvert(emit, BooleanType(), ast.left, scope)
                 emit.write(op_str)
-                emitExprImplicitConvert(emit, BooleanType(), ast.right!!, scope)
+                emitExprImplicitConvert(emit, BooleanType(), ast.right, scope)
                 emit.write(")")
 
             }
@@ -385,14 +384,14 @@ class ASTTypeCheckVisitor {
 
     fun visitASTFuncCallExpr(ast: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
         if(ast.func is ASTDotExpr) {
-            val access_expr = (ast.func as ASTDotExpr).left
-            val name = ((ast.func as ASTDotExpr).right as? ASTVarExpr)?.name
+            val access_expr = ast.func.left
+            val name = (ast.func.right as? ASTVarExpr)?.name
             if(name == null) {
                 error("invalid astdotexpr name")
             }
             val type = visitASTExpr(access_expr, scope, DummyEmit())
             if(!type.hasFieldCall(name)) {
-                compilerError("type $type has no method $name", (ast.func as ASTDotExpr).right.loc)
+                compilerError("type $type has no method $name", ast.func.right.loc)
             }
             return type.emitFieldCall(name, this, emit, access_expr, ast, scope)
         } else {
@@ -401,7 +400,7 @@ class ASTTypeCheckVisitor {
                 compilerError("function call performed on variable of type $left (not a function)", ast.func.loc)
             }
             emit.write("(")
-            if ((left as FunctionType).binding_type != FunctionType.Binding.GLOBAL) {
+            if (left.binding_type != FunctionType.Binding.GLOBAL) {
                 TODO("non global function calls")
             }
             /* TODO: get function type (global, closure, class, and adjust first arg appropriately) */
@@ -412,17 +411,17 @@ class ASTTypeCheckVisitor {
             }
             for (i in 0.until(ast.args.nodes.size)) {
                 val type = visitASTExpr(ast.args.nodes[i], scope, DummyEmit())
-                if (!type.canImplicitConvert((left as FunctionType).args[i])) {
-                    compilerError("type of arg ($type) doesn't match expected type of ${(left as FunctionType).args[i]}", ast.args.nodes[i].loc)
+                if (!type.canImplicitConvert(left.args[i])) {
+                    compilerError("type of arg ($type) doesn't match expected type of ${left.args[i]}", ast.args.nodes[i].loc)
                 }
-                emitExprImplicitConvert(emit, (left as FunctionType).args[i], ast.args.nodes[i], scope)
+                emitExprImplicitConvert(emit, left.args[i], ast.args.nodes[i], scope)
                 if (i < ast.args.nodes.size - 1) {
                     emit.write(", ")
                 }
             }
 
             emit.write(")")
-            return (left as FunctionType).return_type ?: VoidType()
+            return left.return_type ?: VoidType()
         }
     }
 
@@ -432,7 +431,7 @@ class ASTTypeCheckVisitor {
         if(ast.value == null){
             type = VoidType()
         } else {
-            type = emitExprImplicitConvert(emit, scope.fun_scope!!.decld_ret_type!!, (ast.value as ASTExpr), scope)
+            type = emitExprImplicitConvert(emit, scope.fun_scope!!.decld_ret_type!!, ast.value, scope)
             //type = visitASTExpr((ast.value as ASTExpr), scope, emit)
         }
         emit.write(";\n")
@@ -448,14 +447,30 @@ class ASTTypeCheckVisitor {
         if(!ast.lvalue.isLValue()){
             compilerError("left side of assignment is not an lvalue", ast.loc)
         }
-        val left = visitASTExpr(ast.lvalue, scope, emit)
-        emit.write(" = ")
-        val right = emitExprImplicitConvert(emit, left, ast.rvalue, scope)
-        if(!right.canImplicitConvert(left)) {
-            compilerError("type of value being assigned ($right) does not match expected type ($left)", ast.loc)
-        }
+        if(ast.lvalue is ASTDotExpr) {
+            val type = visitASTExpr(ast.lvalue.left, scope, DummyEmit())
+            if(ast.lvalue.right !is ASTVarExpr) {
+                error("right side of dot expr not a field name")
+            }
+            val name = ast.lvalue.right.name
+            val accesstyp = type.hasField(name)
+            when(accesstyp) {
+                Type.FieldType.NONE -> compilerError("field $name does not exist on type $type", ast.lvalue.right.loc)
+                Type.FieldType.READONLY -> compilerError("field $name is readonly on type $type", ast.lvalue.right.loc)
+                Type.FieldType.READWRITE, Type.FieldType.WRITEONLY -> {
+                    return type.emitFieldWrite(name, this, emit, ast.lvalue.left, ast.rvalue, scope)
+                }
+            }
+        } else {
+            val left = visitASTExpr(ast.lvalue, scope, emit)
+            emit.write(" = ")
+            val right = emitExprImplicitConvert(emit, left, ast.rvalue, scope)
+            if (!right.canImplicitConvert(left)) {
+                compilerError("type of value being assigned ($right) does not match expected type ($left)", ast.loc)
+            }
 
-        return left
+            return left
+        }
     }
 
     fun visitASTDotExpr(ast: ASTDotExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
@@ -463,17 +478,15 @@ class ASTTypeCheckVisitor {
         if(ast.right !is ASTVarExpr) {
             compilerError("right side of field access has to be a ASTVarExpr", ast.right.loc)
         }
-        val name = (ast.right as ASTVarExpr).name
+        val name = ast.right.name
         val accesstyp = ltype.hasField(name)
-        var type: Type? = null
         when(accesstyp) {
             Type.FieldType.NONE -> compilerError("field $name does not exist on type $ltype", ast.right.loc)
             Type.FieldType.WRITEONLY -> compilerError("field $name is write only", ast.right.loc)
             Type.FieldType.READONLY, Type.FieldType.READWRITE -> {
-                type = ltype.emitFieldRead(name, this, emit, ast.left, scope)
+                return ltype.emitFieldRead(name, this, emit, ast.left, scope)
             }
         }
-        return type!!
     }
 
     fun visitASTIfStmnt(ast: ASTIfStmnt, scope: ASTNodeArray<ASTNode>, emit: Emit) {
@@ -530,10 +543,10 @@ class ASTTypeCheckVisitor {
         emit.write("for (")
 
         if (ast.inital is ASTExpr) {
-            visitASTExpr(ast.inital as ASTExpr, scope, emit)
+            visitASTExpr(ast.inital, scope, emit)
             emit.write("; ")
         } else if (ast.inital is ASTVarDecl) {
-            visitASTVarDecl(ast.inital as ASTVarDecl, scope, emit)
+            visitASTVarDecl(ast.inital, scope, emit)
         } else {
             error("for inital condition not var decl or expr")
         }
@@ -563,7 +576,7 @@ class ASTTypeCheckVisitor {
                 compilerError("can't find variable ${glb.ast.name}", null)
             }
 
-            emit.write("${sym!!.name} = ")
+            emit.write("${sym.name} = ")
             emitExprImplicitConvert(emit, sym.type, glb.ast.init_val!!, glb.scope)
             emit.write(";\n")
         }

@@ -7,6 +7,8 @@ declare_proto {
 
 declare_proto {
 	class Object {
+		hash: int
+
 		fn equals(other: Object) -> bool {}
 
 		fn to_string -> string {}
@@ -17,14 +19,24 @@ declare_proto {
 	}
 }
 
-fn main {
-	msgs := ["start", "middle 1", "middle 2", "end"]
+class Person: Object {
+	age: int
+	name: string
+	hash: int
 
-	msgs = msgs.removeAt(2)
-
-	for i := 0, i < msgs.len, i++ {
-		print(msgs[i])
-		putc('\n')
+	fn to_string -> string {
+		return "hello"
 	}
+
+	fn to_hash -> long {
+		return 1
+	}
+
+	fn getAge -> int {
+	 	return age
+	}
+}
+
+fn main {
 
 }

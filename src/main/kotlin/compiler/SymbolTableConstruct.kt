@@ -9,7 +9,7 @@ fun astToClassNames (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
         if (node is ASTClassDeclStmnt) {
             var parent: Symbol? = null
             if (node.superclass != null) {
-                parent = classTable.findSymbol(node.superclass!!)
+                parent = classTable.findSymbol(node.superclass)
                 if(parent == null){
                     compilerError("Superclass ${node.superclass} of class ${node.name} is not defined", node.loc)
                 }
@@ -17,6 +17,7 @@ fun astToClassNames (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
             val table = if (parent != null) (parent.type as ClassType).table else null
             val super_type = if (parent != null) (parent.type as ClassType) else null
             val type = ClassType(node.name, SymbolTable(table), super_type)
+            type.table.parent = super_type?.table
             /* mutability is irelevant */
             /* TODO: namespacing */
             classTable.addSymbol(node.name, Symbol(node.name, Symbol.Mutability.IMUT, type, Symbol.StorageType.CLASS, node))
@@ -35,13 +36,24 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
             if (entry == null) {
                 compilerError("No class header in classTable for class ${node.name}", node.loc)
             } else {
-                val table = (entry.type as ClassType).table
+                val type = (entry.type as ClassType)
+                val table = type.table
 
                 for (field in node.fields.nodes) {
+                    val s = table.findSymbol(field.name)
+                    val field_type = Type.fromASTType(field.type, classTable, FunctionType.Binding.CLASS)
+
+                    if(s != null) {
+                        if(s.type != field_type) {
+                            compilerError("type of field ${field.name} ($field_type) doesn't match type declared in superclass (${s.type})", field.loc)
+                        }
+                        continue
+                    }
+
                     val sym = Symbol(
                         field.name,
                         Symbol.fromASTMut(field.mutable),
-                        Type.fromASTType(field.type, classTable, FunctionType.Binding.CLASS),
+                        field_type,
                         Symbol.StorageType.CLASSVAR,
                         field.type!!)
                     table.addSymbol(field.name, sym)
@@ -49,10 +61,20 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                 }
 
                 for (method in node.methods.nodes) {
+                    val s = table.findSymbol(method.name)
+                    val method_type = Type.fromASTType(method.type, classTable, FunctionType.Binding.CLASS)
+
+                    if(s != null) {
+                        if(s.type != method_type) {
+                            compilerError("type of method ${method.name} ($method_type) doesn't match type declared in superclass (${s.type})", method.loc)
+                        }
+                        continue
+                    }
+
                     val sym = Symbol(
                         method.name,
                         Symbol.Mutability.IMUT,
-                        Type.fromASTType(method.type, classTable, FunctionType.Binding.CLASS),
+                        method_type,
                         Symbol.StorageType.CLASSFUNC,
                         method.type)
                     /* mutability is irrelevant */

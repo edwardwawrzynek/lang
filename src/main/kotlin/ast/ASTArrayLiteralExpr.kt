@@ -1,6 +1,6 @@
 package ast
 
-class ASTArrayLiteralExpr(loc: ASTFileLocation, internal var lits: List<ASTExpr>) : ASTLiteralExpr(loc, null) {
+class ASTArrayLiteralExpr(loc: ASTFileLocation, val lits: List<ASTExpr>) : ASTLiteralExpr(loc, null) {
 
     override fun print(i: Int) {
         printIndent(i)

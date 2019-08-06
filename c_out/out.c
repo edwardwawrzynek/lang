@@ -5,9 +5,13 @@
 struct __Object;
 typedef struct __Object __Object;
 struct __Object_vtable;
+struct __Person;
+typedef struct __Person __Person;
+struct __Person_vtable;
 /* --- Class Struct Definitions --- */
 struct __Object {
 	struct __Object_vtable* _vtable;
+	int hash;
 };
 struct __Object_vtable {
 	struct _lang_vtable_head _header;
@@ -15,6 +19,16 @@ struct __Object_vtable {
 	bool (*equals)(void*, __Object*);
 	long (*to_hash)(void*);
 	_lang_array* (*to_string)(void*);
+};
+
+struct __Person {
+	__Object _super;
+	_lang_array* name;
+	int age;
+};
+struct __Person_vtable {
+	struct __Object_vtable _vtable_super;
+	int (*getAge)(void*);
 };
 
 /* --- Function Headers --- */
@@ -26,16 +40,24 @@ bool __Object_equals(void *, __Object*);
 _lang_array* __Object_to_string(void *);
 long __Object_to_hash(void *);
 void __Object_destruct(void *);
+_lang_array* __Person_to_string(void *);
+long __Person_to_hash(void *);
+int __Person_getAge(void *);
 void __main(void *);
 /* --- Program Body --- */
-void __main(void *_data) {
-_lang_array* msgs = (_lang_array*)_lang_make_array_pointer(4, _lang_make_string("start"), _lang_make_string("middle 1"), _lang_make_string("middle 2"), _lang_make_string("end"));
-msgs = (_lang_array*)_lang_array_remove_at(msgs, (long)2, sizeof(long), false);
-for (long i = (long)0;
-(bool)((i<(msgs->len))); (i++)) {
-__print(NULL, (_lang_array*)((_lang_array**)((msgs)->vals))[i]);
-__putc(NULL, (char)'\n');
+_lang_array* __Person_to_string(void *_data) {
+return (_lang_array*)_lang_make_string("hello");
 }
+
+long __Person_to_hash(void *_data) {
+return (long)1;
+}
+
+int __Person_getAge(void *_data) {
+return (int)(((__Person*) _data)->age);
+}
+
+void __main(void *_data) {
 }
 
 int main (int argc, char **argv) {

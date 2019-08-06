@@ -1,6 +1,6 @@
 package ast
 
-class ASTExprOp(loc: ASTFileLocation, var type: ExprType, var left: ASTExpr, var right: ASTExpr?) : ASTExpr(loc) {
+class ASTExprOp(loc: ASTFileLocation, val type: ExprType, val left: ASTExpr, val right: ASTExpr?) : ASTExpr(loc) {
 
     /* if the expr has one or two operands */
     var is_unary: Boolean = false

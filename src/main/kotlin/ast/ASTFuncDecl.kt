@@ -2,7 +2,7 @@ package ast
 
 import compiler.genUniqueId
 
-class ASTFuncDecl(loc: ASTFileLocation, var name: String, var type: ASTFuncType, var body: ASTNodeArray<ASTNode>) : ASTNode(loc) {
+class ASTFuncDecl(loc: ASTFileLocation, val name: String, val type: ASTFuncType, val body: ASTNodeArray<ASTNode>) : ASTNode(loc) {
 
     val id_num = genUniqueId()
 

@@ -59,7 +59,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         } else if (ctx is LangParser.FuncDeclStmntContext) {
             return visitFuncDecl(ctx.function)
         } else if (ctx is LangParser.ClassDeclStmntContext) {
-            var type: ASTClassDeclStmnt.Type = ASTClassDeclStmnt.Type.CLASS
+            val type: ASTClassDeclStmnt.Type
             if (ctx.classType.classType.type == LangParser.CLASS_CLASS) {
                 type = ASTClassDeclStmnt.Type.CLASS
             } else if (ctx.classType.classType.type == LangParser.CLASS_OBJECT) {
@@ -209,7 +209,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             return ASTDotExpr(ASTFileLocation.fromToken(ctx.start), visitExpr(ctx.varName), visitExpr(ctx.sub))
 
         } else if (ctx is LangParser.PostfixExprContext) {
-            var type: ASTExprOp.ExprType = ASTExprOp.ExprType.POSTFIX_INC
+            val type: ASTExprOp.ExprType
             if (ctx.op.type == LangParser.OP_INC) {
                 type = ASTExprOp.ExprType.POSTFIX_INC
             } else if (ctx.op.type == LangParser.OP_DEC) {
@@ -225,7 +225,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             return ASTLambdaExpr(ASTFileLocation.fromToken(ctx.start), type, body)
 
         } else if (ctx is LangParser.PrefixExprContext) {
-            var type: ASTExprOp.ExprType = ASTExprOp.ExprType.PREFIX_INC
+            val type: ASTExprOp.ExprType
             when (ctx.op.type) {
                 LangParser.OP_INC -> type = ASTExprOp.ExprType.PREFIX_INC
                 LangParser.OP_DEC -> type = ASTExprOp.ExprType.PREFIX_DEC
@@ -240,7 +240,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             return ASTExprOp(ASTFileLocation.fromToken(ctx.start), type, visitExpr(ctx.varName), null)
 
         } else if (ctx is LangParser.InfixExprContext) {
-            var type: ASTExprOp.ExprType = ASTExprOp.ExprType.ADD
+            val type: ASTExprOp.ExprType
             when (ctx.op.type) {
                 LangParser.OP_MUL -> type = ASTExprOp.ExprType.MULT
                 LangParser.OP_DIV -> type = ASTExprOp.ExprType.DIV
@@ -269,7 +269,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
 
         } else if (ctx is LangParser.AssignmentExprContext) {
 /* compound assignments are broken down into assignment to expr */
-            var type = ASTExprOp.ExprType.ADD
+            val type: ASTExprOp.ExprType
             when (ctx.op.type) {
                 LangParser.OP_ASG -> {
                     val left = visitExpr(ctx.left)
@@ -307,7 +307,6 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             return ASTVarExpr(ASTFileLocation.fromToken(ctx.start), ctx.ID().text)
         }
         compilerError("unhandled expr type", ASTFileLocation.fromToken(ctx.start))
-        return ASTExpr(ASTFileLocation.fromToken(ctx.start))
     }
 
     /* this does not properly initialize all fields, mut and init_val are overwritten by visitVarDecl */

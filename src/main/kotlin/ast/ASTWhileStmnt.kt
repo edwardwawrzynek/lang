@@ -1,6 +1,6 @@
 package ast
 
-class ASTWhileStmnt(loc: ASTFileLocation, internal var cond: ASTExpr, internal var code: ASTNodeArray<ASTNode>) : ASTNode(loc), ASTBlockStmnt {
+class ASTWhileStmnt(loc: ASTFileLocation, val cond: ASTExpr, val code: ASTNodeArray<ASTNode>) : ASTNode(loc), ASTBlockStmnt {
 
     override fun print(i: Int) {
         printIndent(i)

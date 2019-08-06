@@ -18,7 +18,6 @@ open class Type {
     /* get name of type (for builtin array types, func overload names, etc) */
     open fun getTypeName(): String {
         compilerError("getName called on Type", null)
-        return ""
     }
 
     override fun toString(): String {
@@ -29,7 +28,6 @@ open class Type {
     open fun getCZeroValue(): String {
         compilerError("getCZeroValue called on Type", null)
 
-        return ""
     }
 
     /* return true if type can be implicitly converted to other type */
@@ -105,7 +103,7 @@ open class Type {
                     if (type.ret_type == null) {
                         ret_type = VoidType()
                     } else {
-                        ret_type = Type.fromASTType(type.ret_type!!, classTable, FunctionType.Binding.CLOSURE)
+                        ret_type = Type.fromASTType(type.ret_type, classTable, FunctionType.Binding.CLOSURE)
                     }
                     val args = mutableListOf<Type>()
                     for(arg in type.args) {
@@ -137,8 +135,6 @@ open class Type {
                     val symbol = classTable.findSymbol(type)
                     if (symbol == null) {
                         compilerError("identifier ${type} is not a recognized type", loc!!)
-                        /* unreachable */
-                        return VoidType()
                     } else {
                         return symbol.type
                     }
@@ -414,7 +410,7 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
                 type_visitor.visitASTExpr(expr1, scope, emit)
                 emit.write(", ")
                 type_visitor.visitASTExpr(expr2!!, scope, emit)
-                emit.write(", sizeof(${if(type.isPointer()) "void *" else type}), ${type.isPointer()})")
+                emit.write(", sizeof(${if(type.isPointer()) "void *" else "$type"}), ${type.isPointer()})")
                 return this
             }
             ASTExprOp.ExprType.LSHFT -> {
@@ -470,7 +466,7 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
                 if(!type.canImplicitConvert(LongType())) {
                     compilerError("type of arg $type doesn't match expected type of long", func_expr.args.nodes[0].loc)
                 }
-                emit.write(", sizeof(${if(type.isPointer()) "void *" else type}), ${type.isPointer()})")
+                emit.write(", sizeof(${if(type.isPointer()) "void *" else "$type"}), ${type.isPointer()})")
                 return this
             }
             else -> error("invalid field call name")

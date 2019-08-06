@@ -1,6 +1,6 @@
 package ast
 
-class ASTFuncCallExpr(loc: ASTFileLocation, internal var func: ASTExpr, internal var args: ASTNodeArray<ASTExpr>) : ASTExpr(loc) {
+class ASTFuncCallExpr(loc: ASTFileLocation, val func: ASTExpr, val args: ASTNodeArray<ASTExpr>) : ASTExpr(loc) {
 
     override fun print(i: Int) {
         printIndent(i)

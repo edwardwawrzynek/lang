@@ -1,6 +1,6 @@
 package ast
 
-class ASTAssignExpr(loc: ASTFileLocation, var lvalue: ASTExpr, var rvalue: ASTExpr) : ASTExpr(loc) {
+class ASTAssignExpr(loc: ASTFileLocation, val lvalue: ASTExpr, val rvalue: ASTExpr) : ASTExpr(loc) {
 
     override fun print(i: Int) {
         printIndent(i)

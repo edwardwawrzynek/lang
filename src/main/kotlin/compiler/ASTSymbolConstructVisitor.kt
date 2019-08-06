@@ -75,7 +75,6 @@ class ASTSymbolConstructVisitor {
             val class_sym = classTable.findSymbol(encl_class!!.name)
             if(class_sym == null){
                 compilerError("can't find class ${encl_class.name} in classTable", null)
-                return
             }
             symbol.of_class = (class_sym.type as ClassType)
         }
@@ -142,7 +141,6 @@ class ASTSymbolConstructVisitor {
             val class_sym = classTable.findSymbol(encl_class!!.name)
             if(class_sym == null){
                 compilerError("can't find class ${encl_class.name} in classTable", null)
-                return
             }
             symbol.of_class = (class_sym.type as ClassType)
         }
@@ -152,8 +150,7 @@ class ASTSymbolConstructVisitor {
 
     fun visitASTBlockStmnt(ast: ASTBlockStmnt, fun_ast: ASTNodeArray<ASTNode>?, scope: SymbolTable, classTable: SymbolTable, emit: Emit) {
         if(ast is ASTForStmnt && ast.inital is ASTVarDecl) {
-            /* TODO: put var in scope inside of for loop, but where it can be seen by conditions. May need to be in CSTToAST */
-            visitASTVarDecl(ast.inital as ASTVarDecl, fun_ast, scope, classTable, false, null, emit)
+            visitASTVarDecl(ast.inital, fun_ast, scope, classTable, false, null, emit)
         }
         visitASTNodeArray(ast.getBlock(), fun_ast, scope, classTable, emit)
     }

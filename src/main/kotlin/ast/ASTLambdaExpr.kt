@@ -2,7 +2,7 @@ package ast
 
 import compiler.genUniqueId
 
-class ASTLambdaExpr(loc: ASTFileLocation, internal var type: ASTFuncType, internal var body: ASTNodeArray<ASTNode>) : ASTExpr(loc) {
+class ASTLambdaExpr(loc: ASTFileLocation, val type: ASTFuncType, val body: ASTNodeArray<ASTNode>) : ASTExpr(loc) {
 
     var enclosing_func: ASTNodeArray<ASTNode>? = null
     val id_num = genUniqueId()

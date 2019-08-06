@@ -2,19 +2,28 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
-_lang_array _lang_empty_array = {.len = 0, .vals = NULL};
+#include <assert.h>
 
 /* is_pointer is needed for garbage collection */
-static _lang_array * _lang_array_new(bool is_pointer) {
+static _lang_array * _lang_array_new(bool is_pointer, size_t elem_size) {
 	_lang_array * res = _lang_gc_alloc(sizeof(_lang_array));
+	res->elem_size = elem_size;
 	/* TODO: gc_desk */
+	return res;
+}
+
+/* make an empty array */
+_lang_array * _lang_array_make_empty(bool is_pointer, size_t elem_size) {
+	_lang_array * res = _lang_array_new(is_pointer, elem_size);
+
+	res->len = 0;
+	res->vals = NULL;
 	return res;
 }
 
 /* Make a []char from a c string */
 _lang_array * _lang_make_string(char * msg) {
-    _lang_array * res = _lang_array_new(false);
+    _lang_array * res = _lang_array_new(false, sizeof(char));
 
     size_t len = strlen(msg);
     char * array_body = _lang_gc_alloc(len);
@@ -28,8 +37,11 @@ _lang_array * _lang_make_string(char * msg) {
 }
 
 /* combine two arrays */
-_lang_array * _lang_array_cat(_lang_array * a0, _lang_array * a1, size_t elem_size, bool is_pointer) {
-	_lang_array * res = _lang_array_new(is_pointer);
+_lang_array * _lang_array_cat(_lang_array * a0, _lang_array * a1, bool is_pointer) {
+	assert(a0->elem_size == a1->elem_size);
+	size_t elem_size = a0->elem_size;
+	assert(elem_size != 0);
+	_lang_array * res = _lang_array_new(is_pointer, a0->elem_size);
 
 	size_t len = a0->len + a1->len;
 	void * body = _lang_gc_alloc(len * elem_size);
@@ -43,8 +55,10 @@ _lang_array * _lang_array_cat(_lang_array * a0, _lang_array * a1, size_t elem_si
 }
 
 /* contains all but type specifics for _lang_array_add */
-static _lang_array * _lang_array_add(_lang_array * a0, size_t elem_size, void * elem, bool is_pointer) {
-	_lang_array * res = _lang_array_new(is_pointer);
+static _lang_array * _lang_array_add(_lang_array * a0, void * elem, bool is_pointer) {
+	size_t elem_size = a0->elem_size;
+	assert(elem_size != 0);
+	_lang_array * res = _lang_array_new(is_pointer, a0->elem_size);
 
 	size_t len = a0->len + 1;
 	void * body = _lang_gc_alloc(len*elem_size);
@@ -60,23 +74,23 @@ static _lang_array * _lang_array_add(_lang_array * a0, size_t elem_size, void * 
 
 /* add element to array */
 _lang_array * _lang_array_add_char(_lang_array * a0, char e) {
-	return _lang_array_add(a0, sizeof(e), &e, false);
+	return _lang_array_add(a0, &e, false);
 }
 
 _lang_array * _lang_array_add_bool(_lang_array * a0, bool e) {
-	return _lang_array_add(a0, sizeof(e), &e, false);
+	return _lang_array_add(a0, &e, false);
 }
 
 _lang_array * _lang_array_add_int(_lang_array * a0, int e) {
-	return _lang_array_add(a0, sizeof(e), &e, false);
+	return _lang_array_add(a0, &e, false);
 }
 
 _lang_array * _lang_array_add_long(_lang_array * a0, long e) {
-	return _lang_array_add(a0, sizeof(e), &e, false);
+	return _lang_array_add(a0, &e, false);
 }
 
 _lang_array * _lang_array_add_pointer(_lang_array * a0, void * e) {
-	return _lang_array_add(a0, sizeof(e), &e, true);
+	return _lang_array_add(a0, &e, true);
 }
 
 /* make an array from an arbitrary number of elements */
@@ -85,7 +99,7 @@ _lang_array * func_name(size_t elems, ...) {						\
 	va_list args;													\
 	va_start(args, elems);											\
 																	\
-	_lang_array * res = _lang_array_new(is_ptr);					\
+	_lang_array * res = _lang_array_new(is_ptr, sizeof(type));		\
 																	\
 	void * body = _lang_gc_alloc(elems * sizeof(type));				\
 																	\
@@ -107,8 +121,11 @@ make_lang_make_array(bool, int, _lang_make_array_bool, false)
 make_lang_make_array(void *, void *, _lang_make_array_pointer, true)
 
 /* return array without the element at specified position */
-_lang_array * _lang_array_remove_at(_lang_array * a, size_t pos, size_t elem_size, bool is_pointer) {
-	_lang_array * res = _lang_array_new(is_pointer);
+_lang_array * _lang_array_remove_at(_lang_array * a, size_t pos, bool is_pointer) {
+	_lang_array * res = _lang_array_new(is_pointer, a->elem_size);
+
+	size_t elem_size = a->elem_size;
+	assert(elem_size != 0);
 
 	void * body = _lang_gc_alloc((a->len - 1) * elem_size);
 

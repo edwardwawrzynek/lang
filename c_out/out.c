@@ -2,62 +2,24 @@
 #include "core/core.h"
 
 /* --- Class Struct Declarations --- */
-struct __Object;
-typedef struct __Object __Object;
-struct __Object_vtable;
-struct __Person;
-typedef struct __Person __Person;
-struct __Person_vtable;
 /* --- Class Struct Definitions --- */
-struct __Object {
-	struct __Object_vtable* _vtable;
-	int hash;
-};
-struct __Object_vtable {
-	struct _lang_vtable_head _header;
-	void (*destruct)(void*);
-	bool (*equals)(void*, __Object*);
-	long (*to_hash)(void*);
-	_lang_array* (*to_string)(void*);
-};
-
-struct __Person {
-	__Object _super;
-	_lang_array* name;
-	int age;
-};
-struct __Person_vtable {
-	struct __Object_vtable _vtable_super;
-	int (*getAge)(void*);
-};
-
 /* --- Function Headers --- */
 void __print(void *, _lang_array*);
 void __putc(void *, char);
 void __printNumber(void *, long);
 _lang_array* __readLine(void *);
-bool __Object_equals(void *, __Object*);
-_lang_array* __Object_to_string(void *);
-long __Object_to_hash(void *);
-void __Object_destruct(void *);
-_lang_array* __Person_to_string(void *);
-long __Person_to_hash(void *);
-int __Person_getAge(void *);
 void __main(void *);
 /* --- Program Body --- */
-_lang_array* __Person_to_string(void *_data) {
-return (_lang_array*)_lang_make_string("hello");
-}
-
-long __Person_to_hash(void *_data) {
-return (long)1;
-}
-
-int __Person_getAge(void *_data) {
-return (int)(((__Person*) _data)->age);
-}
-
 void __main(void *_data) {
+_lang_array* a1 = _lang_array_make_empty(true, sizeof(_lang_array*));
+a1 = (_lang_array*)_lang_array_add_pointer(a1, _lang_make_string("test3"));
+a1 = (_lang_array*)_lang_array_cat(a1, _lang_make_array_pointer(2, _lang_make_string("test4"), _lang_make_string("test5")), true);
+a1 = (_lang_array*)_lang_array_remove_at(a1, (long)2, false);
+for (long i = (long)0;
+(bool)((i<(a1->len))); (i++)) {
+__print(NULL, (_lang_array*)((_lang_array**)((a1)->vals))[i]);
+__print(NULL, (_lang_array*)_lang_make_string("\n"));
+}
 }
 
 int main (int argc, char **argv) {

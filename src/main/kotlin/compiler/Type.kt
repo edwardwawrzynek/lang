@@ -358,18 +358,25 @@ class FunctionType(var return_type: Type?, var args: List<Type>, val binding_typ
 }
 
 /* array type */
-data class ArrayType(var type: Type, val length: Int?): Type() {
+class ArrayType(var type: Type, val length: Int?): Type() {
     override fun emitVarTypeDecl(emit: Emit) {
         /* TODO: bound checked array (struct for each type of array used) */
         emit.write("_lang_array*")
     }
 
     override fun getTypeName(): String {
-        return "_lang_array"
+        return "_lang_array*"
     }
 
     override fun toString(): String {
         return "[]$type"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is ArrayType) {
+            return false
+        }
+        return type == other.type
     }
 
     override fun isPointer(): Boolean {
@@ -377,7 +384,7 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
     }
 
     override fun getCZeroValue(): String {
-        return "(&_lang_empty_array)"
+        return "_lang_array_make_empty(${type.isPointer()}, sizeof(${type.getTypeName()}))"
     }
 
     override fun canImplicitConvert(other: Type): Boolean {
@@ -410,7 +417,7 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
                 type_visitor.visitASTExpr(expr1, scope, emit)
                 emit.write(", ")
                 type_visitor.visitASTExpr(expr2!!, scope, emit)
-                emit.write(", sizeof(${if(type.isPointer()) "void *" else "$type"}), ${type.isPointer()})")
+                emit.write(", ${type.isPointer()})")
                 return this
             }
             ASTExprOp.ExprType.LSHFT -> {
@@ -466,7 +473,7 @@ data class ArrayType(var type: Type, val length: Int?): Type() {
                 if(!type.canImplicitConvert(LongType())) {
                     compilerError("type of arg $type doesn't match expected type of long", func_expr.args.nodes[0].loc)
                 }
-                emit.write(", sizeof(${if(type.isPointer()) "void *" else "$type"}), ${type.isPointer()})")
+                emit.write(", ${type.isPointer()})")
                 return this
             }
             else -> error("invalid field call name")

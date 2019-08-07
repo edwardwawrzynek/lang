@@ -109,7 +109,7 @@ statement
     | 'while' (('(' cond=expr ')')|(cond=expr)) code=block          #whileStmnt
     | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) '\n'                #doWhileStmnt
     | 'for' (('(' init=forFirstExpr ',' rep=expr ',' end=expr ')')|(init=forFirstExpr ',' rep=expr ',' end=expr)) code=block  #forStmnt
-    | 'return' (val=expr)? '\n'                                     #returnStmnt
+    | ('return'|'=>') (val=expr)? '\n'                                     #returnStmnt
     | 'continue' '\n'                                               #continueStmnt
     | 'break' '\n'                                                  #breakStmnt
     | function=funcDecl                                             #funcDeclStmnt

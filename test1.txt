@@ -5,24 +5,30 @@ declare_proto {
     fn readLine -> string {}
 }
 
-declare_proto {
-	class Object {
-		hash: int
+class Object {
+	hash: long
 
-		fn equals(other: Object) -> bool {}
-
-		fn to_string -> string {}
-
-		fn to_hash -> long {}
-
-		fn destruct {}
+	fn equals(other: Object) -> bool {
+		=> false
 	}
+
+	fn to_string -> string {
+		=> "Object"
+	}
+
+	fn to_hash -> long {
+		=> hash
+	}
+
+	fn destruct {}
 }
+
 
 class Person: Object {
 	age: int
 	name: string
-	hash: int
+
+	hash: long
 
 	fn to_string -> string {
 		return "hello"
@@ -35,8 +41,18 @@ class Person: Object {
 	fn getAge -> int {
 	 	return age
 	}
+
+	fn setAge (a: int) -> int {
+		=> age = a
+	}
 }
 
 fn main {
+	var p: Person
 
+	printNumber(p.setAge(3))
+	putc('\n')
+	printNumber(p.getAge())
+	putc('\n')
+	printNumber(p.age)
 }

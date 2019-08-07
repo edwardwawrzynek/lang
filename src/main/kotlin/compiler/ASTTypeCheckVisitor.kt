@@ -126,19 +126,21 @@ class ASTTypeCheckVisitor {
 
     fun emitExprImplicitConvert(emit: Emit, to_type: Type, init_val: ASTExpr, scope: ASTNodeArray<ASTNode>): Type{
         if(to_type is BooleanType){
-            emit.write("(bool)(")
+            emit.write("(bool)((")
             val type = visitASTExpr(init_val, scope, emit)
             if(type.isPointer()) {
-                emit.write(" != NULL)")
+                emit.write(" ) != NULL)")
             } else {
-                emit.write(")")
+                emit.write("))")
             }
             return BooleanType()
         } else {
             emit.write("(")
             to_type.emitVarTypeDecl(emit)
+            emit.write(")(")
+            val typ = visitASTExpr(init_val, scope, emit)
             emit.write(")")
-            return visitASTExpr(init_val, scope, emit)
+            return typ
         }
     }
 
@@ -432,7 +434,6 @@ class ASTTypeCheckVisitor {
             type = VoidType()
         } else {
             type = emitExprImplicitConvert(emit, scope.fun_scope!!.decld_ret_type!!, ast.value, scope)
-            //type = visitASTExpr((ast.value as ASTExpr), scope, emit)
         }
         emit.write(";\n")
 

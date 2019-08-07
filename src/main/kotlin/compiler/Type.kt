@@ -192,6 +192,9 @@ struct vtable_head {
 
  */
 class ClassType(var name: String, var table: SymbolTable, val superclass: ClassType?) : Type() {
+
+    val overridden_methods = mutableListOf<String>()
+
     fun emitShapeDeclHeader (emit: Emit) {
         emit.write("struct ${emit.getID(name)};\n")
         emit.write("typedef struct ${emit.getID(name)} ${emit.getID(name)};\n")
@@ -237,6 +240,65 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         emit.write("};\n\n")
     }
 
+    fun emitVtableInstance(emit: Emit) {
+        emit.write("struct ${emit.getID(name)}_vtable ${emit.getID(name)}_vtable_inst = ")
+        emitVtableInstanceBody(this, emit)
+        emit.write(";\n")
+    }
+
+    fun emitVtableInstanceHeader(emit: Emit) {
+        emit.write("extern struct ${emit.getID(name)}_vtable ${emit.getID(name)}_vtable_inst;\n")
+    }
+
+    /* find which superclass has the most recent implementation of a method */
+    fun findImplementorMethod(name: String, type: ClassType): ClassType? {
+        if(name in type.table.table || name in type.overridden_methods) return type
+        if(type.superclass == null) return null
+        return findImplementorMethod(name, type.superclass)
+    }
+
+    /* find in which vtable or object a property is placed in the superclass chain */
+    fun findImplementor(name: String, type: ClassType): ClassType? {
+        if(name in type.table.table) return type
+        if(type.superclass == null) return null
+        return findImplementorMethod(name, type.superclass)
+    }
+
+    /* find highest parent for this class */
+    fun findRootClass(): ClassType {
+        if(superclass == null) return this
+        return superclass.findRootClass()
+    }
+
+    fun emitVtableInstanceBody(type: ClassType, emit: Emit) {
+        emit.write("{\n")
+        for(field in type.table.table) {
+            val f = field.value
+            if(f.type !is FunctionType || (f.type as FunctionType).binding_type != FunctionType.Binding.CLASS) {
+                continue;
+            }
+            val implementor = findImplementorMethod(f.name, this)
+            if(implementor == null) {
+                error("can't find method ${f.name} in table")
+            }
+
+            emit.write(".${f.name} = &${emit.getID(implementor.name)}_${f.name},\n")
+        }
+        if(type.superclass != null) {
+            emit.write("._vtable_super = ")
+            emitVtableInstanceBody(type.superclass, emit)
+            emit.write(",\n")
+        } else {
+            val supervtable: String
+            if(superclass == null) {
+                supervtable = "NULL"
+            } else {
+                supervtable = "&${emit.getID(superclass.name)}_vtable_inst"
+            }
+            emit.write("._header = {\n/* TODO: gc_desk */\n.parent_vtable = $supervtable,\n},\n")
+        }
+        emit.write("}")
+    }
 
     override fun emitVarTypeDecl(emit: Emit) {
         emit.write("${emit.getID(name)}*")
@@ -271,6 +333,110 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
     override fun isPointer(): Boolean {
         return true
     }
+
+    override fun hasField(name: String): FieldType {
+        val sym = table.findSymbol(name)
+        if(sym == null) {
+            return FieldType.NONE
+        }
+        if(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS) {
+            /* this is a method in the vtable, so it can't be reassigned */
+            return FieldType.READONLY
+        }
+        return FieldType.READWRITE
+    }
+
+    override fun emitFieldRead(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+        val sym = table.findSymbol(name)
+        if(sym == null) {
+            error("invalid field read")
+        }
+        val implementor = findImplementor(name, this)
+        if (implementor == null) {
+            error("field implementor not found")
+        }
+        if(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS) {
+            /* TODO: closure conversion (not here, but special care needed for class bound functions) */
+            val root = findRootClass()
+            emit.write("((struct ${emit.getID(implementor.name)}_vtable *)(((${emit.getID(root.name)} *)(")
+            type_visitor.visitASTExpr(access_expr, scope, emit)
+            emit.write("))->_vtable))->$name")
+            return sym.type
+        } else {
+            emit.write("(")
+            if (implementor != this) {
+                emit.write("(struct ${emit.getID(implementor.name)} *)")
+            }
+            emit.write("(")
+            type_visitor.visitASTExpr(access_expr, scope, emit)
+            emit.write("))")
+            emit.write("->$name")
+
+            return sym.type
+        }
+    }
+
+    override fun emitFieldWrite(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, val_expr: ASTExpr, scope: ASTNodeArray<ASTNode>): Type {
+        val type = emitFieldRead(name, type_visitor, emit, access_expr, scope)
+        emit.write(" = ")
+        val val_type = type_visitor.emitExprImplicitConvert(emit, type, val_expr, scope)
+        if(!val_type.canImplicitConvert(type)) {
+            compilerError("type of value being assigned ($val_type) does not match expected type ($type)", val_expr.loc)
+        }
+        return type
+    }
+
+    override fun hasFieldCall(name: String): Boolean {
+        val sym = table.findSymbol(name)
+        if(sym == null) {
+            return false
+        }
+        if(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS) {
+            return true
+        }
+        return false
+    }
+
+    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>): Type {
+
+        val sym = table.findSymbol(name)
+        if(sym == null) {
+            error("invalid field read")
+        }
+        val implementor = findImplementor(name, this)
+        if (implementor == null) {
+            error("field implementor not found")
+        }
+        if(!(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS)) {
+            error("not a function field")
+        }
+        /* TODO: closure conversion (not here, but special care needed for class bound functions) */
+        val root = findRootClass()
+        emit.write("(_lang_temp_this = ")
+        emit.write("(")
+        type_visitor.visitASTExpr(access_expr, scope, emit)
+        emit.write("), ((struct ${emit.getID(implementor.name)}_vtable *)(((${emit.getID(root.name)} *)_lang_temp_this)->_vtable))->$name")
+        emit.write("(_lang_temp_this")
+
+        if (func_expr.args.nodes.size > 0) emit.write(", ")
+        if(func_expr.args.nodes.size != (sym.type as FunctionType).args.size) {
+            compilerError("number of arguments (${func_expr.args.nodes.size}) doesn't match expected number of ${(sym.type as FunctionType).args.size}", if (func_expr.args.nodes.size > 0) func_expr.args.nodes[0].loc else func_expr.loc)
+        }
+
+        for (i in 0.until(func_expr.args.nodes.size)) {
+            val type = type_visitor.emitExprImplicitConvert(emit, (sym.type as FunctionType).args[i], func_expr.args.nodes[i], scope)
+            if (!type.canImplicitConvert((sym.type as FunctionType).args[i])) {
+                compilerError("type of arg ($type) doesn't match expected type of ${(sym.type as FunctionType).args[i]}", func_expr.args.nodes[i].loc)
+            }
+            if (i < func_expr.args.nodes.size - 1) {
+                emit.write(", ")
+            }
+        }
+
+        emit.write("))")
+        return (sym.type as FunctionType).return_type!!
+    }
+
 }
 
 /* names of args are not part of type - they are part of scope for code */

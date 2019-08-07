@@ -36,6 +36,8 @@ object Main {
         emit.write("/* --- Function Headers --- */\n")
         ast_visitor.visitASTNodeArray(program, null, null, classTable, emit)
 
+        classTableEmitVtableInstances(emit, classTable)
+
         emit.write("/* --- Program Body --- */\n")
         val type_visitor =  ASTTypeCheckVisitor()
 

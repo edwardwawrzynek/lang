@@ -2,24 +2,117 @@
 #include "core/core.h"
 
 /* --- Class Struct Declarations --- */
+struct __Object;
+typedef struct __Object __Object;
+struct __Object_vtable;
+struct __Person;
+typedef struct __Person __Person;
+struct __Person_vtable;
 /* --- Class Struct Definitions --- */
+struct __Object {
+	struct __Object_vtable* _vtable;
+	long hash;
+};
+struct __Object_vtable {
+	struct _lang_vtable_head _header;
+	void (*destruct)(void*);
+	bool (*equals)(void*, __Object*);
+	long (*to_hash)(void*);
+	_lang_array* (*to_string)(void*);
+};
+
+struct __Person {
+	__Object _super;
+	_lang_array* name;
+	int age;
+};
+struct __Person_vtable {
+	struct __Object_vtable _vtable_super;
+	int (*getAge)(void*);
+	int (*setAge)(void*, int);
+};
+
 /* --- Function Headers --- */
 void __print(void *, _lang_array*);
 void __putc(void *, char);
 void __printNumber(void *, long);
 _lang_array* __readLine(void *);
+bool __Object_equals(void *, __Object*);
+_lang_array* __Object_to_string(void *);
+long __Object_to_hash(void *);
+void __Object_destruct(void *);
+_lang_array* __Person_to_string(void *);
+long __Person_to_hash(void *);
+int __Person_getAge(void *);
+int __Person_setAge(void *, int);
 void __main(void *);
+/* --- Class VTable Instances --- */
+extern struct __Object_vtable __Object_vtable_inst;
+extern struct __Person_vtable __Person_vtable_inst;
+
+struct __Object_vtable __Object_vtable_inst = {
+.destruct = &__Object_destruct,
+.equals = &__Object_equals,
+.to_hash = &__Object_to_hash,
+.to_string = &__Object_to_string,
+._header = {
+/* TODO: gc_desk */
+.parent_vtable = NULL,
+},
+};
+struct __Person_vtable __Person_vtable_inst = {
+.getAge = &__Person_getAge,
+.setAge = &__Person_setAge,
+._vtable_super = {
+.destruct = &__Object_destruct,
+.equals = &__Object_equals,
+.to_hash = &__Person_to_hash,
+.to_string = &__Person_to_string,
+._header = {
+/* TODO: gc_desk */
+.parent_vtable = &__Object_vtable_inst,
+},
+},
+};
 /* --- Program Body --- */
-void __main(void *_data) {
-_lang_array* a1 = _lang_array_make_empty(true, sizeof(_lang_array*));
-a1 = (_lang_array*)_lang_array_add_pointer(a1, _lang_make_string("test3"));
-a1 = (_lang_array*)_lang_array_cat(a1, _lang_make_array_pointer(2, _lang_make_string("test4"), _lang_make_string("test5")), true);
-a1 = (_lang_array*)_lang_array_remove_at(a1, (long)2, false);
-for (long i = (long)0;
-(bool)((i<(a1->len))); (i++)) {
-__print(NULL, (_lang_array*)((_lang_array**)((a1)->vals))[i]);
-__print(NULL, (_lang_array*)_lang_make_string("\n"));
+bool __Object_equals(void *_data, __Object* other) {
+return (bool)((false));
 }
+
+_lang_array* __Object_to_string(void *_data) {
+return (_lang_array*)(_lang_make_string("Object"));
+}
+
+long __Object_to_hash(void *_data) {
+return (long)((((__Object*) _data)->hash));
+}
+
+void __Object_destruct(void *_data) {
+}
+
+_lang_array* __Person_to_string(void *_data) {
+return (_lang_array*)(_lang_make_string("hello"));
+}
+
+long __Person_to_hash(void *_data) {
+return (long)(1);
+}
+
+int __Person_getAge(void *_data) {
+return (int)((((__Person*) _data)->age));
+}
+
+int __Person_setAge(void *_data, int a) {
+return (int)((((__Person*) _data)->age) = (int)(a));
+}
+
+void __main(void *_data) {
+__Person* p = NULL;
+__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Person_vtable *)(((__Object *)_lang_temp_this)->_vtable))->setAge(_lang_temp_this, (int)(3)))));
+__putc(NULL, (char)('\n'));
+__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Person_vtable *)(((__Object *)_lang_temp_this)->_vtable))->getAge(_lang_temp_this))));
+__putc(NULL, (char)('\n'));
+__printNumber(NULL, (long)(((p))->age));
 }
 
 int main (int argc, char **argv) {

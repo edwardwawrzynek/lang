@@ -68,6 +68,7 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                         if(s.type != method_type) {
                             compilerError("type of method ${method.name} ($method_type) doesn't match type declared in superclass (${s.type})", method.loc)
                         }
+                        type.overridden_methods.add(method.name)
                         continue
                     }
 
@@ -121,5 +122,23 @@ fun classTableEmitShapeDecl(emit: Emit, classTable: SymbolTable) {
         }
     }
 
+}
+
+/* emit class vtable instances */
+fun classTableEmitVtableInstances(emit: Emit, classTable: SymbolTable) {
+    emit.write("/* --- Class VTable Instances --- */\n")
+    for(key in classTable.getKeys()) {
+        val sym = classTable.findSymbol(key)!!
+        if(sym.type is ClassType) {
+            (sym.type as ClassType).emitVtableInstanceHeader(emit)
+        }
+    }
+    emit.write("\n")
+    for(key in classTable.getKeys()) {
+        val sym = classTable.findSymbol(key)!!
+        if(sym.type is ClassType) {
+            (sym.type as ClassType).emitVtableInstance(emit)
+        }
+    }
 }
 

@@ -100,8 +100,6 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             val res = visitBlock(ctx.protos)
             res.is_proto_decl = true
             return ASTNodeArray(mutableListOf(res))
-        } else if (ctx is LangParser.BlankLineStmntContext){
-            return null
         } else {
             println("No such statement context type")
             exitProcess(0)

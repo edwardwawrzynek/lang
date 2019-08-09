@@ -1,3 +1,4 @@
+
 declare_proto {
     fn print(msg: string) -> void {}
     fn putc(c: char) -> void {}
@@ -5,37 +6,30 @@ declare_proto {
     fn readLine -> string {}
 }
 
+/*
 class Object {
-	hash: long
-
-	fn equals(other: Object) -> bool {
-		=> false
+	//fn construct () -> void {}
+	fn destruct () -> void {}
+	fn equals (other: Object) -> bool {
+	=> false
 	}
-
-	fn to_string -> string {
-		=> "Object"
+	fn to_string () -> string { => "Object"
 	}
-
-	fn to_hash -> long {
-		=> hash
+	fn to_hash () -> long { => 0
 	}
-
-	fn destruct {}
 }
-
 
 class Person: Object {
 	age: int
 	name: string
 
-	hash: long
-
-	fn to_string -> string {
-		return "hello"
+	fn construct(a: int, n: string) {
+		age = a
+		name = n
 	}
 
-	fn to_hash -> long {
-		return 1
+	fn to_string -> string {
+		return "Person"
 	}
 
 	fn getAge -> int {
@@ -55,4 +49,15 @@ fn main {
 	printNumber(p.getAge())
 	putc('\n')
 	printNumber(p.age)
+	print(p.to_string())
+}
+*/
+
+fn main (
+	argc: []string,
+	argv: int
+)
+{
+	a := 1
+	b := 2 + 1; print("hello")
 }

@@ -4,6 +4,46 @@ grammar Lang;
 	package parser;
 }
 
+@parser::members {
+    /**
+     * Based on code from antlr4 golang grammar https://github.com/antlr/grammars-v4
+     * Returns true iff on the current index of the parser's
+     * token stream a token exists on the HIDDEN channel which
+     * either is a line terminator, or is a multi line comment that
+     * contains a line terminator.
+	 */
+
+    private boolean lineTerminatorAhead() {
+        // Get the token ahead of the current index.
+        int possibleIndexEosToken = this.getCurrentToken().getTokenIndex() - 1;
+        Token ahead = _input.get(possibleIndexEosToken);
+        if (ahead.getChannel() != Lexer.HIDDEN) {
+            // We're only interested in tokens on the HIDDEN channel.
+            return false;
+        }
+
+        if (ahead.getType() == TERMINATOR) {
+            // There is definitely a line terminator ahead.
+            return true;
+        }
+
+        if (ahead.getType() == WS) {
+            // Get the token ahead of the current whitespaces.
+            possibleIndexEosToken = this.getCurrentToken().getTokenIndex() - 2;
+            ahead = _input.get(possibleIndexEosToken);
+        }
+
+        // Get the token's text and type.
+        String text = ahead.getText();
+        int type = ahead.getType();
+
+        // Check if the token is, or contains a line terminator.
+        return (type == COMMENT && (text.contains("\r") || text.contains("\n"))) ||
+                (type == TERMINATOR);
+
+    }
+}
+
 program
     :   statement* EOF
     ;
@@ -59,15 +99,15 @@ typeDecl
     ;
 
 varType
-    : (name=ID ','?)+ ':' (typeName=typeDecl)?
+    : (name=ID ',')* (name=ID)? ':' (typeName=typeDecl)?
     ;
 
 funcArgVarType
-    : (mut=('var'|'val'))? (name=ID ','?)+ ':' typeName=typeDecl
+    : (mut=('var'|'val'))? (name=ID ',')* (name=ID)? ':' typeName=typeDecl
     ;
 
 varInit
-    : (expr ','?)+
+    : (expr ',')* expr?
     ;
 
 varDecl
@@ -103,21 +143,21 @@ forFirstExpr
     ;
 
 statement
-    : 'if' (('(' cond=expr ')')|(cond=expr)) code=block             #ifStmnt
-    | 'elsif' (('(' cond=expr ')')|(cond=expr)) code=block           #elseIfStmnt
+    : 'if' (('(' cond=expr ')')|(cond=expr)) code=block            	#ifStmnt
+    | 'elsif' (('(' cond=expr ')')|(cond=expr)) code=block          #elseIfStmnt
     | 'else' code=block                                             #elseStmnt
     | 'while' (('(' cond=expr ')')|(cond=expr)) code=block          #whileStmnt
-    | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) '\n'                #doWhileStmnt
-    | 'for' (('(' init=forFirstExpr ',' rep=expr ',' end=expr ')')|(init=forFirstExpr ',' rep=expr ',' end=expr)) code=block  #forStmnt
-    | ('return'|'=>') (val=expr)? '\n'                                     #returnStmnt
-    | 'continue' '\n'                                               #continueStmnt
-    | 'break' '\n'                                                  #breakStmnt
+    | 'do' code=block 'while' (('(' cond=expr ')')|(cond=expr)) eos #doWhileStmnt
+    | 'for' (('(' init=forFirstExpr ',' rep=expr ',' end=expr ')')
+      |(init=forFirstExpr ',' rep=expr ',' end=expr)) code=block  	#forStmnt
+    | ('return'|'=>') (val=expr)? eos                               #returnStmnt
+    | 'continue' eos                                               	#continueStmnt
+    | 'break' eos                                                  	#breakStmnt
     | function=funcDecl                                             #funcDeclStmnt
     | classType=classDecl                                           #classDeclStmnt
     | 'declare_proto' protos=block                                  #declareProtoStmnt
-    | expr '\n'                                                     #exprStmnt
-    | decl=varDecl '\n'                                             #varDeclStmnt
-    | '\n'                                                          #blankLineStmnt
+	| decl=varDecl eos                                              #varDeclStmnt
+    | expr eos                                                      #exprStmnt
     ;
 
 OP_INC: '++';
@@ -177,6 +217,14 @@ NUM :   '-'?[0-9]+;
 ID  :   [a-zA-Z_]+[a-zA-Z_0-9]*;
 STR :   '"' (~'"')* '"';
 CHR :   '\'' '\\'?(~'\'') '\'';
-WS  :   [ \t\r] -> channel(HIDDEN);
-COMMENT : '#' .*? '\n' -> channel(HIDDEN);
-MULTICOMMENT : '##>' .*? '##<' -> channel(HIDDEN);
+
+eos
+    : ';'
+    | EOF
+    | {lineTerminatorAhead()}?
+    ;
+
+WS  :  [ \t]+ -> channel(HIDDEN);
+COMMENT:   '/*' .*? '*/' -> channel(HIDDEN);
+LINE_COMMENT: '//' ~[\n]* -> skip;
+TERMINATOR: [\n]+ -> channel(HIDDEN);

@@ -7,7 +7,7 @@ open class Type {
     /* create a var of this type */
     open fun emitVarTypeDecl(emit: Emit) {
         emit.write("// emitVarTpe called on Type\n___trigger_error")
-        compilerError("emitVarTypeDecl called on Type", null)
+        error("emitVarTypeDecl called on Type")
     }
 
     open fun emitVarDecl(emit: Emit, name: String) {
@@ -700,6 +700,19 @@ class BooleanType: Type() {
 }
 
 open class NumberType: Type() {
+    /* not really long, but long by default if not cast to anything */
+    override fun emitVarTypeDecl(emit: Emit) {
+        emit.write("long")
+    }
+
+    override fun getTypeName(): String {
+        return "long"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is LongType
+    }
+
 
     override fun getCZeroValue(): String {
         return "0"

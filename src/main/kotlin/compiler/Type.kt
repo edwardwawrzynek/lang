@@ -197,7 +197,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
 
     fun emitShapeDeclHeader (emit: Emit) {
         emit.write("struct ${emit.getID(name)};\n")
-        emit.write("typedef struct ${emit.getID(name)} ${emit.getID(name)};\n")
+        //emit.write("typedef struct ${emit.getID(name)} ${emit.getID(name)};\n")
 
         /* emit vtable header */
         emit.write("struct ${emit.getID(name)}_vtable;\n")
@@ -206,7 +206,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
     fun emitShapeDecl (emit: Emit) {
         emit.write("struct ${emit.getID(name)} {\n")
         if(superclass != null) {
-            emit.write("\t${emit.getID(superclass.name)} _super;\n")
+            emit.write("\tstruct ${emit.getID(superclass.name)} _super;\n")
         } else {
             emit.write("\tstruct ${emit.getID(name)}_vtable* _vtable;\n")
         }
@@ -232,7 +232,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
 
         for((name, symbol) in table.table) {
             /* data goes in struct */
-            if(symbol.type is FunctionType) {
+            if(symbol.type is FunctionType && name != "construct") {
                 emit.write("\t")
                 symbol.type.emitVarDecl(emit, name)
             }
@@ -270,11 +270,17 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         return superclass.findRootClass()
     }
 
+    /* return type of constructor */
+    fun findConstructType(): FunctionType? {
+        val c = table.findSymbol("construct")
+        return c?.type as? FunctionType
+    }
+
     fun emitVtableInstanceBody(type: ClassType, emit: Emit) {
         emit.write("{\n")
         for(field in type.table.table) {
             val f = field.value
-            if(f.type !is FunctionType || (f.type as FunctionType).binding_type != FunctionType.Binding.CLASS) {
+            if(f.type !is FunctionType || (f.type as FunctionType).binding_type != FunctionType.Binding.CLASS || f.name == "construct") {
                 continue;
             }
             val implementor = findImplementorMethod(f.name, this)
@@ -301,7 +307,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
     }
 
     override fun emitVarTypeDecl(emit: Emit) {
-        emit.write("${emit.getID(name)}*")
+        emit.write("struct ${emit.getID(name)}*")
     }
 
     override fun getTypeName(): String {
@@ -358,7 +364,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         if(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS) {
             /* TODO: closure conversion (not here, but special care needed for class bound functions) */
             val root = findRootClass()
-            emit.write("((struct ${emit.getID(implementor.name)}_vtable *)(((${emit.getID(root.name)} *)(")
+            emit.write("((struct ${emit.getID(implementor.name)}_vtable *)(((struct ${emit.getID(root.name)} *)(")
             type_visitor.visitASTExpr(access_expr, scope, emit)
             emit.write("))->_vtable))->$name")
             return sym.type
@@ -392,6 +398,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
             return false
         }
         if(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS) {
+            if(name == "construct") return false
             return true
         }
         return false
@@ -415,7 +422,7 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         emit.write("(_lang_temp_this = ")
         emit.write("(")
         type_visitor.visitASTExpr(access_expr, scope, emit)
-        emit.write("), ((struct ${emit.getID(implementor.name)}_vtable *)(((${emit.getID(root.name)} *)_lang_temp_this)->_vtable))->$name")
+        emit.write("), ((struct ${emit.getID(implementor.name)}_vtable *)(((struct ${emit.getID(root.name)} *)_lang_temp_this)->_vtable))->$name")
         emit.write("(_lang_temp_this")
 
         if (func_expr.args.nodes.size > 0) emit.write(", ")

@@ -6,17 +6,13 @@ declare_proto {
     fn readLine -> string {}
 }
 
-/*
+
 class Object {
-	//fn construct () -> void {}
+	fn construct () -> void {}
 	fn destruct () -> void {}
-	fn equals (other: Object) -> bool {
-	=> false
-	}
-	fn to_string () -> string { => "Object"
-	}
-	fn to_hash () -> long { => 0
-	}
+	fn equals (other: Object) -> bool => false
+	fn to_string () -> string => "Object"
+	fn to_hash () -> long => 0
 }
 
 class Person: Object {
@@ -28,36 +24,16 @@ class Person: Object {
 		name = n
 	}
 
-	fn to_string -> string {
-		return "Person"
-	}
+	fn to_string -> string => "Person"
 
-	fn getAge -> int {
-	 	return age
-	}
+	fn getAge -> int => age
 
-	fn setAge (a: int) -> int {
-		=> age = a
-	}
+	fn setAge (a: int) -> int => age = a
 }
 
 fn main {
-	var p: Person
+	var p: Person = Person(5, "Name")
 
-	printNumber(p.setAge(3))
-	putc('\n')
-	printNumber(p.getAge())
-	putc('\n')
-	printNumber(p.age)
-	print(p.to_string())
-}
-*/
 
-fn main (
-	argc: []string,
-	argv: int
-)
-{
-	a := 1
-	b := 2 + 1; print("hello")
 }
+

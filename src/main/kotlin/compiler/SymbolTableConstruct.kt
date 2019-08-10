@@ -64,7 +64,7 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable) {
                     val s = table.findSymbol(method.name)
                     val method_type = Type.fromASTType(method.type, classTable, FunctionType.Binding.CLASS)
 
-                    if(s != null) {
+                    if(s != null && method.name != "construct") {
                         if(s.type != method_type) {
                             compilerError("type of method ${method.name} ($method_type) doesn't match type declared in superclass (${s.type})", method.loc)
                         }

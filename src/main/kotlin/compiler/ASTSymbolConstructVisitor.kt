@@ -166,5 +166,39 @@ class ASTSymbolConstructVisitor {
             /* emit header */
             visitASTFuncDecl(method, fun_ast, ast.scope, classTable, true, ast, emit)
         }
+
+        val cls = classTable.findSymbol(ast.name)
+        if(cls == null || cls.type !is ClassType) {
+            error("can't find class with name ${ast.name}")
+        }
+        val cons_type = (cls.type as ClassType).findConstructType()
+        if(cons_type == null) {
+            compilerError("class ${ast.name} does not have a constructor", ast.loc)
+        }
+
+        val func_type = FunctionType(cls.type, cons_type.args, FunctionType.Binding.GLOBAL)
+
+        /* add constructor function */
+        scope.addSymbol(ast.name, Symbol(
+                emit.getID(ast.name),
+                Symbol.Mutability.IMUT,
+                func_type,
+                Symbol.StorageType.GLBFUNC,
+                fun_ast
+        ))
+
+        /* emit header */
+        func_type.return_type!!.emitVarTypeDecl(emit)
+
+        emit.write(" ${emit.getID(cls.type.getTypeName())}(void *${if (func_type.args.isNotEmpty()) ", " else ""}")
+
+        for (i in 0.until(func_type.args.size)) {
+            func_type.args[i].emitVarTypeDecl(emit)
+            if (i < func_type.args.size - 1) {
+                emit.write(", ")
+            }
+        }
+
+        emit.write(");\n")
     }
 }

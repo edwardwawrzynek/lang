@@ -122,6 +122,43 @@ class ASTTypeCheckVisitor {
 
             visitASTFuncDecl(method, dummy_scope, emit)
         }
+
+        /* emit class constructor */
+        val cls = classTable.findSymbol(ast.name)
+        if(cls == null || cls.type !is ClassType) {
+            error("can't find class with name ${ast.name}")
+        }
+
+        val cons_type = scope.scope.findSymbol(ast.name)
+        if(cons_type == null || cons_type.type !is FunctionType) {
+            error("can't find class constructor ${ast.name}")
+        }
+
+        val func_type = cons_type.type as FunctionType
+
+        /* emit header */
+        func_type.return_type!!.emitVarTypeDecl(emit)
+
+        emit.write(" ${emit.getID(cls.type.getTypeName())}(void * _data")
+
+        for (i in 0.until(func_type.args.size)) {
+            emit.write(", ")
+            func_type.args[i].emitVarTypeDecl(emit)
+            emit.write(" arg$i")
+        }
+
+        emit.write(") {\n")
+        cls.type.emitVarTypeDecl(emit)
+        emit.write(" _obj = _lang_gc_alloc(sizeof(struct ${emit.getID(ast.name)}));\n")
+        emit.write("((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&${emit.getID(ast.name)}_vtable_inst;\n")
+
+        /* TODO: class inline var initialization and gc_desk */
+        emit.write("${emit.getID(cls.type.getTypeName())}_construct(_obj")
+        for (i in 0.until(func_type.args.size)) {
+            emit.write(", ")
+            emit.write(" arg$i")
+        }
+        emit.write(");\nreturn _obj;\n}\n\n")
     }
 
     fun emitExprImplicitConvert(emit: Emit, to_type: Type, init_val: ASTExpr, scope: ASTNodeArray<ASTNode>): Type{
@@ -320,7 +357,7 @@ class ASTTypeCheckVisitor {
             Symbol.StorageType.LOCAL -> emit.write(sym.name)
             Symbol.StorageType.GLOBAL -> emit.write(sym.name)
             Symbol.StorageType.CLASSVAR -> {
-                emit.write("(((${emit.getID((sym.of_class!!).getTypeName())}*) _data)->${sym.name})")
+                emit.write("(((struct ${emit.getID((sym.of_class!!).getTypeName())}*) _data)->${sym.name})")
             }
             Symbol.StorageType.NONLOCAL -> TODO("closure variable access")
             Symbol.StorageType.GLBFUNC -> emit.write(sym.name)

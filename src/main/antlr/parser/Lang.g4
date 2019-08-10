@@ -52,13 +52,13 @@ expr
     :   '(' expr ')'                                #parenExpr
 	|   varName=expr '.' sub=expr                   #dotExpr
     |   name=expr '(' args=funcArgsExpr ')'         #funcExpr
-    |   varName=expr '[' sub=expr ']'                   #arrayExpr
-    |   varName=expr op=('++'|'--')                        #postfixExpr
-    |   varName=funcBody                                #lambdaExpr
+    |   varName=expr '[' sub=expr ']'               #arrayExpr
+    |   varName=expr op=('++'|'--')                 #postfixExpr
+    |   'fn' varName=funcBody                       #lambdaExpr
 
-    |   op=('++'|'--') varName=expr                     #prefixExpr
-    |   op=('+'|'-') varName=expr                       #prefixExpr
-    |   op=('!'|'~') varName=expr                       #prefixExpr
+    |   op=('++'|'--') varName=expr                 #prefixExpr
+    |   op=('+'|'-') varName=expr                   #prefixExpr
+    |   op=('!'|'~') varName=expr                   #prefixExpr
 
     |   left=expr op=('*'|'/'|'%') right=expr       #infixExpr
     |   left=expr op=('+'|'-') right=expr           #infixExpr
@@ -87,7 +87,7 @@ funcArgsExpr
     ;
 
 block
-    : '{' (statement)* '}'
+    : ('{' (statement)* '}') | statement
     ;
 
 arrayDecl
@@ -222,6 +222,7 @@ eos
     : ';'
     | EOF
     | {lineTerminatorAhead()}?
+    | {_input.LT(1).getText().equals("}") }?
     ;
 
 WS  :  [ \t]+ -> channel(HIDDEN);

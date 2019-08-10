@@ -2,20 +2,137 @@
 #include "core/core.h"
 
 /* --- Class Struct Declarations --- */
+struct __Object;
+struct __Object_vtable;
+struct __Person;
+struct __Person_vtable;
 /* --- Class Struct Definitions --- */
+struct __Object {
+	struct __Object_vtable* _vtable;
+};
+struct __Object_vtable {
+	struct _lang_vtable_head _header;
+	void (*destruct)(void*);
+	bool (*equals)(void*, struct __Object*);
+	long (*to_hash)(void*);
+	_lang_array* (*to_string)(void*);
+};
+
+struct __Person {
+	struct __Object _super;
+	_lang_array* name;
+	int age;
+};
+struct __Person_vtable {
+	struct __Object_vtable _vtable_super;
+	int (*getAge)(void*);
+	int (*setAge)(void*, int);
+};
+
 /* --- Function Headers --- */
 void __print(void *, _lang_array*);
 void __putc(void *, char);
 void __printNumber(void *, long);
 _lang_array* __readLine(void *);
-void __main(void *, _lang_array*, int);
+void __Object_construct(void *);
+void __Object_destruct(void *);
+bool __Object_equals(void *, struct __Object*);
+_lang_array* __Object_to_string(void *);
+long __Object_to_hash(void *);
+struct __Object* __Object(void *);
+void __Person_construct(void *, int, _lang_array*);
+_lang_array* __Person_to_string(void *);
+int __Person_getAge(void *);
+int __Person_setAge(void *, int);
+struct __Person* __Person(void *, int, _lang_array*);
+void __main(void *);
 /* --- Class VTable Instances --- */
+extern struct __Object_vtable __Object_vtable_inst;
+extern struct __Person_vtable __Person_vtable_inst;
 
+struct __Object_vtable __Object_vtable_inst = {
+.destruct = &__Object_destruct,
+.equals = &__Object_equals,
+.to_hash = &__Object_to_hash,
+.to_string = &__Object_to_string,
+._header = {
+/* TODO: gc_desk */
+.parent_vtable = NULL,
+},
+};
+struct __Person_vtable __Person_vtable_inst = {
+.getAge = &__Person_getAge,
+.setAge = &__Person_setAge,
+._vtable_super = {
+.destruct = &__Object_destruct,
+.equals = &__Object_equals,
+.to_hash = &__Object_to_hash,
+.to_string = &__Person_to_string,
+._header = {
+/* TODO: gc_desk */
+.parent_vtable = &__Object_vtable_inst,
+},
+},
+};
 /* --- Program Body --- */
-void __main(void *_data, _lang_array* argc, int argv) {
-long a = (long)(1);
-long b = (long)((2+1));
-__print(NULL, (_lang_array*)(_lang_make_string("hello")));
+void __Object_construct(void *_data) {
+}
+
+void __Object_destruct(void *_data) {
+}
+
+bool __Object_equals(void *_data, struct __Object* other) {
+return (bool)((false));
+}
+
+_lang_array* __Object_to_string(void *_data) {
+return (_lang_array*)(_lang_make_string("Object"));
+}
+
+long __Object_to_hash(void *_data) {
+return (long)(0);
+}
+
+struct __Object* __Object(void * _data) {
+struct __Object* _obj = _lang_gc_alloc(sizeof(struct __Object));
+((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__Object_vtable_inst;
+__Object_construct(_obj);
+return _obj;
+}
+
+void __Person_construct(void *_data, int a, _lang_array* n) {
+(((struct __Person*) _data)->age) = (int)(a);
+(((struct __Person*) _data)->name) = (_lang_array*)(n);
+}
+
+_lang_array* __Person_to_string(void *_data) {
+return (_lang_array*)(_lang_make_string("Person"));
+}
+
+int __Person_getAge(void *_data) {
+return (int)((((struct __Person*) _data)->age));
+}
+
+int __Person_setAge(void *_data, int a) {
+return (int)((((struct __Person*) _data)->age) = (int)(a));
+}
+
+struct __Person* __Person(void * _data, int arg0, _lang_array* arg1) {
+struct __Person* _obj = _lang_gc_alloc(sizeof(struct __Person));
+((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__Person_vtable_inst;
+__Person_construct(_obj,  arg0,  arg1);
+return _obj;
+}
+
+void __main(void *_data) {
+struct __Person* p = (struct __Person*)(__Person(NULL, (int)(5), (_lang_array*)(_lang_make_string("Name"))));
+__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Person_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->setAge(_lang_temp_this, (int)(3)))));
+__putc(NULL, (char)('\n'));
+__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Person_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->getAge(_lang_temp_this))));
+__putc(NULL, (char)('\n'));
+__printNumber(NULL, (long)(((p))->age));
+__print(NULL, (_lang_array*)((_lang_temp_this = (p), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_string(_lang_temp_this))));
+__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_hash(_lang_temp_this))));
 }
 
 int main (int argc, char **argv) {

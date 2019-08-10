@@ -374,6 +374,17 @@ class ASTTypeCheckVisitor {
                     }
                 }
             }
+            Symbol.StorageType.CLASS -> {
+                /* this or super ref */
+                if(sym.name == "this") {
+                    emit.write("((")
+                    sym.of_class!!.emitVarTypeDecl(emit)
+                    emit.write(")_data)")
+                    return sym.of_class!!
+                } else {
+                    error("invalid class var expr")
+                }
+            }
             Symbol.StorageType.NONLOCAL -> TODO("closure variable access")
             Symbol.StorageType.GLBFUNC -> emit.write(sym.name)
 

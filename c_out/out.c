@@ -123,8 +123,8 @@ int __Person_setAge(void *_data, int a) {
 return (int)(((((struct __Person*)_data)))->age = (int)(a));
 }
 
-void __Person_setHash(void *_data, long h) {
-(_lang_temp_this = (((struct __Person*)_data)), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->equals(_lang_temp_this, (struct __Object*)(__Object(NULL))));
+void __Person_setHash(void *_data, long hash) {
+((struct __Object *)(((struct __Person*)_data)))->hash = (long)(hash);
 }
 
 struct __Person* __Person(void * _data, int arg0, _lang_array* arg1) {

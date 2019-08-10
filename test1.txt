@@ -27,7 +27,7 @@ class Person: Object {
 	fn to_string -> string => "Person"
 	fn getAge -> int => age
 	fn setAge (a: int) -> int => age = a
-	fn setHash (h: long) equals(Object())
+	fn setHash (hash: long) this.hash = hash
 }
 
 fn printName(a: Object) {

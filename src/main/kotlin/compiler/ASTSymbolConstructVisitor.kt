@@ -216,5 +216,17 @@ class ASTSymbolConstructVisitor {
         }
         addInheritedSyms(cls.type as ClassType)
 
+        /* add this reference */
+        val sym = Symbol(
+            "this",
+            Symbol.Mutability.IMUT,
+            cls.type,
+            Symbol.StorageType.CLASS,
+            fun_ast
+            )
+        sym.is_declared = true
+        sym.of_class = cls.type as ClassType
+
+        ast.scope.addSymbol("this", sym)
     }
 }

@@ -1,4 +1,3 @@
-
 declare_proto {
     fn print(msg: string) -> void {}
     fn putc(c: char) -> void {}
@@ -6,13 +5,13 @@ declare_proto {
     fn readLine -> string {}
 }
 
-
 class Object {
+	hash: long
 	fn construct () -> void {}
 	fn destruct () -> void {}
 	fn equals (other: Object) -> bool => false
 	fn to_string () -> string => "Object"
-	fn to_hash () -> long => 0
+	fn to_hash () -> long => hash
 }
 
 class Person: Object {
@@ -22,18 +21,26 @@ class Person: Object {
 	fn construct(a: int, n: string) {
 		age = a
 		name = n
+		hash = 5
 	}
 
 	fn to_string -> string => "Person"
-
 	fn getAge -> int => age
-
 	fn setAge (a: int) -> int => age = a
+	fn setHash (h: long) equals(Object())
+}
+
+fn printName(a: Object) {
+	print(a.to_string())
+	putc('\n')
 }
 
 fn main {
 	var p: Person = Person(5, "Name")
 
-
+	printName(p)
+	printName(Object())
+	p.setHash(45)
+	printNumber(p.to_hash())
 }
 

@@ -200,5 +200,21 @@ class ASTSymbolConstructVisitor {
         }
 
         emit.write(");\n")
+
+        /* add symbols from superclasses to scope (note: all CLASS or CLASSFUNC bound vars eventually just go through ClassType's hasField or hasFieldCall */
+        fun addInheritedSyms(type: ClassType) {
+            for ((name, sym) in type.table.table) {
+                if(ast.scope.findSymbolNoParent(name) == null) {
+                    sym.is_declared = true
+                    sym.of_class = cls.type as ClassType
+                    ast.scope.addSymbol(name, sym)
+                }
+            }
+            if(type.superclass != null){
+                addInheritedSyms(type.superclass)
+            }
+        }
+        addInheritedSyms(cls.type as ClassType)
+
     }
 }

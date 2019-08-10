@@ -9,6 +9,7 @@ struct __Person_vtable;
 /* --- Class Struct Definitions --- */
 struct __Object {
 	struct __Object_vtable* _vtable;
+	long hash;
 };
 struct __Object_vtable {
 	struct _lang_vtable_head _header;
@@ -26,6 +27,7 @@ struct __Person {
 struct __Person_vtable {
 	struct __Object_vtable _vtable_super;
 	int (*getAge)(void*);
+	void (*setHash)(void*, long);
 	int (*setAge)(void*, int);
 };
 
@@ -44,7 +46,9 @@ void __Person_construct(void *, int, _lang_array*);
 _lang_array* __Person_to_string(void *);
 int __Person_getAge(void *);
 int __Person_setAge(void *, int);
+void __Person_setHash(void *, long);
 struct __Person* __Person(void *, int, _lang_array*);
+void __printName(void *, struct __Object*);
 void __main(void *);
 /* --- Class VTable Instances --- */
 extern struct __Object_vtable __Object_vtable_inst;
@@ -62,6 +66,7 @@ struct __Object_vtable __Object_vtable_inst = {
 };
 struct __Person_vtable __Person_vtable_inst = {
 .getAge = &__Person_getAge,
+.setHash = &__Person_setHash,
 .setAge = &__Person_setAge,
 ._vtable_super = {
 .destruct = &__Object_destruct,
@@ -90,7 +95,7 @@ return (_lang_array*)(_lang_make_string("Object"));
 }
 
 long __Object_to_hash(void *_data) {
-return (long)(0);
+return (long)(((((struct __Object*)_data)))->hash);
 }
 
 struct __Object* __Object(void * _data) {
@@ -101,8 +106,9 @@ return _obj;
 }
 
 void __Person_construct(void *_data, int a, _lang_array* n) {
-(((struct __Person*) _data)->age) = (int)(a);
-(((struct __Person*) _data)->name) = (_lang_array*)(n);
+((((struct __Person*)_data)))->age = (int)(a);
+((((struct __Person*)_data)))->name = (_lang_array*)(n);
+((struct __Object *)(((struct __Person*)_data)))->hash = (long)(5);
 }
 
 _lang_array* __Person_to_string(void *_data) {
@@ -110,11 +116,15 @@ return (_lang_array*)(_lang_make_string("Person"));
 }
 
 int __Person_getAge(void *_data) {
-return (int)((((struct __Person*) _data)->age));
+return (int)(((((struct __Person*)_data)))->age);
 }
 
 int __Person_setAge(void *_data, int a) {
-return (int)((((struct __Person*) _data)->age) = (int)(a));
+return (int)(((((struct __Person*)_data)))->age = (int)(a));
+}
+
+void __Person_setHash(void *_data, long h) {
+(_lang_temp_this = (((struct __Person*)_data)), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->equals(_lang_temp_this, (struct __Object*)(__Object(NULL))));
 }
 
 struct __Person* __Person(void * _data, int arg0, _lang_array* arg1) {
@@ -124,14 +134,16 @@ __Person_construct(_obj,  arg0,  arg1);
 return _obj;
 }
 
+void __printName(void *_data, struct __Object* a) {
+__print(NULL, (_lang_array*)((_lang_temp_this = (a), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_string(_lang_temp_this))));
+__putc(NULL, (char)('\n'));
+}
+
 void __main(void *_data) {
 struct __Person* p = (struct __Person*)(__Person(NULL, (int)(5), (_lang_array*)(_lang_make_string("Name"))));
-__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Person_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->setAge(_lang_temp_this, (int)(3)))));
-__putc(NULL, (char)('\n'));
-__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Person_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->getAge(_lang_temp_this))));
-__putc(NULL, (char)('\n'));
-__printNumber(NULL, (long)(((p))->age));
-__print(NULL, (_lang_array*)((_lang_temp_this = (p), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_string(_lang_temp_this))));
+__printName(NULL, (struct __Object*)(p));
+__printName(NULL, (struct __Object*)(__Object(NULL)));
+(_lang_temp_this = (p), ((struct __Person_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->setHash(_lang_temp_this, (long)(45)));
 __printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_hash(_lang_temp_this))));
 }
 

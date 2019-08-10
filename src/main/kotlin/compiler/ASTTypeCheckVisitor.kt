@@ -288,9 +288,17 @@ class ASTTypeCheckVisitor {
             is ASTFuncCallExpr -> return visitASTFuncCallExpr(ast, scope, emit)
             is ASTAssignExpr -> return visitASTAssignExpr(ast, scope, emit)
             is ASTDotExpr -> return visitASTDotExpr(ast, scope, emit)
+            is ImplicitThisExpr -> return visitImplicitThisExpr(ast, scope, emit)
         }
 
         return VoidType()
+    }
+
+    fun visitImplicitThisExpr(ast: ImplicitThisExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
+        emit.write("((")
+        ast.type.emitVarTypeDecl(emit)
+        emit.write(")_data)")
+        return ast.type
     }
 
     fun visitASTLiteralExpr(ast: ASTLiteralExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
@@ -357,7 +365,14 @@ class ASTTypeCheckVisitor {
             Symbol.StorageType.LOCAL -> emit.write(sym.name)
             Symbol.StorageType.GLOBAL -> emit.write(sym.name)
             Symbol.StorageType.CLASSVAR -> {
-                emit.write("(((struct ${emit.getID((sym.of_class!!).getTypeName())}*) _data)->${sym.name})")
+                val cls = sym.of_class!!
+                when(cls.hasField(sym.name)) {
+                    Type.FieldType.NONE -> compilerError("field ${sym.name} does not exist on type $cls", ast.loc)
+                    Type.FieldType.WRITEONLY -> compilerError("field ${sym.name} is write only", ast.loc)
+                    else -> {
+                        cls.emitFieldRead(sym.name, this, emit, ImplicitThisExpr(ast.loc!!, cls), scope)
+                    }
+                }
             }
             Symbol.StorageType.NONLOCAL -> TODO("closure variable access")
             Symbol.StorageType.GLBFUNC -> emit.write(sym.name)
@@ -433,6 +448,12 @@ class ASTTypeCheckVisitor {
                 compilerError("type $type has no method $name", ast.func.right.loc)
             }
             return type.emitFieldCall(name, this, emit, access_expr, ast, scope)
+        } else if (ast.func is ASTVarExpr && scope.scope.findSymbol(ast.func.name)?.storage == Symbol.StorageType.CLASSFUNC) {
+            val sym = scope.scope.findSymbol(ast.func.name)!!
+            if(!sym.of_class!!.hasFieldCall(sym.name)) {
+                compilerError("type ${sym.of_class} has no method ${sym.name}", ast.func.loc)
+            }
+            return sym.of_class!!.emitFieldCall(sym.name, this, emit, ImplicitThisExpr(ast.func.loc!!, sym.of_class!!), ast, scope)
         } else {
             val left = visitASTExpr(ast.func, scope, emit)
             if (left !is FunctionType) {
@@ -497,6 +518,16 @@ class ASTTypeCheckVisitor {
                 Type.FieldType.READONLY -> compilerError("field $name is readonly on type $type", ast.lvalue.right.loc)
                 Type.FieldType.READWRITE, Type.FieldType.WRITEONLY -> {
                     return type.emitFieldWrite(name, this, emit, ast.lvalue.left, ast.rvalue, scope)
+                }
+            }
+        } else if (ast.lvalue is ASTVarExpr && scope.scope.findSymbol(ast.lvalue.name)?.storage == Symbol.StorageType.CLASSVAR) {
+            val sym = scope.scope.findSymbol(ast.lvalue.name)
+            val cls = sym!!.of_class!!
+            when(cls.hasField(sym.name)) {
+                Type.FieldType.NONE -> compilerError("field ${sym.name} does not exist on type $cls", ast.loc)
+                Type.FieldType.READONLY -> compilerError("field ${sym.name} is read only", ast.loc)
+                else -> {
+                    return cls.emitFieldWrite(sym.name, this, emit, ImplicitThisExpr(ast.loc!!, cls), ast.rvalue, scope)
                 }
             }
         } else {

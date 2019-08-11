@@ -2,11 +2,22 @@
 #include "core/core.h"
 
 /* --- Class Struct Declarations --- */
+struct __vec3;
+struct __vec3_vtable;
 struct __Object;
 struct __Object_vtable;
-struct __Person;
-struct __Person_vtable;
 /* --- Class Struct Definitions --- */
+struct __vec3 {
+	struct __vec3_vtable* _vtable;
+	long x;
+	long y;
+	long z;
+};
+struct __vec3_vtable {
+	struct _lang_vtable_head _header;
+	struct __vec3* (*_op_add)(void*, struct __vec3*);
+};
+
 struct __Object {
 	struct __Object_vtable* _vtable;
 	long hash;
@@ -14,21 +25,9 @@ struct __Object {
 struct __Object_vtable {
 	struct _lang_vtable_head _header;
 	void (*destruct)(void*);
-	bool (*equals)(void*, struct __Object*);
+	bool (*_op_equals)(void*, struct __Object*);
 	long (*to_hash)(void*);
 	_lang_array* (*to_string)(void*);
-};
-
-struct __Person {
-	struct __Object _super;
-	_lang_array* name;
-	int age;
-};
-struct __Person_vtable {
-	struct __Object_vtable _vtable_super;
-	int (*getAge)(void*);
-	void (*setHash)(void*, long);
-	int (*setAge)(void*, int);
 };
 
 /* --- Function Headers --- */
@@ -38,45 +37,33 @@ void __printNumber(void *, long);
 _lang_array* __readLine(void *);
 void __Object_construct(void *);
 void __Object_destruct(void *);
-bool __Object_equals(void *, struct __Object*);
+bool __Object__op_equals(void *, struct __Object*);
 _lang_array* __Object_to_string(void *);
 long __Object_to_hash(void *);
 struct __Object* __Object(void *);
-void __Person_construct(void *, int, _lang_array*);
-_lang_array* __Person_to_string(void *);
-int __Person_getAge(void *);
-int __Person_setAge(void *, int);
-void __Person_setHash(void *, long);
-struct __Person* __Person(void *, int, _lang_array*);
-void __printName(void *, struct __Object*);
+void __vec3_construct(void *, long, long, long);
+struct __vec3* __vec3__op_add(void *, struct __vec3*);
+struct __vec3* __vec3(void *, long, long, long);
 void __main(void *);
 /* --- Class VTable Instances --- */
+extern struct __vec3_vtable __vec3_vtable_inst;
 extern struct __Object_vtable __Object_vtable_inst;
-extern struct __Person_vtable __Person_vtable_inst;
 
-struct __Object_vtable __Object_vtable_inst = {
-.destruct = &__Object_destruct,
-.equals = &__Object_equals,
-.to_hash = &__Object_to_hash,
-.to_string = &__Object_to_string,
+struct __vec3_vtable __vec3_vtable_inst = {
+._op_add = &__vec3__op_add,
 ._header = {
 /* TODO: gc_desk */
 .parent_vtable = NULL,
 },
 };
-struct __Person_vtable __Person_vtable_inst = {
-.getAge = &__Person_getAge,
-.setHash = &__Person_setHash,
-.setAge = &__Person_setAge,
-._vtable_super = {
+struct __Object_vtable __Object_vtable_inst = {
 .destruct = &__Object_destruct,
-.equals = &__Object_equals,
+._op_equals = &__Object__op_equals,
 .to_hash = &__Object_to_hash,
-.to_string = &__Person_to_string,
+.to_string = &__Object_to_string,
 ._header = {
 /* TODO: gc_desk */
-.parent_vtable = &__Object_vtable_inst,
-},
+.parent_vtable = NULL,
 },
 };
 /* --- Program Body --- */
@@ -86,7 +73,7 @@ void __Object_construct(void *_data) {
 void __Object_destruct(void *_data) {
 }
 
-bool __Object_equals(void *_data, struct __Object* other) {
+bool __Object__op_equals(void *_data, struct __Object* other) {
 return (bool)((false));
 }
 
@@ -105,46 +92,27 @@ __Object_construct(_obj);
 return _obj;
 }
 
-void __Person_construct(void *_data, int a, _lang_array* n) {
-((((struct __Person*)_data)))->age = (int)(a);
-((((struct __Person*)_data)))->name = (_lang_array*)(n);
-((struct __Object *)(((struct __Person*)_data)))->hash = (long)(5);
+void __vec3_construct(void *_data, long x, long y, long z) {
+((((struct __vec3*)_data)))->x = (long)(x);
+((((struct __vec3*)_data)))->y = (long)(y);
+((((struct __vec3*)_data)))->z = (long)(z);
 }
 
-_lang_array* __Person_to_string(void *_data) {
-return (_lang_array*)(_lang_make_string("Person"));
+struct __vec3* __vec3__op_add(void *_data, struct __vec3* o) {
+return (struct __vec3*)(__vec3(NULL, (long)((((((struct __vec3*)_data)))->x+((o))->x)), (long)((((((struct __vec3*)_data)))->y+((o))->y)), (long)((((((struct __vec3*)_data)))->z+((o))->z))));
 }
 
-int __Person_getAge(void *_data) {
-return (int)(((((struct __Person*)_data)))->age);
-}
-
-int __Person_setAge(void *_data, int a) {
-return (int)(((((struct __Person*)_data)))->age = (int)(a));
-}
-
-void __Person_setHash(void *_data, long hash) {
-((struct __Object *)(((struct __Person*)_data)))->hash = (long)(hash);
-}
-
-struct __Person* __Person(void * _data, int arg0, _lang_array* arg1) {
-struct __Person* _obj = _lang_gc_alloc(sizeof(struct __Person));
-((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__Person_vtable_inst;
-__Person_construct(_obj,  arg0,  arg1);
+struct __vec3* __vec3(void * _data, long arg0, long arg1, long arg2) {
+struct __vec3* _obj = _lang_gc_alloc(sizeof(struct __vec3));
+((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__vec3_vtable_inst;
+__vec3_construct(_obj,  arg0,  arg1,  arg2);
 return _obj;
 }
 
-void __printName(void *_data, struct __Object* a) {
-__print(NULL, (_lang_array*)((_lang_temp_this = (a), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_string(_lang_temp_this))));
-__putc(NULL, (char)('\n'));
-}
-
 void __main(void *_data) {
-struct __Person* p = (struct __Person*)(__Person(NULL, (int)(5), (_lang_array*)(_lang_make_string("Name"))));
-__printName(NULL, (struct __Object*)(p));
-__printName(NULL, (struct __Object*)(__Object(NULL)));
-(_lang_temp_this = (p), ((struct __Person_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->setHash(_lang_temp_this, (long)(45)));
-__printNumber(NULL, (long)((_lang_temp_this = (p), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_hash(_lang_temp_this))));
+struct __vec3* a = (struct __vec3*)(__vec3(NULL, (long)(1), (long)(2), (long)(3)));
+struct __vec3* b = (struct __vec3*)(__vec3(NULL, (long)(2), (long)(3), (long)(4)));
+struct __vec3* c = (struct __vec3*)((_lang_temp_this = (a), ((struct __vec3_vtable *)(((struct __vec3 *)_lang_temp_this)->_vtable))->_op_add(_lang_temp_this, (struct __vec3*)(b))));
 }
 
 int main (int argc, char **argv) {

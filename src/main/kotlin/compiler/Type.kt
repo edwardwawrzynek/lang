@@ -444,6 +444,56 @@ class ClassType(var name: String, var table: SymbolTable, val superclass: ClassT
         return (sym.type as FunctionType).return_type!!
     }
 
+    fun opToFuncName(op: ASTExprOp.ExprType): String {
+        return when(op) {
+            ASTExprOp.ExprType.ADD -> "_op_add"
+            ASTExprOp.ExprType.SUB -> "_op_sub"
+            ASTExprOp.ExprType.MULT -> "_op_mul"
+            ASTExprOp.ExprType.DIV -> "_op_div"
+            ASTExprOp.ExprType.MOD -> "_op_mod"
+            ASTExprOp.ExprType.LSHFT -> "_op_lsh"
+            ASTExprOp.ExprType.RSHFT -> "_op_rsh"
+            ASTExprOp.ExprType.BINARY_AND -> "_op_and"
+            ASTExprOp.ExprType.BINARY_OR -> "_op_or"
+            ASTExprOp.ExprType.BINARY_XOR -> "_op_xor"
+            ASTExprOp.ExprType.BINARY_NOT -> "_op_not"
+            ASTExprOp.ExprType.LT -> "_op_lt"
+            ASTExprOp.ExprType.LTE -> "_op_lte"
+            ASTExprOp.ExprType.GT -> "_op_gt"
+            ASTExprOp.ExprType.GTE -> "_op_gte"
+            ASTExprOp.ExprType.EQ -> "_op_equals"
+            ASTExprOp.ExprType.POSTFIX_INC -> "_op_postinc"
+            ASTExprOp.ExprType.POSTFIX_DEC -> "_op_postdec"
+            ASTExprOp.ExprType.PREFIX_INC -> "_op_preinc"
+            ASTExprOp.ExprType.PREFIX_DEC -> "_op_predec"
+            ASTExprOp.ExprType.NEGATIVE -> "_op_neg"
+            ASTExprOp.ExprType.ARRAY -> "_op_subscript"
+            else -> {
+                error("logical ops invalid for op overloading")
+            }
+        }
+    }
+
+    override fun hasOpDefined(op: ASTExprOp.ExprType, other: Type?): Boolean {
+        val op_func_name = opToFuncName(op)
+        if(!hasFieldCall(op_func_name)) return false
+        val type = (table.findSymbol(op_func_name)?.type as? FunctionType)
+        if(type == null) return false
+        val expect_len = if(ASTExprOp.ExprType.isUnary(op)) 0 else 1
+        if(type.args.size != expect_len) return false
+        if(expect_len == 1) {
+            if(!other!!.canImplicitConvert(type.args[0])) return false
+        }
+        return true
+    }
+
+    override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
+        val func = opToFuncName(op)
+        val args = if(ASTExprOp.ExprType.isUnary(op)) mutableListOf<ASTExpr>() else mutableListOf(expr2!!)
+        val dummyFunc = ASTFuncCallExpr(expr1.loc!!, ASTExpr(expr1.loc), ASTNodeArray(args))
+        return emitFieldCall(func, type_visitor, emit, expr1, dummyFunc, scope)
+    }
+
 }
 
 /* names of args are not part of type - they are part of scope for code */

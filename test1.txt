@@ -9,38 +9,29 @@ class Object {
 	hash: long
 	fn construct () -> void {}
 	fn destruct () -> void {}
-	fn equals (other: Object) -> bool => false
+	fn _op_equals (other: Object) -> bool => false
 	fn to_string () -> string => "Object"
 	fn to_hash () -> long => hash
 }
 
-class Person: Object {
-	age: int
-	name: string
+class vec3 {
+	x: long
+	y: long
+	z: long
 
-	fn construct(a: int, n: string) {
-		age = a
-		name = n
-		hash = 5
+	fn construct(x: long, y: long, z: long) {
+		this.x = x
+		this.y = y
+		this.z = z
 	}
 
-	fn to_string -> string => "Person"
-	fn getAge -> int => age
-	fn setAge (a: int) -> int => age = a
-	fn setHash (hash: long) this.hash = hash
+	fn _op_add(o: vec3) -> vec3
+		=> vec3(x + o.x, y + o.y, z + o.z)
+
 }
 
-fn printName(a: Object) {
-	print(a.to_string())
-	putc('\n')
+fn main() {
+	a := vec3(1, 2, 3)
+	b := vec3(2, 3, 4)
+	c := a + b
 }
-
-fn main {
-	var p: Person = Person(5, "Name")
-
-	printName(p)
-	printName(Object())
-	p.setHash(45)
-	printNumber(p.to_hash())
-}
-

@@ -31,7 +31,6 @@ class vec3 {
 }
 
 fn main() {
-	a := vec3(1, 2, 3)
-	b := vec3(2, 3, 4)
-	c := a + b
+	val a: vec3 = null
+	val b := null
 }

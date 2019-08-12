@@ -127,6 +127,8 @@ open class Type {
              when(type) {
                  "void" -> return VoidType()
                  "string" -> return ArrayType(CharType(), null)
+                 "float" -> return FloatType()
+                 "double" -> return DoubleType()
                  "int" -> return IntType()
                  "long" -> return LongType()
                  "bool" -> return BooleanType()
@@ -728,6 +730,32 @@ class VoidType: Type() {
     }
 }
 
+class NullType: Type() {
+    override fun equals(other: Any?): Boolean {
+        return other is NullType
+    }
+
+    override fun canImplicitConvert(other: Type): Boolean {
+        return other.isPointer() || other is BooleanType
+    }
+
+    override fun isPointer(): Boolean {
+        return true
+    }
+
+    override fun getTypeName(): String {
+        return "null"
+    }
+
+    override fun toString(): String {
+        return "null"
+    }
+
+    override fun emitVarTypeDecl(emit: Emit) {
+        emit.write("void * ")
+    }
+}
+
 /* primative boolean type */
 class BooleanType: Type() {
     override fun emitVarTypeDecl(emit: Emit) {
@@ -789,15 +817,16 @@ open class NumberType: Type() {
 
     override fun emitOp(op: ASTExprOp.ExprType, type_visitor: ASTTypeCheckVisitor, emit: Emit, expr1: ASTExpr, expr2: ASTExpr?, scope: ASTNodeArray<ASTNode>): Type {
         if(ASTExprOp.ExprType.isUnary(op)){
+            val typ: Type
             when(op) {
                 ASTExprOp.ExprType.POSTFIX_INC -> {
                     emit.write("(")
-                    type_visitor.visitASTExpr(expr1, scope, emit)
+                    typ = type_visitor.visitASTExpr(expr1, scope, emit)
                     emit.write("++)")
                 }
                 ASTExprOp.ExprType.POSTFIX_DEC -> {
                     emit.write("(")
-                    type_visitor.visitASTExpr(expr1, scope, emit)
+                    typ = type_visitor.visitASTExpr(expr1, scope, emit)
                     emit.write("--)")
                 }
                 else -> {
@@ -809,11 +838,11 @@ open class NumberType: Type() {
                         else -> error("not valid unary op")
                     }
                     emit.write("($op_str")
-                    type_visitor.visitASTExpr(expr1, scope, emit)
+                    typ = type_visitor.visitASTExpr(expr1, scope, emit)
                     emit.write(")")
                 }
             }
-            return NumberType()
+            return if(typ is FloatingType) FloatingType() else NumberType()
         } else {
             val op_str = when(op) {
                 ASTExprOp.ExprType.ADD -> "+"
@@ -834,11 +863,11 @@ open class NumberType: Type() {
                 else -> error("not valid binary op")
             }
             emit.write("(")
-            type_visitor.visitASTExpr(expr1, scope, emit)
+            val typ1 = type_visitor.visitASTExpr(expr1, scope, emit)
             emit.write(op_str)
-            type_visitor.visitASTExpr(expr2!!, scope, emit)
+            val typ2 = type_visitor.visitASTExpr(expr2!!, scope, emit)
             emit.write(")")
-            return if(op == ASTExprOp.ExprType.EQ) BooleanType() else NumberType()
+            return if(op == ASTExprOp.ExprType.EQ) BooleanType() else (if(typ1 is FloatingType || typ2 is FloatingType) FloatingType() else NumberType())
         }
     }
 }
@@ -888,5 +917,54 @@ class CharType: NumberType() {
 
     override fun canImplicitConvert(other: Type): Boolean {
         return other is BooleanType || other is CharType
+    }
+}
+
+open class FloatingType: NumberType() {
+
+    override fun emitVarTypeDecl(emit: Emit) {
+        emit.write("double")
+    }
+
+    override fun getTypeName(): String {
+        return "double"
+    }
+
+    override fun getCZeroValue(): String {
+        return "0.0"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is FloatingType
+    }
+}
+
+class FloatType: FloatingType() {
+
+    override fun emitVarTypeDecl(emit: Emit) {
+        emit.write("float")
+    }
+
+    override fun getTypeName(): String {
+        return "float"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return  other is FloatType
+    }
+}
+
+class DoubleType: FloatingType() {
+
+    override fun emitVarTypeDecl(emit: Emit) {
+        emit.write("double")
+    }
+
+    override fun getTypeName(): String {
+        return "double"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is DoubleType
     }
 }

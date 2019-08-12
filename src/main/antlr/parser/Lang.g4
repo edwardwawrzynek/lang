@@ -205,7 +205,10 @@ CLASS_OBJECT: 'object';
 CLASS_STRUCT: 'struct';
 
 literal
-    :   NUM
+    :   NULL
+    |	BOOL
+    |	NUM
+    | 	FLOAT
     |   STR
     |   CHR
     |   arrayLiteral
@@ -213,7 +216,10 @@ literal
 
 arrayLiteral: '[' (expr ',')* expr? ']';
 
+BOOL: 	'true' | 'false';
+NULL: 	'null';
 NUM :   '-'?[0-9]+;
+FLOAT: 	'-'?([0-9]*[.])?[0-9]+;
 ID  :   [a-zA-Z_]+[a-zA-Z_0-9]*;
 STR :   '"' (~'"')* '"';
 CHR :   '\'' '\\'?(~'\'') '\'';

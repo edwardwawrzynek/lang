@@ -110,9 +110,8 @@ return _obj;
 }
 
 void __main(void *_data) {
-struct __vec3* a = (struct __vec3*)(__vec3(NULL, (long)(1), (long)(2), (long)(3)));
-struct __vec3* b = (struct __vec3*)(__vec3(NULL, (long)(2), (long)(3), (long)(4)));
-struct __vec3* c = (struct __vec3*)((_lang_temp_this = (a), ((struct __vec3_vtable *)(((struct __vec3 *)_lang_temp_this)->_vtable))->_op_add(_lang_temp_this, (struct __vec3*)(b))));
+const struct __vec3* a = (struct __vec3*)(NULL);
+const void *  b = (void * )(NULL);
 }
 
 int main (int argc, char **argv) {

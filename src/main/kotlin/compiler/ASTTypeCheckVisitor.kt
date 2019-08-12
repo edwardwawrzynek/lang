@@ -335,21 +335,25 @@ class ASTTypeCheckVisitor {
             } else if (ast.value[0] == '\"') {
                 emit.write("_lang_make_string(${ast.value})")
                 return ArrayType(CharType(), null)
-            } else {
+            } else if ("-?[0-9]+".toRegex().matches(ast.value)) {
                 emit.write(ast.value)
                 return LongType()
+            } else if ("-?([0-9]*[.])?[0-9]+".toRegex().matches(ast.value)) {
+                emit.write(ast.value)
+                return DoubleType()
+            } else if (ast.value == "true" || ast.value == "false") {
+                emit.write(ast.value)
+                return BooleanType()
+            } else if (ast.value == "null") {
+                emit.write("NULL")
+                return NullType()
+            } else {
+                error("no such literal type")
             }
         }
     }
 
     fun visitASTVarExpr(ast: ASTVarExpr, scope: ASTNodeArray<ASTNode>, emit: Emit): Type {
-        if(ast.name == "true") {
-            emit.write("true")
-            return BooleanType()
-        } else if(ast.name == "false") {
-            emit.write("false")
-            return BooleanType()
-        }
 
         val sym = scope.scope.findSymbol(ast.name)
         if(sym == null){

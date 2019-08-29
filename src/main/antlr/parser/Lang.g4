@@ -95,7 +95,7 @@ arrayDecl
     ;
 
 typeDecl
-    : (array=arrayDecl)? (((ID '.')* ID)|funcType)
+    : (array=arrayDecl)? (((rootNamespace='.')? (ID '.')* ID)|funcType)
     ;
 
 varType

@@ -38,8 +38,11 @@ class ASTSymbolConstructVisitor {
                     visitASTNodeArray(node as ASTNodeArray<ASTNode>, fun_ast, ast.scope, classTable, namespace, emit)
                 }
                 is ASTNamespaceStmnt -> {
-                    /* TODO: add namespace entry in symbol table */
-                    visitASTNodeArray(node.body, fun_ast, ast.scope, classTable, Namespace(namespace, node.name, node.body.scope), emit)
+                    val nsp = Namespace(namespace, node.name, node.body.scope)
+                    val sym = Symbol(node.name, Symbol.Mutability.IMUT, nsp, Symbol.StorageType.NAMESPACE, node)
+                    sym.is_declared = true
+                    ast.scope.addSymbol(node.name, sym)
+                    visitASTNodeArray(node.body, fun_ast, ast.scope, classTable, nsp, emit)
                 }
             }
         }

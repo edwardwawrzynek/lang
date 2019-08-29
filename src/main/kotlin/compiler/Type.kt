@@ -152,12 +152,12 @@ open class Type {
 
                      if('.' in type) {
                          /* handle scoped namespaces */
-                         val names = type.split(".")
+                         val names = type.split(".").filter { it != "" }
                          if(names.isEmpty()){
                              symbol = null
                          } else {
-                             if(namespace == null){
-                                 symbol = classTable.findSymbol(type)
+                             if(namespace == null || type[0] == '.'){
+                                 symbol = classTable.findSymbol(names[0])
                              } else {
                                  symbol = searchUpNamespaces(names[0], namespace)
                              }
@@ -464,9 +464,10 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
             error("field implementor not found")
         }
         if(!(sym.type is FunctionType && (sym.type as FunctionType).binding_type == FunctionType.Binding.CLASS)) {
+            /* TODO: call closure bounded functions */
             error("not a function field")
         }
-        /* TODO: closure conversion (not here, but special care needed for class bound functions) */
+
         val root = findRootClass()
         emit.write("(_lang_temp_this = ")
         emit.write("(")

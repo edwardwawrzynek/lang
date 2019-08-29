@@ -1,4 +1,4 @@
-
+/*
 declare_proto {
     fn print(msg: string) -> void {}
     fn putc(c: char) -> void {}
@@ -69,4 +69,26 @@ namespace pkg_cont {
 fn main() {
 	var a: pkg_cont.contTest
 	var b: pkg_cont.pkg.Test
+}
+*/
+
+namespace a {
+	namespace b {
+		var test: int = 7
+
+		class obj {
+			fn construct (a: int) {}
+		}
+	}
+	namespace c {
+		o := a.b.obj(5)
+	}
+}
+
+namespace b {
+	var test: int = 5
+}
+
+
+fn main {
 }

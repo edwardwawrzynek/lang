@@ -115,8 +115,11 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         return ASTFuncDecl(ASTFileLocation.fromToken(ctx.start), ctx.name.text, type, body)
     }
 
-    private fun concatTypeName(list: MutableList<TerminalNode>): String {
+    private fun concatTypeName(list: MutableList<TerminalNode>, rootNamespace: Token?): String {
         var res: String = ""
+        if(rootNamespace?.text != null) {
+            res += "."
+        }
         for(i in 0.until(list.size)) {
             val l = list[i]
             res += l.text
@@ -133,7 +136,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             val length = -1
 
             if (ctx.ID() != null) {
-                return ASTArrayType(ASTFileLocation.fromToken(ctx.start), concatTypeName(ctx.ID()), length)
+                return ASTArrayType(ASTFileLocation.fromToken(ctx.start), concatTypeName(ctx.ID(), ctx.rootNamespace), length)
             } else {
                 /* handle function type */
                 val funcType = visitFuncType(ctx.funcType())
@@ -141,7 +144,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             }
         } else {
             return if (ctx.ID() != null) {
-                ASTType(ASTFileLocation.fromToken(ctx.start), concatTypeName(ctx.ID()))
+                ASTType(ASTFileLocation.fromToken(ctx.start), concatTypeName(ctx.ID(), ctx.rootNamespace))
             } else {
                 /* handle function type */
                 visitFuncType(ctx.funcType())

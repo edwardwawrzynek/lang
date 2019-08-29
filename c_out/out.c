@@ -2,218 +2,57 @@
 #include "core/core.h"
 
 /* --- Class Struct Declarations --- */
-struct __vec3;
-struct __vec3_vtable;
-struct __Object;
-struct __Object_vtable;
 /* --- Class Struct Declarations --- */
-struct __pkg_cont__contTest;
-struct __pkg_cont__contTest_vtable;
 /* --- Class Struct Declarations --- */
-struct __pkg_cont__pkg__Test;
-struct __pkg_cont__pkg__Test_vtable;
+struct __a__b__obj;
+struct __a__b__obj_vtable;
 /* --- Class Struct Definitions --- */
-struct __Object {
-	struct __Object_vtable* _vtable;
-	long hash;
+struct __a__b__obj {
+	struct __a__b__obj_vtable* _vtable;
 };
-struct __Object_vtable {
-	struct _lang_vtable_head _header;
-	void (*destruct)(void*);
-	bool (*_op_equals)(void*, struct __Object*);
-	long (*to_hash)(void*);
-	_lang_array* (*to_string)(void*);
-};
-
-struct __pkg_cont__pkg__Test {
-	struct __Object _super;
-	int a;
-};
-struct __pkg_cont__pkg__Test_vtable {
-	struct __Object_vtable _vtable_super;
-	int (*setA)(void*, int);
-	int (*getA)(void*);
-};
-
-/* --- Class Struct Definitions --- */
-struct __pkg_cont__contTest {
-	struct __pkg_cont__contTest_vtable* _vtable;
-	int a;
-};
-struct __pkg_cont__contTest_vtable {
+struct __a__b__obj_vtable {
 	struct _lang_vtable_head _header;
 };
 
+/* --- Class Struct Declarations --- */
 /* --- Class Struct Definitions --- */
-struct __vec3 {
-	struct __vec3_vtable* _vtable;
-	double x;
-	double y;
-	double z;
-};
-struct __vec3_vtable {
-	struct _lang_vtable_head _header;
-	struct __vec3* (*_op_sub)(void*, struct __vec3*);
-	struct __vec3* (*_op_add)(void*, struct __vec3*);
-};
-
+/* --- Class Struct Definitions --- */
+/* --- Class Struct Declarations --- */
+/* --- Class Struct Definitions --- */
+/* --- Class Struct Definitions --- */
 /* --- Function Headers --- */
-void __print(void *, _lang_array*);
-void __putc(void *, char);
-void __printNumber(void *, long);
-_lang_array* __readLine(void *);
-void __Object_construct(void *);
-void __Object_destruct(void *);
-bool __Object__op_equals(void *, struct __Object*);
-_lang_array* __Object_to_string(void *);
-long __Object_to_hash(void *);
-struct __Object* __Object(void *);
-void __vec3_construct(void *, double, double, double);
-struct __vec3* __vec3__op_add(void *, struct __vec3*);
-struct __vec3* __vec3__op_sub(void *, struct __vec3*);
-struct __vec3* __vec3(void *, double, double, double);
-void __pkg_cont__contTest_construct(void *, int);
-struct __pkg_cont__contTest* __pkg_cont__contTest(void *, int);
-void __pkg_cont__pkg__Test_construct(void *, int);
-int __pkg_cont__pkg__Test_getA(void *);
-int __pkg_cont__pkg__Test_setA(void *, int);
-struct __pkg_cont__pkg__Test* __pkg_cont__pkg__Test(void *, int);
-void __pkg_cont__pkg__test(void *);
+void __a__b__obj_construct(void *, int);
+struct __a__b__obj* __a__b__obj(void *, int);
 void __main(void *);
 /* --- Class VTable Instances --- */
-extern struct __vec3_vtable __vec3_vtable_inst;
-extern struct __Object_vtable __Object_vtable_inst;
-extern struct __pkg_cont__contTest_vtable __pkg_cont__contTest_vtable_inst;
-extern struct __pkg_cont__pkg__Test_vtable __pkg_cont__pkg__Test_vtable_inst;
+extern struct __a__b__obj_vtable __a__b__obj_vtable_inst;
 
-struct __vec3_vtable __vec3_vtable_inst = {
-._op_sub = &__vec3__op_sub,
-._op_add = &__vec3__op_add,
+struct __a__b__obj_vtable __a__b__obj_vtable_inst = {
 ._header = {
 /* TODO: gc_desk */
 .parent_vtable = NULL,
-},
-};
-struct __Object_vtable __Object_vtable_inst = {
-.destruct = &__Object_destruct,
-._op_equals = &__Object__op_equals,
-.to_hash = &__Object_to_hash,
-.to_string = &__Object_to_string,
-._header = {
-/* TODO: gc_desk */
-.parent_vtable = NULL,
-},
-};
-struct __pkg_cont__contTest_vtable __pkg_cont__contTest_vtable_inst = {
-._header = {
-/* TODO: gc_desk */
-.parent_vtable = NULL,
-},
-};
-struct __pkg_cont__pkg__Test_vtable __pkg_cont__pkg__Test_vtable_inst = {
-.setA = &__pkg_cont__pkg__Test_setA,
-.getA = &__pkg_cont__pkg__Test_getA,
-._vtable_super = {
-.destruct = &__Object_destruct,
-._op_equals = &__Object__op_equals,
-.to_hash = &__Object_to_hash,
-.to_string = &__Object_to_string,
-._header = {
-/* TODO: gc_desk */
-.parent_vtable = &__Object_vtable_inst,
-},
 },
 };
 /* --- Program Body --- */
-void __Object_construct(void *_data) {
+int __a__b__test;
+void __a__b__obj_construct(void *_data, int a) {
 }
 
-void __Object_destruct(void *_data) {
-}
-
-bool __Object__op_equals(void *_data, struct __Object* other) {
-return (bool)((false));
-}
-
-_lang_array* __Object_to_string(void *_data) {
-return (_lang_array*)(_lang_make_string("Object"));
-}
-
-long __Object_to_hash(void *_data) {
-return (long)(((((struct __Object*)_data)))->hash);
-}
-
-struct __Object* __Object(void * _data) {
-struct __Object* _obj = _lang_gc_alloc(sizeof(struct __Object));
-((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__Object_vtable_inst;
-__Object_construct(_obj);
+struct __a__b__obj* __a__b__obj(void * _data, int arg0) {
+struct __a__b__obj* _obj = _lang_gc_alloc(sizeof(struct __a__b__obj));
+((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__a__b__obj_vtable_inst;
+__a__b__obj_construct(_obj,  arg0);
 return _obj;
 }
 
-void __vec3_construct(void *_data, double x, double y, double z) {
-((((struct __vec3*)_data)))->x = (double)(x);
-((((struct __vec3*)_data)))->y = (double)(y);
-((((struct __vec3*)_data)))->z = (double)(z);
-}
-
-struct __vec3* __vec3__op_add(void *_data, struct __vec3* o) {
-return (struct __vec3*)(__vec3(NULL, (double)((((((struct __vec3*)_data)))->x+((o))->x)), (double)((((((struct __vec3*)_data)))->y+((o))->y)), (double)((((((struct __vec3*)_data)))->z+((o))->z))));
-}
-
-struct __vec3* __vec3__op_sub(void *_data, struct __vec3* o) {
-return (struct __vec3*)(__vec3(NULL, (double)((((((struct __vec3*)_data)))->x-((o))->x)), (double)((((((struct __vec3*)_data)))->y-((o))->y)), (double)((((((struct __vec3*)_data)))->z-((o))->z))));
-}
-
-struct __vec3* __vec3(void * _data, double arg0, double arg1, double arg2) {
-struct __vec3* _obj = _lang_gc_alloc(sizeof(struct __vec3));
-((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__vec3_vtable_inst;
-__vec3_construct(_obj,  arg0,  arg1,  arg2);
-return _obj;
-}
-
-void __pkg_cont__contTest_construct(void *_data, int a) {
-((((struct __pkg_cont__contTest*)_data)))->a = (int)(a);
-}
-
-struct __pkg_cont__contTest* __pkg_cont__contTest(void * _data, int arg0) {
-struct __pkg_cont__contTest* _obj = _lang_gc_alloc(sizeof(struct __pkg_cont__contTest));
-((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__pkg_cont__contTest_vtable_inst;
-__pkg_cont__contTest_construct(_obj,  arg0);
-return _obj;
-}
-
-void __pkg_cont__pkg__Test_construct(void *_data, int a) {
-((((struct __pkg_cont__pkg__Test*)_data)))->a = (int)(a);
-}
-
-int __pkg_cont__pkg__Test_getA(void *_data) {
-return (int)(((((struct __pkg_cont__pkg__Test*)_data)))->a);
-}
-
-int __pkg_cont__pkg__Test_setA(void *_data, int a) {
-return (int)(((((struct __pkg_cont__pkg__Test*)_data)))->a = (int)(a));
-}
-
-struct __pkg_cont__pkg__Test* __pkg_cont__pkg__Test(void * _data, int arg0) {
-struct __pkg_cont__pkg__Test* _obj = _lang_gc_alloc(sizeof(struct __pkg_cont__pkg__Test));
-((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&__pkg_cont__pkg__Test_vtable_inst;
-__pkg_cont__pkg__Test_construct(_obj,  arg0);
-return _obj;
-}
-
-struct __pkg_cont__pkg__Test* __pkg_cont__pkg__a;
-struct __pkg_cont__contTest* __pkg_cont__pkg__b;
-void __pkg_cont__pkg__test(void *_data) {
-__print(NULL, (_lang_array*)((_lang_temp_this = (__pkg_cont__pkg__a), ((struct __Object_vtable *)(((struct __Object *)_lang_temp_this)->_vtable))->to_string(_lang_temp_this))));
-}
-
+struct __a__b__obj* __a__c__o;
+int __b__test;
 void __main(void *_data) {
-struct __pkg_cont__contTest* a = NULL;
-struct __pkg_cont__pkg__Test* b = NULL;
 }
 
 int main (int argc, char **argv) {
-__pkg_cont__pkg__a = (struct __pkg_cont__pkg__Test*)(__pkg_cont__pkg__Test(NULL, (int)(1)));
-__pkg_cont__pkg__b = (struct __pkg_cont__contTest*)(__pkg_cont__contTest(NULL, (int)(2)));
+__a__b__test = (int)(7);
+__a__c__o = (struct __a__b__obj*)(__a__b__obj(NULL, (int)(5));
+__b__test = (int)(5);
 __main(NULL);
 };

@@ -393,6 +393,8 @@ class ASTTypeCheckVisitor {
             Symbol.StorageType.NONLOCAL -> TODO("closure variable access")
             Symbol.StorageType.GLBFUNC -> emit.write(sym.name)
 
+            Symbol.StorageType.NAMESPACE -> {}
+
             else -> TODO("variable type access not implemented")
         }
 

@@ -123,6 +123,20 @@ open class Type {
             return res
         }
 
+        /* search up the whole namespace tree from current location */
+        private fun searchUpNamespaces(name: String, namespace: Namespace): Symbol? {
+            val sym = classTable.findSymbolByNamespaceName(namespace, name)
+            if (sym == null) {
+                if (namespace.parent == null) {
+                    return null
+                } else {
+                    return searchUpNamespaces(name, namespace.parent)
+                }
+            } else {
+                return sym
+            }
+        }
+
         private fun fromStringLitType(type: String, classTable: SymbolTable, loc: ASTFileLocation?, namespace: Namespace?): Type {
              when(type) {
                  "void" -> return VoidType()
@@ -134,35 +148,40 @@ open class Type {
                  "bool" -> return BooleanType()
                  "char" -> return CharType()
                  else -> {
-                     val symbol: Symbol?
+                     var symbol: Symbol? = null
 
                      if('.' in type) {
                          /* handle scoped namespaces */
+                         val names = type.split(".")
+                         if(names.isEmpty()){
+                             symbol = null
+                         } else {
+                             if(namespace == null){
+                                 symbol = classTable.findSymbol(type)
+                             } else {
+                                 symbol = searchUpNamespaces(names[0], namespace)
+                             }
+                             for (i in 1..(names.size-1)) {
+                                 if(symbol == null || symbol.type !is Namespace) {
+                                     symbol = null
+                                     break
+                                 }
+                                 val name = names[i]
+                                 symbol = (symbol.type as Namespace).table.findSymbolNoParent(name)
+                             }
+                         }
                      } else {
                          if (namespace == null) {
                              symbol = classTable.findSymbol(type)
                          } else {
-                             /* search up the whole namespace tree */
-                             fun searchUpNamespaces(name: String, namespace: Namespace): Symbol? {
-                                 val sym = classTable.findSymbolByNamespaceName(namespace, name)
-                                 if (sym == null) {
-                                     if (namespace.parent == null) {
-                                         return null
-                                     } else {
-                                         return searchUpNamespaces(name, namespace.parent)
-                                     }
-                                 } else {
-                                     return sym
-                                 }
-                             }
                              symbol = searchUpNamespaces(type, namespace)
                          }
                      }
-                    if (symbol == null) {
-                        compilerError("identifier ${type} is not a recognized type", loc!!)
-                    } else {
-                        return symbol.type
-                    }
+                     if (symbol == null) {
+                         compilerError("identifier ${type} is not a recognized type", loc!!)
+                     } else {
+                         return symbol.type
+                     }
                  }
              }
         }

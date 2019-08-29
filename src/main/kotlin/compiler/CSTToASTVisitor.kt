@@ -4,6 +4,7 @@ import parser.*
 import org.antlr.v4.runtime.*
 
 import ast.*
+import org.antlr.v4.runtime.tree.TerminalNode
 import java.util.ArrayList
 import java.lang.Exception
 import kotlin.system.exitProcess
@@ -114,13 +115,25 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
         return ASTFuncDecl(ASTFileLocation.fromToken(ctx.start), ctx.name.text, type, body)
     }
 
+    private fun concatTypeName(list: MutableList<TerminalNode>): String {
+        var res: String = ""
+        for(i in 0.until(list.size)) {
+            val l = list[i]
+            res += l.text
+            if(i < list.size -1) {
+                res += "."
+            }
+        }
+        return res
+    }
+
     override fun visitTypeDecl(ctx: LangParser.TypeDeclContext): ASTType {
         /* handle array */
         if (ctx.arrayDecl() != null) {
             val length = -1
 
             if (ctx.ID() != null) {
-                return ASTArrayType(ASTFileLocation.fromToken(ctx.start), ctx.ID().text, length)
+                return ASTArrayType(ASTFileLocation.fromToken(ctx.start), concatTypeName(ctx.ID()), length)
             } else {
                 /* handle function type */
                 val funcType = visitFuncType(ctx.funcType())
@@ -128,7 +141,7 @@ class CSTToASTVisitor : LangBaseVisitor<ASTNode>() {
             }
         } else {
             return if (ctx.ID() != null) {
-                ASTType(ASTFileLocation.fromToken(ctx.start), ctx.ID().text)
+                ASTType(ASTFileLocation.fromToken(ctx.start), concatTypeName(ctx.ID()))
             } else {
                 /* handle function type */
                 visitFuncType(ctx.funcType())

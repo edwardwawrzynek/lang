@@ -67,5 +67,6 @@ namespace pkg_cont {
 }
 
 fn main() {
-
+	var a: pkg_cont.contTest
+	var b: pkg_cont.pkg.Test
 }

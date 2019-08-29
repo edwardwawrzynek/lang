@@ -208,6 +208,8 @@ __print(NULL, (_lang_array*)((_lang_temp_this = (__pkg_cont__pkg__a), ((struct _
 }
 
 void __main(void *_data) {
+struct __pkg_cont__contTest* a = NULL;
+struct __pkg_cont__pkg__Test* b = NULL;
 }
 
 int main (int argc, char **argv) {

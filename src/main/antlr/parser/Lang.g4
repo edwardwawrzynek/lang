@@ -95,7 +95,7 @@ arrayDecl
     ;
 
 typeDecl
-    : (array=arrayDecl)? (ID|funcType)
+    : (array=arrayDecl)? (((ID '.')* ID)|funcType)
     ;
 
 varType

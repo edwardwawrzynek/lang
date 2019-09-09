@@ -122,7 +122,6 @@ fun astToClassTypes (ast: ASTNodeArray<ASTNode>, classTable: SymbolTable, namesp
 /* emit class shape declarations given a class table */
 fun classTableEmitShapeDecl(emit: Emit, classTable: SymbolTable, emitted: MutableList<ClassType>) {
     /* headers */
-    emit.write("/* --- Class Struct Declarations --- */\n")
     for(key in classTable.getKeys()) {
         val sym = classTable.findSymbol(key)!!
         if(sym.type is ClassType) {
@@ -132,7 +131,6 @@ fun classTableEmitShapeDecl(emit: Emit, classTable: SymbolTable, emitted: Mutabl
             classTableEmitShapeDecl(emit, (sym.type as Namespace).table, emitted)
         }
     }
-    emit.write("/* --- Class Struct Definitions --- */\n")
     /* bodies */
     for(key in classTable.getKeys()) {
         val sym = classTable.findSymbol(key)!!
@@ -157,10 +155,7 @@ fun classTableEmitShapeDecl(emit: Emit, classTable: SymbolTable, emitted: Mutabl
 
 /* emit class vtable instances */
 fun classTableEmitVtableInstances(emit: Emit, classTable: SymbolTable) {
-    emit.write("/* --- Class VTable Instances --- */\n")
-    classTableEmitVtableHeaders(emit, classTable)
-    emit.write("\n")
-    classTableEmitVtableBodies(emit, classTable)
+    //classTableEmitVtableBodies(emit, classTable)
 
 }
 

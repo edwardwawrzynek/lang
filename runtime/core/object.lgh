@@ -1,0 +1,10 @@
+/* class Object header */
+declare_proto {
+	class Object {
+		fn destruct {}
+		fn construct {}
+		fn to_hash -> long {}
+		fn to_string -> string {}
+		fn _op_equals (other: Object) -> bool {}
+	}
+}

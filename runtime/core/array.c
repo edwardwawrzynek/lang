@@ -36,6 +36,16 @@ _lang_array * _lang_make_string(char * msg) {
     return res;
 }
 
+/* convert a []char into a cstring. String must later be freed with _lang_gc_free_internal */
+char * _lang_char_array_to_string(_lang_array * array) {
+	assert(array->elem_size == 1);
+	char * res = _lang_gc_alloc_internal(array->len + 1);
+	memcpy(res, array->vals, array->len);
+	res[array->len] = '\0';
+
+	return res;
+}
+
 /* combine two arrays */
 _lang_array * _lang_array_cat(_lang_array * a0, _lang_array * a1, bool is_pointer) {
 	assert(a0->elem_size == a1->elem_size);

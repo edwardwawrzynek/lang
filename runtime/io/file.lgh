@@ -1,0 +1,23 @@
+declare_proto {
+	namespace io {
+		class File: Object {
+			_cfile: Object
+
+			fn construct(path: string, mode: string) {}
+			fn destruct() {}
+
+			fn putc(c: char) {}
+			fn print(s: string) {}
+			fn println(s: string) {}
+
+			fn getc -> char => ' '
+			fn read(len: long) -> string => "hello"
+			fn readln -> string => "hello\n"
+
+			fn flush {}
+			fn close {}
+
+			fn to_string -> string => "File"
+		}
+	}
+}

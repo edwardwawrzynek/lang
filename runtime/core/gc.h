@@ -28,7 +28,11 @@ struct _lang_gc_desk {
 
 };
 
-/* Core functions (see core.c) */
+/* Allocate memory for use by program */
 void * _lang_gc_alloc(size_t);
+/* Allocate memory for use by c method, sets a basic gc_desk */
+void * _lang_gc_alloc_internal(size_t);
+/* Free memory alloc'd by _lang_gc_alloc_internal */
+void _lang_gc_free_internal(void * data);
 
 #endif

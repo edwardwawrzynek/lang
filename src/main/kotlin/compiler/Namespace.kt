@@ -95,6 +95,7 @@ class Namespace (val parent: Namespace?, val name: String, val table: SymbolTabl
                 compilerError("type of arg ($rtyp) doesn't match expected type of $etyp", arg.loc)
             }
         }
+        emit.write(")")
 
         return ftyp.return_type!!
     }

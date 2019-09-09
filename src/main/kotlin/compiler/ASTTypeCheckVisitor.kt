@@ -153,13 +153,17 @@ class ASTTypeCheckVisitor {
         emit.write("((struct __Object *)_obj)->_vtable = (struct __Object_vtable *)&${(cls.type as ClassType).getName(emit)}_vtable_inst;\n")
 
         /* TODO: class inline var initialization and gc_desk */
-        emit.write("${(cls.type as ClassType).getName(emit)}_construct(_obj")
+        /* find implementor for class constructor method */
+        val impl_cls = (cls.type as ClassType).findImplementorMethod("construct", cls.type as ClassType) ?: error("can't find constructor implementation for class ${cls.type.getTypeName()}")
+        emit.write("${(impl_cls as ClassType).getName(emit)}_construct(_obj")
 
         for (i in 0.until(func_type.args.size)) {
             emit.write(", ")
             emit.write(" arg$i")
         }
         emit.write(");\nreturn _obj;\n}\n\n")
+        /* emit vtable body */
+        (cls.type as ClassType).emitVtableInstance(emit)
     }
 
     fun emitExprImplicitConvert(emit: Emit, to_type: Type, init_val: ASTExpr, namespace: Namespace, scope: ASTNodeArray<ASTNode>): Type{
@@ -656,7 +660,7 @@ class ASTTypeCheckVisitor {
     }
 
     fun emitMainFunc(scope: ASTNodeArray<ASTNode>, namespace: Namespace, emit: Emit){
-        emit.write("int main (int argc, char **argv) {\n")
+        emit.write("int main (int argc, char **argv) {\n_lang_init();\n")
         for(glb in global_var_inits){
             val sym = glb.scope.scope.findSymbol(glb.ast.name)
             if(sym == null){

@@ -35,4 +35,6 @@ typedef struct {
 
 extern void * _lang_temp_this;
 
+void _lang_init();
+
 #endif

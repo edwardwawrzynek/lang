@@ -33,12 +33,10 @@ object Main {
         val type_visitor =  ASTTypeCheckVisitor()
         val ast_visitor = ASTSymbolConstructVisitor()
 
-        emit.write("/* --- Function Headers --- */\n")
         ast_visitor.visitASTNodeArray(program, null, null, classTable, Namespace(null, "", program.scope), emit)
 
         classTableEmitVtableInstances(emit, classTable)
-
-        emit.write("/* --- Program Body --- */\n")
+        
 
         type_visitor.visitASTNodeArray(program, Namespace(null, "", program.scope), emit)
         type_visitor.emitMainFunc(program, Namespace(null, "", program.scope), emit)

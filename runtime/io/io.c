@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include "core/core.h"
 #include "io/io.h"
+#include "io/file.h"
 /* Input/Output functions */
 
-/* Print a string to stdout */
+void _lang_io_init() {
+	_lang_io_stdstreams_init();
+}
+
+/*
 void __print(void * _data, _lang_array * msg) {
     fwrite((char *)(msg->vals), 1, msg->len, stdout);
 }
@@ -16,10 +21,8 @@ void __printNumber(void * _data, long n) {
 	printf("%li", n);
 }
 
-/* TODO: variable length */
 char buf[256];
 
-/* read a line from stdin */
 _lang_array * __readLine(void * _data) {
 	_lang_array * res = _lang_gc_alloc(sizeof(_lang_array));
 
@@ -40,3 +43,4 @@ _lang_array * __readLine(void * _data) {
 
 	return res;
 }
+*/

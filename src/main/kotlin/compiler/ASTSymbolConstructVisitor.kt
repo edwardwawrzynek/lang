@@ -145,7 +145,6 @@ class ASTSymbolConstructVisitor {
             storage = Symbol.StorageType.CLASSVAR
         } else {
             if(fun_ast == null){
-
                 storage = Symbol.StorageType.GLOBAL
             } else {
                 /* TODO: NONLOCAL */
@@ -154,6 +153,22 @@ class ASTSymbolConstructVisitor {
         }
 
         val symbol = Symbol(if(storage==Symbol.StorageType.GLOBAL) "${namespace.getName(ast.name, emit)}" else ast.name, Symbol.fromASTMut(ast.mutable), Type.fromASTType(ast.type, classTable, FunctionType.Binding.fromStorageType(storage), namespace), storage, ast)
+
+        /* add header for global vars */
+        if(storage == Symbol.StorageType.GLOBAL) {
+
+                if (symbol.type is InferredType) {
+                    /* Don't emit header if type isn't explicit */
+                } else {
+                    emit.write("extern ")
+                    if(symbol.mutable == Symbol.Mutability.IMUT) {
+                        emit.write("const ")
+                    }
+                    symbol .type.emitVarTypeDecl(emit)
+                    emit.write(" ${symbol.name};\n")
+                }
+
+        }
 
 
         if(storage == Symbol.StorageType.CLASSVAR){

@@ -15,6 +15,8 @@ typedef struct {
 
 /* Make a lang_array from a c string */
 _lang_array * _lang_make_string(char *);
+/* convert a []char into a cstring. String must later be freed with _lang_gc_free_internal */
+char * _lang_char_array_to_string(_lang_array * array);
 
 /* make an empty array */
 _lang_array * _lang_array_make_empty(bool is_pointer, size_t elem_size);

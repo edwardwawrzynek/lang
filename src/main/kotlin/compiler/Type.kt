@@ -128,7 +128,9 @@ open class Type {
             val sym = classTable.findSymbolByNamespaceName(namespace, name)
             if (sym == null) {
                 if (namespace.parent == null) {
-                    return null
+                    /* try class table, and fail if not there */
+                    val global_sym = classTable.findSymbol(name)
+                    return global_sym
                 } else {
                     return searchUpNamespaces(name, namespace.parent)
                 }
@@ -245,6 +247,8 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
 
         /* emit vtable header */
         emit.write("struct ${getName(emit)}_vtable;\n")
+        /* emit vtable implementation header */
+        emitVtableInstanceHeader(emit)
     }
 
     fun emitShapeDecl (emit: Emit) {

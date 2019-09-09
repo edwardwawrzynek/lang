@@ -1,94 +1,69 @@
-/*
-declare_proto {
+/*declare_proto {
     fn print(msg: string) -> void {}
     fn putc(c: char) -> void {}
     fn printNumber(n: long) -> void {}
     fn readLine -> string {}
+}*/
+
+declare_proto {
+	class Object {
+		fn construct {}
+		fn destruct {}
+		fn to_hash -> long {}
+		fn to_string -> string {}
+		fn _op_equals (other: Object) -> bool {}
+	}
 }
+/*
 
-class Object {
-	hash: long
-	fn construct () -> void {}
-	fn destruct () -> void {}
-	fn _op_equals (other: Object) -> bool => false
-	fn to_string () -> string => "Object"
-	fn to_hash () -> long => hash
-}
-
-class vec3 {
-	x: double
-	y: double
-	z: double
-
-	fn construct(x: double, y: double, z: double) {
-		this.x = x
-		this.y = y
-		this.z = z
+	class Test: Object {
+		fn construct (i: int) {
+			printNumber(i)
+		}
+		fn to_hash -> long {return 0}
 	}
 
-	fn _op_add(o: vec3) -> vec3
-		=> vec3(x + o.x, y + o.y, z + o.z)
 
-	fn _op_sub(o: vec3) -> vec3
-		=> vec3(x - o.x, y - o.y, z - o.z)
+fn main {
+	a := Object()
+	print(a.to_string())
+	b := Object()
+	if(a != b) print("good") else print("bad")
+	if(a == a) print("good") else print("bad")
+	c := Test(5)
+	print(c.to_string())
 }
+*/
+declare_proto {
+	namespace io {
+		class File: Object {
+			_cfile: Object
 
-namespace pkg_cont {
-	class contTest {
-		a: int
+			fn construct(path: string, mode: string) {}
+			fn destruct() {}
 
-		fn construct(a: int) {
-			this.a = a
-		}
-	}
+			fn putc(c: char) {}
+			fn print(s: string) {}
+			fn println(s: string) {}
 
-	namespace pkg {
+			fn getc -> char => ' '
+			fn read(len: long) -> string => "hello"
+			fn readln -> string => "hello\n"
 
-		class Test: Object {
-			a: int
+			fn flush {}
+			fn close {}
 
-			fn construct(a: int) {
-				this.a = a
-			}
-
-			fn getA -> int => a
-
-			fn setA (a: int) -> int => this.a = a
-		}
-
-		a: Test = Test(1)
-		b: contTest = contTest(2)
-
-		fn test {
-			print(a.to_string())
+			fn to_string -> string => "File"
 		}
 
+		val stdout: File
+		val stdin: File
+		val stderr: File
 	}
 }
 
 fn main() {
-	var a: pkg_cont.contTest
-	var b: pkg_cont.pkg.Test
-}
-*/
-
-namespace a {
-	namespace b {
-		var test: int = 7
-
-		class obj {
-			fn construct (a: int) {}
-		}
-	}
-	namespace c {
-		o := a.b.obj(5)
-	}
-}
-
-namespace b {
-	var test: int = 5
-}
-
-
-fn main {
+	io.stdout.print("Hello, World!")
+	s := io.stdin.read(10)
+	io.stdout.print(s)
 }

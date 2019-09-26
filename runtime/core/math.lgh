@@ -1,0 +1,7 @@
+declare_proto {
+	namespace math {
+		fn sqrt (v: double) -> double {}
+		fn rand -> long {}
+		fn rand_double -> double {}
+	}
+}

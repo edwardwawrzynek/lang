@@ -1,10 +1,3 @@
-/*declare_proto {
-    fn print(msg: string) -> void {}
-    fn putc(c: char) -> void {}
-    fn printNumber(n: long) -> void {}
-    fn readLine -> string {}
-}*/
-
 declare_proto {
 	class Object {
 		fn construct {}
@@ -14,26 +7,7 @@ declare_proto {
 		fn _op_equals (other: Object) -> bool {}
 	}
 }
-/*
 
-	class Test: Object {
-		fn construct (i: int) {
-			printNumber(i)
-		}
-		fn to_hash -> long {return 0}
-	}
-
-
-fn main {
-	a := Object()
-	print(a.to_string())
-	b := Object()
-	if(a != b) print("good") else print("bad")
-	if(a == a) print("good") else print("bad")
-	c := Test(5)
-	print(c.to_string())
-}
-*/
 declare_proto {
 	namespace io {
 		class File: Object {
@@ -47,13 +21,13 @@ declare_proto {
 			fn println(s: string) {}
 
 			fn getc -> char => ' '
-			fn read(len: long) -> string => "hello"
-			fn readln -> string => "hello\n"
+			fn read(len: long) -> string {}
+			fn readln -> string {}
 
 			fn flush {}
 			fn close {}
 
-			fn to_string -> string => "File"
+			fn to_string -> string {}
 		}
 
 		val stdout: File
@@ -62,8 +36,275 @@ declare_proto {
 	}
 }
 
-fn main() {
-	io.stdout.print("Hello, World!")
-	s := io.stdin.read(10)
-	io.stdout.print(s)
+declare_proto {
+	namespace math {
+		fn sqrt (v: double) -> double {}
+		fn rand -> long {}
+		fn rand_double -> double {}
+	}
+}
+
+fn toFloat (i: long) -> float {
+	val f: float = i
+
+	=> f
+}
+
+fn toInt (f: double) -> int {
+	val i: int = f
+
+	=> i
+}
+
+fn toDouble (i: long) -> double {
+	val f: double = i
+
+	=> f
+}
+
+fn toLong (f: double) -> long {
+	val i: long = f
+
+	=> i
+}
+
+
+class vec3: Object {
+	e0, e1, e2: double
+
+	fn construct(e0i: double, e1i: double, e2i: double) {
+		this.e0 = e0i
+		this.e1 = e1i
+		this.e2 = e2i
+	}
+
+	fn x -> double => e0
+	fn y -> double => e1
+	fn z -> double => e2
+
+	fn r -> double => e0
+	fn g -> double => e1
+	fn b -> double => e2
+
+	fn _op_add (other: vec3) -> vec3
+		=> vec3(e0 + other.e0, e1 + other.e1, e2 + other.e2)
+
+	fn _op_sub (other: vec3) -> vec3
+    	=> vec3(e0 - other.e0, e1 - other.e1, e2 - other.e2)
+
+    fn _op_array (i: long) -> double {
+    	if i == 0
+    		=> e0
+    	elsif i == 1
+    		=> e1
+    	elsif i == 2
+    		=> e2
+    	else {
+    		/* TODO: error */
+    		=> 0.0
+    	}
+    }
+
+    fn _op_mul (s: double) -> vec3
+    	=> vec3(e0 * s, e1 * s, e2 * s)
+
+    fn _op_div (s: double) -> vec3
+    	=> vec3(e0 / s, e1 / s, e2 / s)
+
+    fn mul_vec3 (o: vec3) -> vec3
+    	=> vec3(e0 * o.e0, e1 * o.e1, e2 * o.e2)
+
+    fn div_vec3 (o: vec3) -> vec3
+		=> vec3(e0 / o.e0, e1 / o.e1, e2 / o.e2)
+
+    fn squared_length -> double
+    	=> e0 * e0 + e1 * e1 + e2 * e2
+
+    fn length -> double
+    	=> math.sqrt(squared_length())
+
+    fn make_unit_vector -> vec3 {
+    	=> this * (1.0 / length())
+    }
+
+    fn dot (other: vec3) -> double
+    	=> e0 * other.e0 + e1 * other.e1 + e2 * other.e2
+
+    fn cross (o: vec3) -> vec3
+    	=> vec3(e1 * o.e2 - e2 * o.e1,
+				e2 * o.e0 - e0 * o.e2,
+				e0 * o.e1 - e1 * o.e0)
+
+	fn to_string -> string {
+		return "vec3: x: " + e0.to_string() + ", y: " + e1.to_string() + ", z: " + e2.to_string()
+	}
+}
+
+class ray: Object {
+	a: vec3
+	b: vec3
+
+	fn construct(a_v: vec3, b_v: vec3) {
+		a = a_v
+		b = b_v
+	}
+
+	fn origin -> vec3 => a
+	fn direction -> vec3 => b
+	fn point_at_parameter (t: double) -> vec3
+		=> a + (b * t)
+}
+
+class hit_record: Object {
+	t: double
+	p, normal: vec3
+	fn construct(t: double, p: vec3, normal: vec3) {
+		this.p = p
+		this.t = t
+		this.normal = normal
+	}
+}
+
+class hittable: Object {
+	fn construct () -> void {
+
+	}
+
+	fn hit (r: ray, t_min: double, t_max: double, rec: hit_record) -> bool => false
+}
+
+class sphere: hittable {
+	center: vec3
+	radius: double
+
+	fn construct (cen: vec3, r: double) {
+		center = cen
+		radius = r
+	}
+
+	fn hit (r: ray, t_min: double, t_max: double, rec: hit_record) -> bool {
+		oc := r.origin() - center
+		a := r.direction().dot(r.direction())
+		b := oc.dot(r.direction())
+		c := oc.dot(oc) - radius * radius
+		discriminant := b*b - a*c
+
+		if discriminant > 0 {
+			temp := (-b - math.sqrt(discriminant)) / a
+			if temp < t_max && temp > t_min {
+				rec.t = temp
+				rec.p = r.point_at_parameter(rec.t)
+				rec.normal = (rec.p - center) / radius
+				=> true
+			}
+			temp = (-b + math.sqrt(discriminant)) / a
+			if temp < t_max && temp > t_min {
+				rec.t = temp
+				rec.p = r.point_at_parameter(rec.t)
+				rec.normal = (rec.p - center) / radius
+				=> true
+			}
+		}
+
+		=> false
+	}
+}
+
+class hittable_list: hittable {
+	list: []hittable
+
+	fn construct(objs: []hittable) {
+		list = objs
+	}
+
+	fn hit (r: ray, t_min: double, t_max: double, rec: hit_record) -> bool {
+    	hit := false
+    	closest := t_max
+
+    	for i := 0, i < list.len, i++ {
+    		if list[i].hit(r, t_min, closest, rec) {
+    			hit = true
+    			closest = rec.t
+    		}
+    	}
+
+    	=> hit
+    }
+}
+
+class camera: Object {
+	origin, lower_left_corner, horizontal, vertical: vec3
+
+	fn construct() {
+		lower_left_corner = vec3(-2.0, -1.0, -1.0)
+		horizontal = vec3(4.0, 0.0, 0.0)
+		vertical = vec3(0.0, 2.0, 0.0)
+		origin = vec3(0.0, 0.0, 0.0)
+	}
+
+	fn get_ray(u: double, v: double) -> ray
+		=> ray(origin, lower_left_corner + horizontal*u + vertical*v - origin)
+}
+
+fn random_in_unit_sphere -> vec3 {
+	p: vec3
+
+	do {
+		p = vec3(math.rand_double(),math.rand_double(),math.rand_double()) * 0.5 - vec3(1,1,1)
+	} while (p.squared_length() >= 1.0)
+	=> p
+}
+
+fn color (r: ray, world: hittable) -> vec3 {
+	rec := hit_record(0.0, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0))
+	if world.hit(r, 0.0, 1000.0, rec) {
+	/*
+		target := rec.p + rec.normal + random_in_unit_sphere()
+		=> color(ray(rec.p, target - rec.p), world) * 0.5
+	*/
+		=> vec3(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1)*0.5
+	} else {
+		unit_dir := r.direction().make_unit_vector()
+		t := 0.5*(unit_dir.y() + 1.0)
+		=> vec3(1.0, 1.0, 1.0) * (1.0 - t) + vec3(0.5, 0.7, 1.0) * t
+	}
+}
+
+fn main {
+	nx := 800
+	ny := 400
+	ns := 10
+
+	io.stdout.print("P3\n" + nx.to_string() + " " + ny.to_string() + "\n255\n")
+
+	objs: []hittable
+	objs <<= sphere(vec3(0,0,-1), 0.5)
+	objs <<= sphere(vec3(0,-100.5,-1), 100)
+
+	world := hittable_list(objs)
+
+	cam := camera()
+
+	for j := ny - 1, j >= 0, j-- {
+		for i := 0, i < nx, i++ {
+
+			col := vec3(0, 0, 0)
+
+			for s := 0, s < ns, s++ {
+				u := (toDouble(i) + math.rand_double()) / toDouble(nx)
+				v := (toDouble(j) + math.rand_double()) / toDouble(ny)
+				r := cam.get_ray(u, v)
+				col += color(r, world)
+			}
+
+			col /= toDouble(ns)
+
+			col *= 255.99
+			ir := toInt(col.r())
+			ig := toInt(col.g())
+			ib := toInt(col.b())
+
+			io.stdout.print(ir.to_string() + " " + ig.to_string()  + " " + ib.to_string()  + "\n")
+		}
+	}
 }

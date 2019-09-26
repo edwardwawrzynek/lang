@@ -2,7 +2,7 @@ TARGET = out
 
 CC = gcc
 CFLAGS = -g -Wall -I ../runtime/
-LDFLAGS = -llangruntime -L../runtime/
+LDFLAGS = -llangruntime -L../runtime/ -lm
 
 OBJS = out.o
 DEPS =

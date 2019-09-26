@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <stdio.h>
 
 /* is_pointer is needed for garbage collection */
 static _lang_array * _lang_array_new(bool is_pointer, size_t elem_size) {
@@ -144,6 +145,35 @@ _lang_array * _lang_array_remove_at(_lang_array * a, size_t pos, bool is_pointer
 
 	res->vals = body;
 	res->len = a->len - 1;
+
+	return res;
+}
+
+
+char buffer[256];
+
+/* convert number to string */
+_lang_array * _lang_num_to_string(long number) {
+	size_t len = snprintf(buffer, 255, "%ld", number);
+	_lang_array * res = _lang_array_new(false, sizeof(char));
+	char * str = _lang_gc_alloc(len);
+	memcpy(str, buffer, len);
+
+	res->len = len;
+	res->vals = str;
+
+	return res;
+}
+
+/* convert number to string */
+_lang_array * _lang_float_to_string(double number) {
+	size_t len = snprintf(buffer, 255, "%lf", number);
+	_lang_array * res = _lang_array_new(false, sizeof(char));
+	char * str = _lang_gc_alloc(len);
+	memcpy(str, buffer, len);
+
+	res->len = len;
+	res->vals = str;
 
 	return res;
 }

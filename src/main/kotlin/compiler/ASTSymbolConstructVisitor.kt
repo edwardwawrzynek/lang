@@ -10,6 +10,7 @@ classTable: global table of classes
  */
 
 /* pass to construct symbol tables, and mark variable types (TODO: including finding escaping variables and marking them) */
+/* Also adds virtual function call temp_this locals to functions that need them */
 /* also emits some function headers */
 class ASTSymbolConstructVisitor {
     fun visitASTNodeArray(ast: ASTNodeArray<ASTNode>, fun_ast: ASTNodeArray<ASTNode>?, parent_scope: SymbolTable?, classTable: SymbolTable, namespace: Namespace, emit: Emit) {

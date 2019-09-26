@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-void * _lang_temp_this;
 
 /* Allocate a section of memory
    TODO: actual garbage collection */

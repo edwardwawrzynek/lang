@@ -54,7 +54,7 @@ expr
     |   name=expr '(' args=funcArgsExpr ')'         #funcExpr
     |   varName=expr '[' sub=expr ']'               #arrayExpr
     |   varName=expr op=('++'|'--')                 #postfixExpr
-    |   'fn' varName=funcBody                       #lambdaExpr
+    |   'lb' varName=funcBody                       #lambdaExpr
 
     |   op=('++'|'--') varName=expr                 #prefixExpr
     |   op=('+'|'-') varName=expr                   #prefixExpr

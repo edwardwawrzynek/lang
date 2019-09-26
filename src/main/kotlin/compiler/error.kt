@@ -4,6 +4,7 @@ import ast.ASTFileLocation
 import kotlin.system.exitProcess
 
 var current_id: Int = 0
+var lang_temp_this_level = 0
 
 fun genUniqueId(): Int {
     current_id++

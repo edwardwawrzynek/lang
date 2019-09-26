@@ -5,7 +5,7 @@ import ast.*
 open class Type {
 
     /* create a var of this type */
-    open fun emitVarTypeDecl(emit: Emit) {
+    open fun emitVarTypeDecl(emit: Emit): String {
         emit.write("// emitVarTpe called on Type\n___trigger_error")
         error("emitVarTypeDecl called on Type")
     }
@@ -13,6 +13,10 @@ open class Type {
     open fun emitVarDecl(emit: Emit, name: String) {
         emitVarTypeDecl(emit)
         emit.write(" $name;\n")
+    }
+
+    open fun getName(emit: Emit): String {
+        return getTypeName()
     }
 
     /* get name of type (for builtin array types, func overload names, etc) */
@@ -150,7 +154,7 @@ open class Type {
                  "bool" -> return BooleanType()
                  "char" -> return CharType()
                  else -> {
-                     var symbol: Symbol? = null
+                     var symbol: Symbol?
 
                      if('.' in type) {
                          /* handle scoped namespaces */
@@ -192,7 +196,7 @@ open class Type {
 
 /* type of a var that needs to be infered later */
 class InferredType: Type() {
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         compilerError("Can't emit var type for InferredType", null)
     }
 
@@ -354,8 +358,9 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
         emit.write("}")
     }
 
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("struct $name*")
+        return "struct $name*"
     }
 
     override fun getTypeName(): String {
@@ -363,7 +368,7 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
     }
 
     /* get the properly prefixed name */
-    fun getName(emit: Emit): String {
+    override fun getName(emit: Emit): String {
         return name
     }
 
@@ -473,11 +478,17 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
         }
 
         val root = findRootClass()
-        emit.write("(_lang_temp_this = ")
+        val temp_this_level: Int
+        if(emit !is DummyEmit) {
+            temp_this_level = lang_temp_this_level++
+        } else {
+            temp_this_level = lang_temp_this_level
+        }
+        emit.write("(_lang_temp_this$temp_this_level = ")
         emit.write("(")
         type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
-        emit.write("), ((struct ${implementor.getName(emit)}_vtable *)(((struct ${root.getName(emit)} *)_lang_temp_this)->_vtable))->$name")
-        emit.write("(_lang_temp_this")
+        emit.write("), ((struct ${implementor.getName(emit)}_vtable *)(((struct ${root.getName(emit)} *)_lang_temp_this$temp_this_level)->_vtable))->$name")
+        emit.write("(_lang_temp_this$temp_this_level")
 
         if (func_expr.args.nodes.size > 0) emit.write(", ")
         if(func_expr.args.nodes.size != (sym.type as FunctionType).args.size) {
@@ -521,7 +532,7 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
             ASTExprOp.ExprType.PREFIX_INC -> "_op_preinc"
             ASTExprOp.ExprType.PREFIX_DEC -> "_op_predec"
             ASTExprOp.ExprType.NEGATIVE -> "_op_neg"
-            ASTExprOp.ExprType.ARRAY -> "_op_subscript"
+            ASTExprOp.ExprType.ARRAY -> "_op_array"
             else -> {
                 error("logical ops invalid for op overloading")
             }
@@ -546,6 +557,12 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
         val args = if(ASTExprOp.ExprType.isUnary(op)) mutableListOf<ASTExpr>() else mutableListOf(expr2!!)
         val dummyFunc = ASTFuncCallExpr(expr1.loc!!, ASTExpr(expr1.loc), ASTNodeArray(args))
         return emitFieldCall(func, type_visitor, emit, expr1, dummyFunc, scope, namespace)
+    }
+
+    fun emitGCDeskGenerator(emit: Emit) {
+        emit.write("void _lang_make_gc_desk${getName(emit)} {")
+
+        emit.write("}")
     }
 
 }
@@ -579,12 +596,13 @@ class FunctionType(var return_type: Type?, var args: List<Type>, val binding_typ
         return "FunctionType(return_type=$return_type, args=$args, binding_type=$binding_type)"
     }
 
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         /*if(binding_type != Binding.CLOSURE) {
             println(binding_type)
             error("emitVarTypeDecl called on non closure binded function")
         }*/
-        emit.write("_lang_closure*");
+        emit.write("_lang_closure*")
+        return "_lang_closure*"
     }
 
     override fun emitVarDecl(emit: Emit, name: String) {
@@ -636,9 +654,10 @@ class FunctionType(var return_type: Type?, var args: List<Type>, val binding_typ
 
 /* array type */
 class ArrayType(var type: Type, val length: Int?): Type() {
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         /* TODO: bound checked array (struct for each type of array used) */
         emit.write("_lang_array*")
+        return "_lang_array*"
     }
 
     override fun getTypeName(): String {
@@ -661,7 +680,7 @@ class ArrayType(var type: Type, val length: Int?): Type() {
     }
 
     override fun getCZeroValue(): String {
-        return "_lang_array_make_empty(${type.isPointer()}, sizeof(${type.getTypeName()}))"
+        return "_lang_array_make_empty(${type.isPointer()}, sizeof(${type.emitVarTypeDecl(DummyEmit())}))"
     }
 
     override fun canImplicitConvert(other: Type): Boolean {
@@ -760,8 +779,9 @@ class ArrayType(var type: Type, val length: Int?): Type() {
 
 /* primative void type */
 class VoidType: Type() {
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("void")
+        return "void"
     }
 
     override fun getTypeName(): String {
@@ -803,15 +823,17 @@ class NullType: Type() {
         return "null"
     }
 
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("void * ")
+        return "void *"
     }
 }
 
 /* primative boolean type */
 class BooleanType: Type() {
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("bool")
+        return "bool"
     }
 
     override fun getTypeName(): String {
@@ -838,8 +860,9 @@ class BooleanType: Type() {
 
 open class NumberType: Type() {
     /* not really long, but long by default if not cast to anything */
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("long")
+        return "long"
     }
 
     override fun getTypeName(): String {
@@ -922,12 +945,32 @@ open class NumberType: Type() {
             return if(op == ASTExprOp.ExprType.EQ) BooleanType() else (if(typ1 is FloatingType || typ2 is FloatingType) FloatingType() else NumberType())
         }
     }
+
+    override fun hasFieldCall(name: String): Boolean {
+        return when(name) {
+            "to_string" -> true
+            else -> false
+        }
+    }
+
+    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
+        when(name) {
+            "to_string" -> {
+                emit.write("_lang_num_to_string(")
+                type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
+                emit.write(")")
+                return ArrayType(CharType(), null)
+            }
+            else -> error("no such field call $name")
+        }
+    }
 }
 
 /* primative int type */
 class IntType : NumberType() {
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("int")
+        return "int"
     }
 
     override fun getTypeName(): String {
@@ -941,8 +984,9 @@ class IntType : NumberType() {
 }
 
 class LongType: NumberType(){
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("long")
+        return "long"
     }
 
     override fun getTypeName(): String {
@@ -955,8 +999,9 @@ class LongType: NumberType(){
 }
 
 class CharType: NumberType() {
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("char")
+        return "char"
     }
 
     override fun getTypeName(): String {
@@ -974,8 +1019,9 @@ class CharType: NumberType() {
 
 open class FloatingType: NumberType() {
 
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("double")
+        return "double"
     }
 
     override fun getTypeName(): String {
@@ -989,12 +1035,25 @@ open class FloatingType: NumberType() {
     override fun equals(other: Any?): Boolean {
         return other is FloatingType
     }
+
+    override fun emitFieldCall(name: String, type_visitor: ASTTypeCheckVisitor, emit: Emit, access_expr: ASTExpr, func_expr: ASTFuncCallExpr, scope: ASTNodeArray<ASTNode>, namespace: Namespace): Type {
+        when(name) {
+            "to_string" -> {
+                emit.write("_lang_float_to_string(")
+                type_visitor.visitASTExpr(access_expr, scope, namespace, emit)
+                emit.write(")")
+                return ArrayType(CharType(), null)
+            }
+            else -> error("no such field call $name")
+        }
+    }
 }
 
 class FloatType: FloatingType() {
 
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("float")
+        return "float"
     }
 
     override fun getTypeName(): String {
@@ -1008,8 +1067,9 @@ class FloatType: FloatingType() {
 
 class DoubleType: FloatingType() {
 
-    override fun emitVarTypeDecl(emit: Emit) {
+    override fun emitVarTypeDecl(emit: Emit): String {
         emit.write("double")
+        return "double"
     }
 
     override fun getTypeName(): String {

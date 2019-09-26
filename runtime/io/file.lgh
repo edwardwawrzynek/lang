@@ -11,13 +11,17 @@ declare_proto {
 			fn println(s: string) {}
 
 			fn getc -> char => ' '
-			fn read(len: long) -> string => "hello"
-			fn readln -> string => "hello\n"
+			fn read(len: long) -> string {}
+			fn readln -> string {}
 
 			fn flush {}
 			fn close {}
 
-			fn to_string -> string => "File"
+			fn to_string -> string {}
 		}
+
+		val stdout: File
+		val stdin: File
+		val stderr: File
 	}
 }

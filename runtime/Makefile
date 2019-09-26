@@ -3,8 +3,8 @@ TARGET = liblangruntime.a
 CC = gcc
 CFLAGS = -g -Wall -fPIC -I.
 
-OBJS = core/array.o core/gc.o core/core.o io/io.o core/object.o io/file.o
-DEPS = core/array.h core/gc.h core/core.h io/io.h core/object.h io/file.h
+OBJS = core/array.o core/gc.o core/core.o io/io.o core/object.o io/file.o core/math.o
+DEPS = core/array.h core/gc.h core/core.h io/io.h core/object.h io/file.h core/math.h
 
 .PHONY: all clean
 

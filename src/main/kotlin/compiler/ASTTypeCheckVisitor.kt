@@ -13,8 +13,8 @@ class ASTTypeCheckVisitor {
         //val emit = if(ast.is_proto_decl) DummyEmit() else emitter
         val emit = emitter
         if(ast.is_proto_decl) return
-
         for (i in 0.until(ast.nodes.size)) {
+            lang_temp_this_level = 0
             val node = ast.nodes[i]
             when (node) {
                 is ASTFuncDecl -> visitASTFuncDecl(node, ast, namespace, emit)
@@ -84,7 +84,7 @@ class ASTTypeCheckVisitor {
             }
         }
 
-        emit.write(") {\n")
+        emit.write(") {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;\n")
 
         visitASTNodeArray(ast.body, namespace, emit)
 
@@ -472,10 +472,10 @@ class ASTTypeCheckVisitor {
             return type.emitFieldCall(name, this, emit, access_expr, ast, scope, namespace)
         } else if (ast.func is ASTVarExpr && scope.scope.findSymbol(ast.func.name)?.storage == Symbol.StorageType.CLASSFUNC) {
             val sym = scope.scope.findSymbol(ast.func.name)!!
-            if(!sym.of_class!!.hasFieldCall(sym.name)) {
-                compilerError("type ${sym.of_class} has no method ${sym.name}", ast.func.loc)
+            if(!sym.of_class!!.hasFieldCall(ast.func.name)) {
+                compilerError("type ${sym.of_class} has no method ${ast.func.name}", ast.func.loc)
             }
-            return sym.of_class!!.emitFieldCall(sym.name, this, emit, ImplicitThisExpr(ast.func.loc!!, sym.of_class!!), ast, scope, namespace)
+            return sym.of_class!!.emitFieldCall(ast.func.name, this, emit, ImplicitThisExpr(ast.func.loc!!, sym.of_class!!), ast, scope, namespace)
         } else {
             val left = visitASTExpr(ast.func, scope, namespace, emit)
             if (left !is FunctionType) {

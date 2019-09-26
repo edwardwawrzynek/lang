@@ -38,4 +38,8 @@ _lang_array * _lang_make_array_pointer(size_t, ...);
 
 _lang_array * _lang_array_remove_at(_lang_array * a, size_t pos, bool is_pointer);
 
+/* convert number to string */
+_lang_array * _lang_num_to_string(long number);
+_lang_array * _lang_float_to_string(double number);
+
 #endif

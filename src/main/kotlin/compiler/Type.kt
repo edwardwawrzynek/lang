@@ -296,6 +296,7 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
         emit.write("struct ${getName(emit)}_vtable ${getName(emit)}_vtable_inst = ")
         emitVtableInstanceBody(this, emit)
         emit.write(";\n")
+        emitGCDeskGenerator(emit)
     }
 
     fun emitVtableInstanceHeader(emit: Emit) {
@@ -353,7 +354,7 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
             } else {
                 supervtable = "&${superclass.getName(emit)}_vtable_inst"
             }
-            emit.write("._header = {\n/* TODO: gc_desk */\n.parent_vtable = $supervtable,\n},\n")
+            emit.write("._header = {\n.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},\n.parent_vtable = $supervtable,\n},\n")
         }
         emit.write("}")
     }
@@ -560,9 +561,27 @@ class ClassType(var name: String, var shortName: String, var table: SymbolTable,
     }
 
     fun emitGCDeskGenerator(emit: Emit) {
-        emit.write("void _lang_make_gc_desk${getName(emit)} {")
+        emit.write("void _lang_make_gc_desk${getName(emit)}() {\n")
+        emit.write("((struct _lang_vtable_head*)(&${getName(emit)}_vtable_inst))->gc.size = sizeof(struct ${getName(emit)});\n")
+        emit.write("((struct _lang_vtable_head*)(&${getName(emit)}_vtable_inst))->gc.type = OBJECT;\n")
+        emit.write("bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct ${getName(emit)})/sizeof(void *));\n")
+        emit.write("((struct _lang_vtable_head*)(&${getName(emit)}_vtable_inst))->gc.is_pointer = is_pointer;")
+        emitGCFields(this, emit)
+        emit.write("}\n\n")
+    }
 
-        emit.write("}")
+    private fun emitGCFields(type: ClassType, emit: Emit) {
+        val table = type.table
+        for(sym in table.table) {
+            if(sym.value.type !is FunctionType || (sym.value.type as FunctionType).binding_type != FunctionType.Binding.CLASS) {
+                if(sym.value.type.isPointer()) {
+                    emit.write("is_pointer[offsetof(struct ${type.getName(emit)}, ${sym.value.name})/sizeof(void *)] = 1;\n")
+                }
+            }
+        }
+        if(type.superclass != null) {
+            emitGCFields(type.superclass as ClassType, emit)
+        }
     }
 
 }

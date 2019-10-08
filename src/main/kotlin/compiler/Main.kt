@@ -35,11 +35,11 @@ object Main {
 
         ast_visitor.visitASTNodeArray(program, null, null, classTable, Namespace(null, "", program.scope), emit)
 
-        classTableEmitVtableInstances(emit, classTable)
+        //classTableEmitVtableInstances(emit, classTable)
         
 
         type_visitor.visitASTNodeArray(program, Namespace(null, "", program.scope), emit)
-        type_visitor.emitMainFunc(program, Namespace(null, "", program.scope), emit)
+        type_visitor.emitMainFunc(program, Namespace(null, "", program.scope), classTable, emit)
         emit.close()
 
     }

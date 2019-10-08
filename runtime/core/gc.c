@@ -10,6 +10,13 @@ void * _lang_gc_alloc(size_t size){
 }
 
 /**
+ * Allocate memory to be used as part of an object's garbage collection description
+ * Should never be collected (nor freed) */
+ void * _lang_gc_calloc_gc_desk_space(size_t size) {
+ 	return calloc(size, 1);
+ }
+
+/**
  * Used by internal lang methods to get memory that will be thrown away before we hit
  * lang_gc_alloc
  * Must be freed explicitly with _lang_gc_free_internal */

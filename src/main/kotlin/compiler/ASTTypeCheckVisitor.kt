@@ -155,7 +155,7 @@ class ASTTypeCheckVisitor {
         /* TODO: class inline var initialization and gc_desk */
         /* find implementor for class constructor method */
         val impl_cls = (cls.type as ClassType).findImplementorMethod("construct", cls.type as ClassType) ?: error("can't find constructor implementation for class ${cls.type.getTypeName()}")
-        emit.write("${(impl_cls as ClassType).getName(emit)}_construct(_obj")
+        emit.write("${impl_cls.getName(emit)}_construct(_obj")
 
         for (i in 0.until(func_type.args.size)) {
             emit.write(", ")
@@ -659,8 +659,19 @@ class ASTTypeCheckVisitor {
         emit.write("continue;\n")
     }
 
-    fun emitMainFunc(scope: ASTNodeArray<ASTNode>, namespace: Namespace, emit: Emit){
+    private fun emitClassGCGen(table: SymbolTable, emit: Emit) {
+        for(sym in table.table) {
+            if(sym.value.type is ClassType) {
+                emit.write("_lang_make_gc_desk${sym.value.type.getName(emit)}();\n")
+            } else if(sym.value.type is Namespace) {
+                emitClassGCGen((sym.value.type as Namespace).table, emit)
+            }
+        }
+    }
+
+    fun emitMainFunc(scope: ASTNodeArray<ASTNode>, namespace: Namespace, classTable: SymbolTable, emit: Emit){
         emit.write("int main (int argc, char **argv) {\n_lang_init();\n")
+        emitClassGCGen(classTable, emit)
         for(glb in global_var_inits){
             val sym = glb.scope.scope.findSymbol(glb.ast.name)
             if(sym == null){

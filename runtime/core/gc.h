@@ -16,15 +16,13 @@ enum _lang_gc_type {
 };
 
 struct _lang_gc_desk {
-    /* TODO */
-    /* Notes:
-        - We can probably assume pointers will all be the same size and have the same alignment
-        - Structs with pointers will probably have the same alignment as each other, desc may just be on pointer size level
-            - Objects of ending with data smaller pointer size (ex. 16 bit int) may present difficulties
-                - A length flag may solve this
-                    - gc_malloc will probably have to return slots aligned to machine word size values (or just hard 64 bits), so length may not be an issue - object size is based on pointer-size dec
-        - Array type structs may not need gc_desk themselves, pointers to them can just be of a signle type (problem: array structs as roots, add_root or similair will probably have to specify type, may complicate)
-    */
+    /* Type of object */
+    enum _lang_gc_type type;
+    /* array of booleans indicating if each pointer aligned value in the object is data or a pointer */
+    /* this only matters for type OBJECT (and CLOSURE?) - the rest are defined by other elements */
+    bool * is_pointer;
+    /* size of the object (applicable only to OBJECT) in bytes. Length of is_pointer is size/sizeof(void *)*/
+	size_t size;
 
 };
 
@@ -34,5 +32,7 @@ void * _lang_gc_alloc(size_t);
 void * _lang_gc_alloc_internal(size_t);
 /* Free memory alloc'd by _lang_gc_alloc_internal */
 void _lang_gc_free_internal(void * data);
+/* Allocate space for gc descriptions (never freed/collected) */
+void * _lang_gc_calloc_gc_desk_space(size_t size);
 
 #endif

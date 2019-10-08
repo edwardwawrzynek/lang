@@ -3,7 +3,6 @@
 /**
  * class Object implementation
  * generated and modified by compiler
- * TODO: garbage collection description
  */
 
 struct __Object_vtable __Object_vtable_inst = {
@@ -12,10 +11,18 @@ struct __Object_vtable __Object_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__Object_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = NULL,
 },
 };
+
+void _lang_make_gc_desk__Object() {
+((struct _lang_vtable_head*)(&__Object_vtable_inst))->gc.size = sizeof(struct __Object);
+((struct _lang_vtable_head*)(&__Object_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __Object)/sizeof(void *));
+((struct _lang_vtable_head*)(&__Object_vtable_inst))->gc.is_pointer = is_pointer;
+}
+
 
 void __Object_construct(void *_data) {
 	/* nothing to do */

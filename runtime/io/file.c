@@ -122,8 +122,15 @@ struct __io__File_vtable __io__File_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__io__File_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__Object_vtable_inst,
 },
 },
 };
+
+void _lang_make_gc_desk__io__File() {
+((struct _lang_vtable_head*)(&__io__File_vtable_inst))->gc.size = sizeof(struct __io__File);
+((struct _lang_vtable_head*)(&__io__File_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __io__File)/sizeof(void *));
+((struct _lang_vtable_head*)(&__io__File_vtable_inst))->gc.is_pointer = is_pointer;is_pointer[offsetof(struct __io__File, _cfile)/sizeof(void *)] = 1;
+}

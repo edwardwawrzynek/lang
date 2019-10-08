@@ -152,31 +152,3 @@ fun classTableEmitShapeDecl(emit: Emit, classTable: SymbolTable, emitted: Mutabl
     }
 
 }
-
-/* emit class vtable instances */
-fun classTableEmitVtableInstances(emit: Emit, classTable: SymbolTable) {
-    //classTableEmitVtableBodies(emit, classTable)
-
-}
-
-fun classTableEmitVtableHeaders(emit: Emit, classTable: SymbolTable) {
-    for(key in classTable.getKeys()) {
-        val sym = classTable.findSymbol(key)!!
-        if(sym.type is ClassType) {
-            (sym.type as ClassType).emitVtableInstanceHeader(emit)
-        } else if(sym.type is Namespace) {
-            classTableEmitVtableHeaders(emit, (sym.type as Namespace).table)
-        }
-    }
-}
-
-fun classTableEmitVtableBodies(emit: Emit, classTable: SymbolTable) {
-    for(key in classTable.getKeys()) {
-        val sym = classTable.findSymbol(key)!!
-        if(sym.type is ClassType) {
-            (sym.type as ClassType).emitVtableInstance(emit)
-        } else if(sym.type is Namespace) {
-            classTableEmitVtableBodies(emit, (sym.type as Namespace).table)
-        }
-    }
-}

@@ -358,11 +358,17 @@ struct __vec3_vtable __vec3_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__vec3_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__Object_vtable_inst,
 },
 },
 };
+void _lang_make_gc_desk__vec3() {
+((struct _lang_vtable_head*)(&__vec3_vtable_inst))->gc.size = sizeof(struct __vec3);
+((struct _lang_vtable_head*)(&__vec3_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __vec3)/sizeof(void *));
+((struct _lang_vtable_head*)(&__vec3_vtable_inst))->gc.is_pointer = is_pointer;}
+
 void __ray_construct(void *_data, struct __vec3* a_v, struct __vec3* b_v) {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;
 ((((struct __ray*)_data)))->a = (struct __vec3*)(a_v);
 ((((struct __ray*)_data)))->b = (struct __vec3*)(b_v);
@@ -397,11 +403,19 @@ struct __ray_vtable __ray_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__Object_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__Object_vtable_inst,
 },
 },
 };
+void _lang_make_gc_desk__ray() {
+((struct _lang_vtable_head*)(&__ray_vtable_inst))->gc.size = sizeof(struct __ray);
+((struct _lang_vtable_head*)(&__ray_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __ray)/sizeof(void *));
+((struct _lang_vtable_head*)(&__ray_vtable_inst))->gc.is_pointer = is_pointer;is_pointer[offsetof(struct __ray, a)/sizeof(void *)] = 1;
+is_pointer[offsetof(struct __ray, b)/sizeof(void *)] = 1;
+}
+
 void __hit_record_construct(void *_data, double t, struct __vec3* p, struct __vec3* normal) {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;
 ((((struct __hit_record*)_data)))->p = (struct __vec3*)(p);
 ((((struct __hit_record*)_data)))->t = (double)(t);
@@ -422,11 +436,19 @@ struct __hit_record_vtable __hit_record_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__Object_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__Object_vtable_inst,
 },
 },
 };
+void _lang_make_gc_desk__hit_record() {
+((struct _lang_vtable_head*)(&__hit_record_vtable_inst))->gc.size = sizeof(struct __hit_record);
+((struct _lang_vtable_head*)(&__hit_record_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __hit_record)/sizeof(void *));
+((struct _lang_vtable_head*)(&__hit_record_vtable_inst))->gc.is_pointer = is_pointer;is_pointer[offsetof(struct __hit_record, p)/sizeof(void *)] = 1;
+is_pointer[offsetof(struct __hit_record, normal)/sizeof(void *)] = 1;
+}
+
 void __hittable_construct(void *_data) {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;
 }
 
@@ -449,11 +471,17 @@ struct __hittable_vtable __hittable_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__Object_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__Object_vtable_inst,
 },
 },
 };
+void _lang_make_gc_desk__hittable() {
+((struct _lang_vtable_head*)(&__hittable_vtable_inst))->gc.size = sizeof(struct __hittable);
+((struct _lang_vtable_head*)(&__hittable_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __hittable)/sizeof(void *));
+((struct _lang_vtable_head*)(&__hittable_vtable_inst))->gc.is_pointer = is_pointer;}
+
 void __sphere_construct(void *_data, struct __vec3* cen, double r) {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;
 ((((struct __sphere*)_data)))->center = (struct __vec3*)(cen);
 ((((struct __sphere*)_data)))->radius = (double)(r);
@@ -500,12 +528,19 @@ struct __sphere_vtable __sphere_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__Object_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__hittable_vtable_inst,
 },
 },
 },
 };
+void _lang_make_gc_desk__sphere() {
+((struct _lang_vtable_head*)(&__sphere_vtable_inst))->gc.size = sizeof(struct __sphere);
+((struct _lang_vtable_head*)(&__sphere_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __sphere)/sizeof(void *));
+((struct _lang_vtable_head*)(&__sphere_vtable_inst))->gc.is_pointer = is_pointer;is_pointer[offsetof(struct __sphere, center)/sizeof(void *)] = 1;
+}
+
 void __hittable_list_construct(void *_data, _lang_array* objs) {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;
 ((((struct __hittable_list*)_data)))->list = (_lang_array*)(objs);
 }
@@ -539,12 +574,19 @@ struct __hittable_list_vtable __hittable_list_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__Object_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__hittable_vtable_inst,
 },
 },
 },
 };
+void _lang_make_gc_desk__hittable_list() {
+((struct _lang_vtable_head*)(&__hittable_list_vtable_inst))->gc.size = sizeof(struct __hittable_list);
+((struct _lang_vtable_head*)(&__hittable_list_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __hittable_list)/sizeof(void *));
+((struct _lang_vtable_head*)(&__hittable_list_vtable_inst))->gc.is_pointer = is_pointer;is_pointer[offsetof(struct __hittable_list, list)/sizeof(void *)] = 1;
+}
+
 void __camera_construct(void *_data) {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;
 ((((struct __camera*)_data)))->lower_left_corner = (struct __vec3*)(__vec3(NULL, (double)(-2.0), (double)(-1.0), (double)(-1.0)));
 ((((struct __camera*)_data)))->horizontal = (struct __vec3*)(__vec3(NULL, (double)(4.0), (double)(0.0), (double)(0.0)));
@@ -571,11 +613,21 @@ struct __camera_vtable __camera_vtable_inst = {
 .to_hash = &__Object_to_hash,
 .to_string = &__Object_to_string,
 ._header = {
-/* TODO: gc_desk */
+.gc = {.type = OBJECT, .size = 0, .is_pointer = NULL},
 .parent_vtable = &__Object_vtable_inst,
 },
 },
 };
+void _lang_make_gc_desk__camera() {
+((struct _lang_vtable_head*)(&__camera_vtable_inst))->gc.size = sizeof(struct __camera);
+((struct _lang_vtable_head*)(&__camera_vtable_inst))->gc.type = OBJECT;
+bool * is_pointer = _lang_gc_calloc_gc_desk_space(sizeof(struct __camera)/sizeof(void *));
+((struct _lang_vtable_head*)(&__camera_vtable_inst))->gc.is_pointer = is_pointer;is_pointer[offsetof(struct __camera, horizontal)/sizeof(void *)] = 1;
+is_pointer[offsetof(struct __camera, origin)/sizeof(void *)] = 1;
+is_pointer[offsetof(struct __camera, vertical)/sizeof(void *)] = 1;
+is_pointer[offsetof(struct __camera, lower_left_corner)/sizeof(void *)] = 1;
+}
+
 struct __vec3* __random_in_unit_sphere(void *_data) {void *_lang_temp_this0, *_lang_temp_this1, *_lang_temp_this2, *_lang_temp_this3, *_lang_temp_this4, *_lang_temp_this5, *_lang_temp_this6, *_lang_temp_this7, *_lang_temp_this8;
 struct __vec3* p = NULL;
 do {
@@ -630,5 +682,14 @@ int ib = (int)(__toInt(NULL, (double)((_lang_temp_this0 = (col), ((struct __vec3
 
 int main (int argc, char **argv) {
 _lang_init();
+_lang_make_gc_desk__hittable();
+_lang_make_gc_desk__sphere();
+_lang_make_gc_desk__io__File();
+_lang_make_gc_desk__vec3();
+_lang_make_gc_desk__Object();
+_lang_make_gc_desk__hittable_list();
+_lang_make_gc_desk__ray();
+_lang_make_gc_desk__hit_record();
+_lang_make_gc_desk__camera();
 __main(NULL);
 };
